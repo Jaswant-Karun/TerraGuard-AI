@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from typing import Any
 from fastapi import APIRouter, Depends, status
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_role
 from app.core.config import settings
 from app.core.errors import AppException
 from app.core.security import (
@@ -20,6 +20,7 @@ from app.schemas.user import (
     UserLoginRequest,
     UserRegisterRequest,
     UserResponse,
+    UserRole,
 )
 
 router = APIRouter()

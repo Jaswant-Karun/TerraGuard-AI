@@ -5,10 +5,10 @@ from app.repositories.user_repository import UserRepository
 
 
 @pytest.fixture(autouse=True)
-async def clear_db():
-    await UserRepository.clear_all_memory()
+def clear_db():
+    UserRepository._in_memory_users.clear()
     yield
-    await UserRepository.clear_all_memory()
+    UserRepository._in_memory_users.clear()
 
 
 @pytest.mark.asyncio
