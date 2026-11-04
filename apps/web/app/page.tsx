@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
+import { useAuth } from "@/features/auth/AuthContext";
 import {
   ShieldAlert,
   Radio,
@@ -28,6 +30,7 @@ import {
   HeartPulse,
   Building2,
   Factory,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
