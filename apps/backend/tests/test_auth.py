@@ -185,7 +185,7 @@ async def test_refresh_token_and_logout():
                 "password": "CitizenPassword2026!",
             },
         )
-        access_token = login_res.json()["access_token"]
+        assert "access_token" in login_res.json()
         refresh_token = login_res.json()["refresh_token"]
 
         # Refresh token
