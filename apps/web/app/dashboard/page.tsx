@@ -15,16 +15,19 @@ import {
   fetchDashboardNotifications,
   fetchDashboardSummary,
 } from "@/services/dashboard";
+import { fetchCurrentEnvironment } from "@/services/environment";
 import {
   DashboardNotification,
   DashboardSummary,
   LocationOption,
 } from "@/types/dashboard";
+import { CurrentEnvironment } from "@/types/environment";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [liveEnv, setLiveEnv] = useState<CurrentEnvironment | null>(null);
   const [locations, setLocations] = useState<LocationOption[]>([]);
   const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
   const [selectedLocationId, setSelectedLocationId] = useState<string>("ALL_METRO");
@@ -52,6 +55,20 @@ export default function DashboardPage() {
         setSummary(sumRes);
         if (locRes && locRes.length > 0) setLocations(locRes);
         setNotifications(notifRes);
+
+        // Fetch live Open-Meteo & OpenAQ environmental telemetry for the coordinates
+        try {
+          const coords = sumRes.location.coordinates;
+          const liveData = await fetchCurrentEnvironment({
+            lat: coords[1],
+            lng: coords[0],
+            bypassCache: !showFullLoader,
+          });
+          setLiveEnv(liveData);
+        } catch {
+          // If live external API is unreachable, summary fallback handles it cleanly
+          setLiveEnv(null);
+        }
       } catch (err: any) {
         console.error("Dashboard data load error:", err);
         setError(
@@ -176,6 +193,7 @@ export default function DashboardPage() {
             <EnvironmentalStatusCards
               data={summary.environmental_status}
               activeIncidentsCount={summary.active_incidents_count}
+              liveEnv={liveEnv}
             />
 
             {/* 2. Visualizations Row: Risk Trend Chart + Risk Distribution */}

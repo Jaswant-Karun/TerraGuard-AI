@@ -79,3 +79,4 @@ export interface AirQualityDetails {
   retrieved_at: string;
   attribution: string;
 }
+
