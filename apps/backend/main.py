@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
+from app.core.database import db_manager
 from app.core.errors import register_exception_handlers
 from app.core.logging import setup_logging
 from fastapi import FastAPI
@@ -17,7 +18,9 @@ logger = logging.getLogger("terraguard.main")
 async def lifespan(app: FastAPI):
     """Lifecycle hook for startup and shutdown procedures."""
     logger.info(f"Starting {settings.PROJECT_NAME} in [{settings.ENVIRONMENT}] mode")
+    await db_manager.connect()
     yield
+    await db_manager.disconnect()
     logger.info(f"Shutting down {settings.PROJECT_NAME}")
 
 
