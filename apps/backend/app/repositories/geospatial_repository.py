@@ -1,4 +1,3 @@
-import math
 from typing import Any
 
 from app.core.database import db_manager, haversine_distance_meters

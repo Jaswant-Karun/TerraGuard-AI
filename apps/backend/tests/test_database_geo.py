@@ -1,15 +1,12 @@
-from datetime import UTC, datetime
 import pytest
 from httpx import ASGITransport, AsyncClient
 from pydantic import ValidationError
 
-from app.core.database import db_manager, haversine_distance_meters
+from app.core.database import haversine_distance_meters
 from app.core.security import create_access_token
-from app.models.collections import LocationModel
-from app.models.geojson import GeoJSONLineString, GeoJSONPoint, GeoJSONPolygon
+from app.models.geojson import GeoJSONPoint, GeoJSONPolygon
 from app.repositories.base_repository import BaseRepository
 from app.repositories.geospatial_repository import (
-    geospatial_repository,
     point_in_polygon,
     polygon_intersects_polygon,
 )
@@ -316,8 +313,8 @@ async def test_database_stats_telemetry_endpoint():
 @pytest.mark.asyncio
 async def test_create_location_rbac():
     transport = ASGITransport(app=app)
-    # 1. Citizen token (Should receive 403 Forbidden)
-    citizen_token = create_access_token(data={"sub": "user_citizen_123", "role": "CITIZEN"})
+    # 1. Citizen token (Should receive 401 Unauthorized or 403 Forbidden since citizen lacks Coordinator/Admin role)
+    citizen_token = create_access_token(subject="user_citizen_123", role="CITIZEN")
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         res = await ac.post(
             "/api/v1/locations",
@@ -329,5 +326,4 @@ async def test_create_location_rbac():
                 "address": "Unauthorized Way",
             },
         )
-    # Either 403 Forbidden or 401 User Not Found (if sub not in DB)
     assert res.status_code in [401, 403]

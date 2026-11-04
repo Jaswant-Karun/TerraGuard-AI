@@ -1,7 +1,9 @@
 import logging
 import math
 from typing import Any
+
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+
 from app.core.config import settings
 
 logger = logging.getLogger("terraguard.database")

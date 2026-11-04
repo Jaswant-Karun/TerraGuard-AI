@@ -1,4 +1,5 @@
 from typing import Literal
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -27,6 +28,14 @@ class GeoJSONPoint(BaseModel):
             raise ValueError(f"Latitude must be between -90 and 90 degrees. Got {lat}.")
         return v
 
+    @property
+    def longitude(self) -> float:
+        return self.coordinates[0]
+
+    @property
+    def latitude(self) -> float:
+        return self.coordinates[1]
+
 
 class GeoJSONPolygon(BaseModel):
     """
@@ -45,13 +54,11 @@ class GeoJSONPolygon(BaseModel):
         if not v or not v[0]:
             raise ValueError("Polygon must contain at least one linear ring.")
         for ring in v:
-            if len(ring) < 4:
-                raise ValueError("A linear ring must have at least 4 coordinate pairs.")
-            # Check closed ring
+            # Check closed ring; auto-close if needed
             if ring[0] != ring[-1]:
-                raise ValueError(
-                    f"First and last coordinate of linear ring must be equal. Got start={ring[0]}, end={ring[-1]}."
-                )
+                ring.append(ring[0])
+            if len(ring) < 4:
+                raise ValueError("A linear ring must have at least 4 coordinate pairs (including closing pair).")
             for pt in ring:
                 if len(pt) != 2:
                     raise ValueError(f"Each coordinate in ring must be [longitude, latitude]. Got {pt}.")

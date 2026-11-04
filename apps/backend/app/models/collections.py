@@ -1,6 +1,8 @@
 from datetime import UTC, datetime
 from typing import Any, Literal
+
 from pydantic import BaseModel, Field
+
 from app.models.geojson import GeoJSONLineString, GeoJSONPoint, GeoJSONPolygon
 
 

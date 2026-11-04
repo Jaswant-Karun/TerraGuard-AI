@@ -1,4 +1,5 @@
 from typing import Any
+
 from app.models.collections import RiskAssessmentModel
 from app.repositories.base_repository import BaseRepository
 from app.repositories.geospatial_repository import geospatial_repository
