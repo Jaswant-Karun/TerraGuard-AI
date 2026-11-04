@@ -50,12 +50,11 @@ export function AIInsightsFeed({ insights }: Props) {
                   <Badge
                     variant={
                       ins.severity === "CRITICAL"
-                        ? "danger"
+                        ? "critical"
                         : ins.severity === "HIGH"
-                        ? "warning"
-                        : "info"
+                        ? "high"
+                        : "cyan"
                     }
-                    size="sm"
                     className="font-black uppercase"
                   >
                     {ins.severity}

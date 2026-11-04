@@ -24,11 +24,11 @@ export function EnvironmentalStatusCards({ data, activeIncidentsCount }: Props) 
 
   const getAQILabel = (aqi: number | null) => {
     if (aqi === null) return { label: "N/A", variant: "neutral" as const };
-    if (aqi <= 50) return { label: "Good", variant: "success" as const };
-    if (aqi <= 100) return { label: "Moderate", variant: "warning" as const };
-    if (aqi <= 150) return { label: "Unhealthy for Sensitive", variant: "warning" as const };
-    if (aqi <= 200) return { label: "Unhealthy", variant: "danger" as const };
-    return { label: "Hazardous", variant: "danger" as const };
+    if (aqi <= 50) return { label: "Good", variant: "low" as const };
+    if (aqi <= 100) return { label: "Moderate", variant: "moderate" as const };
+    if (aqi <= 150) return { label: "Unhealthy for Sensitive", variant: "high" as const };
+    if (aqi <= 200) return { label: "Unhealthy", variant: "critical" as const };
+    return { label: "Hazardous", variant: "critical" as const };
   };
 
   const getRainfallStatus = (mm: number | null) => {
@@ -54,11 +54,11 @@ export function EnvironmentalStatusCards({ data, activeIncidentsCount }: Props) 
           </span>
           <span className="text-slate-400">|</span>
           <span className="text-slate-500">Source:</span>
-          <Badge variant="outline" size="sm" className="font-bold">
+          <Badge variant="outline" className="font-bold">
             {data.source}
           </Badge>
           {data.is_sample && (
-            <Badge variant="warning" size="sm" className="font-semibold">
+            <Badge variant="moderate" className="font-semibold">
               Calibrated Benchmark
             </Badge>
           )}
@@ -77,7 +77,7 @@ export function EnvironmentalStatusCards({ data, activeIncidentsCount }: Props) 
             </span>
           )}
           {data.anomaly_detected && (
-            <Badge variant="danger" size="sm" className="animate-pulse">
+            <Badge variant="critical" pulse className="font-bold">
               Outlier Spike Detected
             </Badge>
           )}
