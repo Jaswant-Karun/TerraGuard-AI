@@ -119,3 +119,4 @@ export interface DashboardSummary {
   ai_insights: AIInsight[];
   data_disclaimer: string;
 }
+

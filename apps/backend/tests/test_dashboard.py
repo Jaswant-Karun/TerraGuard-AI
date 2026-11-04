@@ -79,3 +79,4 @@ async def test_get_dashboard_notifications():
     assert len(data) >= 1
     assert "title" in data[0]
     assert "severity" in data[0]
+

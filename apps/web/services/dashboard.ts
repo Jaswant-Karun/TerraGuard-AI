@@ -70,3 +70,4 @@ export async function fetchDashboardNotifications(): Promise<DashboardNotificati
 
   return res.json();
 }
+

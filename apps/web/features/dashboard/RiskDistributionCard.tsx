@@ -107,3 +107,4 @@ export function RiskDistributionCard({ data }: Props) {
     </Card>
   );
 }
+

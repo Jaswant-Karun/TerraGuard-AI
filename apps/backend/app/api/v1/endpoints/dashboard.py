@@ -296,3 +296,4 @@ async def get_dashboard_notifications() -> list[DashboardNotificationDTO]:
         )
     )
     return notifications
+

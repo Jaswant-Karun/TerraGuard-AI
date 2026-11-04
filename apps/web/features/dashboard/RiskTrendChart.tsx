@@ -135,3 +135,4 @@ export function RiskTrendChart({ data, timeRange }: Props) {
     </Card>
   );
 }
+
