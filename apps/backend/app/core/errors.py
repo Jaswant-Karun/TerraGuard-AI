@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
+
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -10,12 +11,13 @@ logger = logging.getLogger("terraguard.errors")
 
 class AppException(Exception):
     """Base application exception for TerraGuard AI."""
+
     def __init__(
         self,
         message: str,
         status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR,
         error_code: str = "INTERNAL_SERVER_ERROR",
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ):
         self.message = message
         self.status_code = status_code
@@ -35,7 +37,7 @@ class NotFoundError(AppException):
 
 
 class BadRequestError(AppException):
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(self, message: str, details: dict[str, Any] | None = None):
         super().__init__(
             message=message,
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -58,7 +60,9 @@ def register_exception_handlers(app: FastAPI) -> None:
     """Registers centralized exception handlers for the FastAPI application."""
 
     @app.exception_handler(AppException)
-    async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
+    async def app_exception_handler(
+        request: Request, exc: AppException
+    ) -> JSONResponse:
         logger.warning(
             f"AppException: [{exc.error_code}] {exc.message} - Path: {request.url.path}"
         )
@@ -80,11 +84,13 @@ def register_exception_handlers(app: FastAPI) -> None:
         errors = []
         for err in exc.errors():
             loc = " -> ".join(str(x) for x in err.get("loc", []))
-            errors.append({
-                "field": loc,
-                "message": err.get("msg"),
-                "type": err.get("type"),
-            })
+            errors.append(
+                {
+                    "field": loc,
+                    "message": err.get("msg"),
+                    "type": err.get("type"),
+                }
+            )
 
         logger.warning(f"Validation error on {request.url.path}: {errors}")
         return JSONResponse(
@@ -117,7 +123,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         request: Request, exc: Exception
     ) -> JSONResponse:
         logger.error(
-            f"Unhandled exception on {request.url.path}: {str(exc)}",
+            f"Unhandled exception on {request.url.path}: {exc!s}",
             exc_info=True,
         )
         return JSONResponse(
@@ -129,4 +135,3 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "path": request.url.path,
             },
         )
-

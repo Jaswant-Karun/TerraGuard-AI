@@ -1,11 +1,12 @@
-from contextlib import asynccontextmanager
 import logging
+from contextlib import asynccontextmanager
+
+from app.api.v1.router import api_v1_router
+from app.core.config import settings
+from app.core.errors import register_exception_handlers
+from app.core.logging import setup_logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
-from app.core.logging import setup_logging
-from app.core.errors import register_exception_handlers
-from app.api.v1.router import api_v1_router
 
 # Initialize structured logging
 setup_logging()
@@ -67,5 +68,7 @@ app = create_application()
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host=settings.HOST, port=settings.PORT, reload=settings.DEBUG)
 
+    uvicorn.run(
+        "main:app", host=settings.HOST, port=settings.PORT, reload=settings.DEBUG
+    )

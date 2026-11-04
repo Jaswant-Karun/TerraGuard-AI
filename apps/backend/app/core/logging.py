@@ -1,5 +1,6 @@
 import logging
 import sys
+
 from app.core.config import settings
 
 
@@ -27,4 +28,3 @@ def setup_logging() -> None:
 
     logger = logging.getLogger("terraguard")
     logger.info("Structured logging initialized for TerraGuard AI Backend")
-

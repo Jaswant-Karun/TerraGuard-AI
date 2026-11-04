@@ -1,8 +1,9 @@
 import time
-from datetime import datetime, timezone
-from fastapi import APIRouter, status
+from datetime import UTC, datetime
+
 from app.core.config import settings
 from app.schemas.health import HealthResponse, HealthServicesStatus
+from fastapi import APIRouter, status
 
 router = APIRouter()
 
@@ -23,7 +24,7 @@ async def get_health() -> HealthResponse:
         app_name=settings.PROJECT_NAME,
         version="1.0.0",
         environment=settings.ENVIRONMENT,
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         uptime_seconds=round(uptime, 2),
         services=HealthServicesStatus(
             api="operational",
@@ -39,5 +40,4 @@ async def get_health() -> HealthResponse:
     summary="Kubernetes / Render Readiness Probe",
 )
 async def get_readiness() -> dict:
-    return {"ready": True, "timestamp": datetime.now(timezone.utc).isoformat()}
-
+    return {"ready": True, "timestamp": datetime.now(UTC).isoformat()}
