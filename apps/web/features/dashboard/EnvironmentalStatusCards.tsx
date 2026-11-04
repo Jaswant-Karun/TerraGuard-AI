@@ -151,7 +151,7 @@ export function EnvironmentalStatusCards({ data, activeIncidentsCount }: Props) 
               </span>
               <span className="text-xs font-semibold text-slate-500">AQI</span>
             </div>
-            <Badge variant={aqiInfo.variant} size="sm">
+            <Badge variant={aqiInfo.variant}>
               {aqiInfo.label}
             </Badge>
           </div>

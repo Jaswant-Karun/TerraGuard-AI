@@ -28,13 +28,13 @@ export function RecentReportsList({ reports }: Props) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "VERIFIED":
-        return <Badge variant="success" size="sm">Verified</Badge>;
+        return <Badge variant="low">Verified</Badge>;
       case "DISPATCHED":
-        return <Badge variant="warning" size="sm">Dispatched</Badge>;
+        return <Badge variant="moderate">Dispatched</Badge>;
       case "AI_ANALYZED":
-        return <Badge variant="info" size="sm">AI Analyzed</Badge>;
+        return <Badge variant="cyan">AI Analyzed</Badge>;
       default:
-        return <Badge variant="neutral" size="sm">{status}</Badge>;
+        return <Badge variant="neutral">{status}</Badge>;
     }
   };
 

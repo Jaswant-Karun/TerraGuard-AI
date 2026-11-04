@@ -15,13 +15,13 @@ export function GeographicRiskTable({ zones }: Props) {
   const getRiskBadge = (level: string) => {
     switch (level) {
       case "CRITICAL":
-        return <Badge variant="danger" size="sm" className="font-bold">CRITICAL</Badge>;
+        return <Badge variant="critical" className="font-bold">CRITICAL</Badge>;
       case "HIGH":
-        return <Badge variant="warning" size="sm" className="font-bold">HIGH</Badge>;
+        return <Badge variant="high" className="font-bold">HIGH</Badge>;
       case "MODERATE":
-        return <Badge variant="info" size="sm" className="font-bold">MODERATE</Badge>;
+        return <Badge variant="moderate" className="font-bold">MODERATE</Badge>;
       default:
-        return <Badge variant="success" size="sm" className="font-bold">LOW</Badge>;
+        return <Badge variant="low" className="font-bold">LOW</Badge>;
     }
   };
 

@@ -41,12 +41,11 @@ export function RecentAlertsList({ alerts }: Props) {
                     <Badge
                       variant={
                         al.severity === "CRITICAL"
-                          ? "danger"
+                          ? "critical"
                           : al.severity === "HIGH"
-                          ? "warning"
-                          : "info"
+                          ? "high"
+                          : "cyan"
                       }
-                      size="sm"
                       className="font-bold uppercase text-[9px]"
                     >
                       {al.severity}
