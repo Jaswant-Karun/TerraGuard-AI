@@ -110,7 +110,7 @@ export function LiveRiskMap({
         const maplibregl = (await import("maplibre-gl")).default;
 
         // Verify WebGL availability
-        if (!maplibregl.supported()) {
+        if (typeof window !== "undefined" && (maplibregl as any).supported && !(maplibregl as any).supported()) {
           if (isMounted) setMapError("WebGL is disabled or unsupported on this graphics device.");
           return;
         }
@@ -618,7 +618,7 @@ export function LiveRiskMap({
               setMapError(null);
               window.location.reload();
             }}
-            variant="cyan"
+            variant="primary"
             size="sm"
             className="gap-2 font-bold"
           >
