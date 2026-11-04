@@ -308,6 +308,79 @@ SAMPLE_HISTORICAL_EVENTS = [
 ]
 
 
+# 7. Sample Environmental Telemetry Feeds
+SAMPLE_ENVIRONMENTAL_DATA = [
+    {
+        "station_id": "BLR-IOT-HEBBAL-01",
+        "source": "IOT_STATION",
+        "location": {"type": "Point", "coordinates": [77.5925, 13.0382]},
+        "metrics": {
+            "precipitation_mm": 42.5,
+            "aqi": 88.0,
+            "pm25": 32.1,
+            "pm10": 65.4,
+            "temperature_c": 26.8,
+            "humidity_pct": 82.0,
+            "wind_speed_kmh": 18.5,
+        },
+        "timestamp": datetime.now(UTC),
+        "is_anomaly": False,
+        "metadata": SAMPLE_METADATA,
+    },
+    {
+        "station_id": "BLR-IOT-PEENYA-02",
+        "source": "IOT_STATION",
+        "location": {"type": "Point", "coordinates": [77.5255, 13.0305]},
+        "metrics": {
+            "precipitation_mm": 12.0,
+            "aqi": 185.0,
+            "pm25": 94.2,
+            "pm10": 148.0,
+            "temperature_c": 29.4,
+            "humidity_pct": 58.0,
+            "wind_speed_kmh": 8.2,
+        },
+        "timestamp": datetime.now(UTC),
+        "is_anomaly": True,
+        "metadata": SAMPLE_METADATA,
+    },
+    {
+        "station_id": "BLR-IOT-KORAMANGALA-03",
+        "source": "IOT_STATION",
+        "location": {"type": "Point", "coordinates": [77.6245, 12.9352]},
+        "metrics": {
+            "precipitation_mm": 58.2,
+            "aqi": 72.0,
+            "pm25": 24.0,
+            "pm10": 52.0,
+            "temperature_c": 25.5,
+            "humidity_pct": 89.0,
+            "wind_speed_kmh": 22.0,
+        },
+        "timestamp": datetime.now(UTC),
+        "is_anomaly": False,
+        "metadata": SAMPLE_METADATA,
+    },
+    {
+        "station_id": "BLR-IOT-SILKBOARD-04",
+        "source": "IOT_STATION",
+        "location": {"type": "Point", "coordinates": [77.6245, 12.9180]},
+        "metrics": {
+            "precipitation_mm": 64.0,
+            "aqi": 142.0,
+            "pm25": 68.0,
+            "pm10": 110.0,
+            "temperature_c": 26.0,
+            "humidity_pct": 86.0,
+            "wind_speed_kmh": 15.0,
+        },
+        "timestamp": datetime.now(UTC),
+        "is_anomaly": False,
+        "metadata": SAMPLE_METADATA,
+    },
+]
+
+
 async def seed_dataset(purge_first: bool = False, dry_run: bool = False) -> None:
     print(f"\n🌱 [TerraGuard AI] Database Seeder starting...")
     print(f"   Target Environment: {settings.ENVIRONMENT}")
@@ -412,6 +485,20 @@ async def seed_dataset(purge_first: bool = False, dry_run: bool = False) -> None
             doc_id = route["name"]
             route["id"] = doc_id
             db_manager._collections_data.setdefault("safe_routes", {})[doc_id] = route
+
+    # Seed Environmental Data
+    print(f"📊 Inserting {len(SAMPLE_ENVIRONMENTAL_DATA)} sensor telemetry feeds into 'environmental_data'...")
+    for ed in SAMPLE_ENVIRONMENTAL_DATA:
+        if is_atlas:
+            await db_manager.db["environmental_data"].replace_one(
+                {"station_id": ed["station_id"]},
+                ed,
+                upsert=True,
+            )
+        else:
+            doc_id = ed["station_id"]
+            ed["id"] = doc_id
+            db_manager._collections_data.setdefault("environmental_data", {})[doc_id] = ed
 
     # Seed Historical Events
     print(f"📜 Inserting {len(SAMPLE_HISTORICAL_EVENTS)} historical events into 'historical_events'...")
