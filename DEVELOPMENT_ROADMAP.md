@@ -18,7 +18,7 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 
 ## 2. Phase-by-Phase Roadmap
 
-```
+```text
 +-------------------------------------------------------------------------------------------------------+
 | PHASE 0: Audit & Architecture Foundation (Current Phase)                                             |
 | Deliverables: Full architecture docs, database schema, API contracts, AI spec, roadmap approval.   |

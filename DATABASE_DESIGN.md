@@ -9,7 +9,7 @@
 
 TerraGuard AI leverages MongoDB Atlas as a document-based spatial data engine. Document stores provide the ideal flexible representation for diverse sensor telemetry (varying pollutant parameters, weather attributes) and native GeoJSON specifications (`Point`, `Polygon`, `MultiPolygon`) capable of sub-millisecond `$nearSphere` and `$geoIntersects` queries.
 
-```
+```text
                     +---------------------------+
                     |    MongoDB Atlas Cluster  |
                     |   Database: "terraguard"  |

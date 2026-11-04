@@ -13,7 +13,7 @@ TerraGuard AI is engineered for multi-cloud production resilience:
 - **Automation Engine:** Hosted on **Render** as a dedicated Docker service with an attached **Persistent Disk Volume** running `n8nio/n8n`.
 - **Database:** Hosted on **MongoDB Atlas** with automated automated GeoJSON `2dsphere` indexes, encrypted connections (TLS 1.3), and automated backups.
 
-```
+```text
                       +-----------------------------+
                       |         GitHub Repo         |
                       |  (jaswant-karun/TerraGuard) |

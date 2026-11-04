@@ -53,7 +53,7 @@ TerraGuard AI integrates a hybrid intelligence architecture:
 
 The system feeds image payloads alongside localized context (GPS, address, weather at submission) to Gemini 2.0 with a strict JSON schema contract:
 
-```
+```text
 SYSTEM PROMPT:
 You are TerraGuard Vision Sentinel, an elite disaster assessment AI. Analyze the provided urban hazard photograph and contextual metadata.
 Classify the hazard accurately into: FLOOD, AIR_POLLUTION, FIRE, LANDSLIDE, INFRASTRUCTURE_FAILURE, or OTHER.
