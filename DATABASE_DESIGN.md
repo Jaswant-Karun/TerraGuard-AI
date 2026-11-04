@@ -1,10 +1,12 @@
 # TerraGuard AI — Database Design & Spatial Schema Specification
+
 **Database:** MongoDB Atlas (v7.0+)
 **Spatial Engine:** MongoDB GeoJSON with `2dsphere` Indexing
 
 ---
 
 ## 1. Database Architecture Overview
+
 TerraGuard AI leverages MongoDB Atlas as a document-based spatial data engine. Document stores provide the ideal flexible representation for diverse sensor telemetry (varying pollutant parameters, weather attributes) and native GeoJSON specifications (`Point`, `Polygon`, `MultiPolygon`) capable of sub-millisecond `$nearSphere` and `$geoIntersects` queries.
 
 ```
@@ -27,6 +29,7 @@ TerraGuard AI leverages MongoDB Atlas as a document-based spatial data engine. D
 ## 2. Collections & Document Schemas
 
 ### 2.1 Collection: `incidents`
+
 Stores all hazard reports submitted by citizens, automated sensor alerts, and triage response stages.
 
 ```json
@@ -69,7 +72,8 @@ Stores all hazard reports submitted by citizens, automated sensor alerts, and tr
 }
 ```
 
-#### Enums & Allowed Values:
+#### Enums & Allowed Values
+
 - **`category`**: `FLOOD`, `AIR_POLLUTION`, `FIRE`, `LANDSLIDE`, `INFRASTRUCTURE_FAILURE`, `HEATWAVE`, `WATER_CONTAMINATION`.
 - **`status`**: `REPORTED`, `AI_ANALYZED`, `VERIFIED`, `DISPATCHED`, `RESOLVED`, `REJECTED`.
 - **`severity`**: Integer `1` (Minor advisory) to `5` (Life-threatening emergency).
@@ -77,6 +81,7 @@ Stores all hazard reports submitted by citizens, automated sensor alerts, and tr
 ---
 
 ### 2.2 Collection: `telemetry_readings`
+
 Time-series environmental records ingested from Open-Meteo, OpenAQ, and local environmental stations.
 
 ```json
@@ -110,6 +115,7 @@ Time-series environmental records ingested from Open-Meteo, OpenAQ, and local en
 ---
 
 ### 2.3 Collection: `risk_zones`
+
 Spatial boundary polygons delineating administrative zones, floodplains, and vulnerable urban sectors.
 
 ```json
@@ -147,6 +153,7 @@ Spatial boundary polygons delineating administrative zones, floodplains, and vul
 ---
 
 ### 2.4 Collection: `action_logs` (Disaster Response & Automation Trail)
+
 Tracks automated triggers fired by n8n or municipal supervisors to provide full audit accountability.
 
 ```json
@@ -170,6 +177,7 @@ Tracks automated triggers fired by n8n or municipal supervisors to provide full 
 ---
 
 ### 2.5 Collection: `users`
+
 Supports Role-Based Access Control (RBAC).
 
 ```json
@@ -190,6 +198,7 @@ Supports Role-Based Access Control (RBAC).
 ## 3. Indexes & Optimization Plan
 
 ### 3.1 Geospatial Indexes
+
 ```javascript
 // Spatial indexing on point locations for sub-millisecond proximity queries
 db.incidents.createIndex({ "location": "2dsphere" });
@@ -200,6 +209,7 @@ db.risk_zones.createIndex({ "boundary": "2dsphere" });
 ```
 
 ### 3.2 Compound & Performance Indexes
+
 ```javascript
 // Incident status and temporal queries
 db.incidents.createIndex({ "status": 1, "created_at": -1 });
@@ -218,6 +228,7 @@ db.users.createIndex({ "email": 1 }, { unique: true });
 ## 4. Primary Geospatial Query Patterns
 
 ### Proximity Query: Incidents Near User Location (`$nearSphere`)
+
 ```javascript
 db.incidents.find({
   location: {
@@ -234,6 +245,7 @@ db.incidents.find({
 ```
 
 ### Boundary Containment Query (`$geoWithin`)
+
 ```javascript
 db.incidents.find({
   location: {
@@ -249,4 +261,3 @@ db.incidents.find({
   }
 });
 ```
-

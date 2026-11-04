@@ -1,13 +1,16 @@
 # TerraGuard AI — Project Architecture & System Design
+
 **INFINEX 2K26 — Global AI Hackathon**
 *Tagline: Predict. Prevent. Protect.*
 
 ---
 
 ## 1. Executive Summary & Mission
+
 **TerraGuard AI** is an enterprise-grade, production-style urban risk intelligence, predictive environmental analytics, and automated disaster prevention platform. Designed for municipal authorities, emergency dispatch teams, urban planners, environmental monitoring organizations, and citizens, TerraGuard AI bridges the gap between passive sensor telemetry and active, automated disaster prevention.
 
 The system addresses **UN Sustainable Development Goals (SDGs)**:
+
 - **SDG 3:** Good Health and Well-Being (Early hazard mitigation, air quality monitoring)
 - **SDG 6:** Clean Water and Sanitation (Urban flood run-off, drainage and water contamination warnings)
 - **SDG 9:** Industry, Innovation, and Infrastructure (Climate-resilient urban infrastructure)
@@ -177,7 +180,9 @@ TerraGuard-AI/
 ## 4. UI/UX Design System Specification
 
 ### 4.1 Visual Hierarchy & Aesthetic Target
+
 TerraGuard AI adopts a **Premium Smart-City Command Center** aesthetic:
+
 - **Canvas / App Surface:** Light, crisp neutrals (`#F8FAFC`, `#FFFFFF`, `#F1F5F9`) ensuring high daylight legibility, clean data visualization, and maximum map contrast.
 - **Sidebar & Command Shell:** Deep Midnight Navy (`#0B132B`, `#1C2541`, `#1E293B`) creating an authoritative, modern control-tower presence.
 - **Primary Feature Accents:** Electric Cyan (`#06B6D4`), Marine Blue (`#0284C7`), and Sky Blue (`#0EA5E9`) for active selections, map routes, and telemetry readouts.
@@ -194,11 +199,10 @@ TerraGuard AI adopts a **Premium Smart-City Command Center** aesthetic:
 ## 5. Security & Isolation Architecture
 
 1. **No Secret Ingestion in Client Bundles:** All Gemini API keys, Cloudinary secrets, and MongoDB connection strings remain exclusively on the FastAPI backend or Render environment variables.
-2. **Database Domain Separation:** 
+2. **Database Domain Separation:**
    - **MongoDB Atlas** stores all application domain data (telemetry, incidents, geospatial layers, predictions, user sessions).
    - **n8n Automation Engine** maintains its own isolated database (PostgreSQL or persistent SQLite volume on Render). n8n never shares collections with the main application to avoid schema collisions and lock contention.
 3. **Authentication & Authorization:**
    - Stateless JWT tokens signed with HMAC-SHA256.
    - Granular Role-Based Access Control (RBAC): `CITIZEN`, `FIELD_RESPONDER`, `URBAN_PLANNER`, `CITY_ADMIN`.
 4. **Resilient Fallback Design:** When external APIs (e.g., OpenAQ or Open-Meteo) experience rate limits or localized outages, the system surfaces an explicit `UNAVAILABLE_DEGRADED` banner with the last verified cache timestamp rather than generating synthetic "mock" live data.
-

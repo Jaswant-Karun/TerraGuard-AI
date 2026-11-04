@@ -1,10 +1,13 @@
 # TerraGuard AI — Development Roadmap & Phased Execution Plan
+
 **INFINEX 2K26 — Global AI Hackathon**
 
 ---
 
 ## 1. Roadmap Principles & Rules
+
 To ensure rock-solid stability, zero duplicate code, and full end-to-end integration:
+
 1. **Incremental, Phased Execution:** Each phase is executed, verified, and audited independently.
 2. **Never Generate the Entire Application at Once:** Single-prompt massive generation causes broken APIs, hallucinated imports, and inconsistent UI.
 3. **Continuous Operability:** The codebase must compile, pass tests, and remain runnable at the conclusion of every single phase.
@@ -75,6 +78,7 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 ## 3. Detailed Phase Breakdown & Exit Criteria
 
 ### Phase 0: Project Audit & Development Foundation (CURRENT)
+
 - [x] Workspace file inspection & audit.
 - [x] Master architecture specification (`PROJECT_ARCHITECTURE.md`).
 - [x] Comprehensive roadmap document (`DEVELOPMENT_ROADMAP.md`).
@@ -87,6 +91,7 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 - **Gate:** Architect review and user approval before touching code.
 
 ### Phase 1: Monorepo Setup & Scaffolding
+
 - Directory structure creation (`frontend/`, `backend/`, `n8n/`, `scripts/`).
 - Initialize Next.js 14/15 App Router with TypeScript, Tailwind CSS, Lucide React, and Framer Motion.
 - Initialize FastAPI Python 3.11+ application with poetry/pip-tools, virtualenv, and base dependencies.
@@ -94,6 +99,7 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 - **Gate:** Both frontend and backend start locally without errors (`npm run dev`, `uvicorn app.main:app`).
 
 ### Phase 2: Database Layer & Spatial Data Access
+
 - Asynchronous Motor MongoDB client lifecycle with health check ping.
 - Configuration of collections: `incidents`, `telemetry_readings`, `risk_zones`, `users`, `action_logs`.
 - Programmatic creation of `2dsphere` indexes on coordinates and compound indices for timestamps.
@@ -102,6 +108,7 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 - **Gate:** Automated test connects to MongoDB, creates 2dsphere index, inserts GeoJSON document, and executes a `$nearSphere` query successfully.
 
 ### Phase 3: Telemetry Ingestion Services
+
 - Open-Meteo API async client (precipitation, wind speed, temperature, pressure).
 - OpenAQ API async client (PM2.5, PM10, NO2, O3).
 - Ingestion worker / scheduled fetcher caching recent readings into MongoDB.
@@ -109,6 +116,7 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 - **Gate:** Running telemetry endpoint fetches real live data for a given latitude/longitude and caches it into the database with timestamp and spatial coordinates.
 
 ### Phase 4: AI & ML Engine
+
 - Google Gemini 2.0 Vision API client for hazard classification:
   - Input: Image URL or Base64 byte stream + GPS location + user description.
   - Output: Hazard category (Flood, Fire, Landslide, Debris, Structural Damage), severity rating (1–5), confidence score, and suggested immediate municipal mitigation action.
@@ -118,6 +126,7 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 - **Gate:** Test script sends a sample hazard photo to the Gemini Vision service and receives structured JSON meeting Pydantic schema validation.
 
 ### Phase 5: n8n Automation Engine & Webhook Architecture
+
 - n8n configuration specification on Render with dedicated persistent volume / isolated DB.
 - Webhook endpoints in FastAPI to dispatch events (`hazard.detected`, `risk.critical`, `report.submitted`).
 - n8n workflows:
@@ -127,6 +136,7 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 - **Gate:** FastAPI fires an alert webhook, received and processed by n8n, returning an HTTP 200 acknowledgment.
 
 ### Phase 6: Frontend Command Center & Geospatial Cockpit
+
 - Implementation of the approved design system:
   - Deep Navy navigation sidebar (`#0B132B`).
   - Clean light dashboard background (`#F8FAFC`).
@@ -144,6 +154,7 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 - **Gate:** Interactive dashboard loads live data from FastAPI backend with reactive map controls and responsive layout.
 
 ### Phase 7: Citizen Incident Reporting & Incident Triage
+
 - Citizen reporting page:
   - Mobile-first responsive UI.
   - Image upload with client-side compression and Cloudinary storage.
@@ -156,9 +167,9 @@ To ensure rock-solid stability, zero duplicate code, and full end-to-end integra
 - **Gate:** User submits an incident report via the UI; report is stored in MongoDB, analyzed by Gemini, and appears on the command-center map within 2 seconds.
 
 ### Phase 8: Production Audit, Deployment & Verification
+
 - Frontend deployment to Vercel (environment variables, production build optimization).
 - Backend deployment to Render (Dockerized web service, connection pooling, CORS hardening).
 - n8n deployment to Render (persistent volume, security keys).
 - Production health checks, end-to-end integration test, and final documentation polish.
 - **Gate:** Public Vercel URL communicates seamlessly with public Render backend and live MongoDB Atlas cluster.
-

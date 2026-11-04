@@ -1,5 +1,7 @@
 # TerraGuard AI — Urban Risk Intelligence Platform
-### Predict. Prevent. Protect.
+
+### Predict. Prevent. Protect
+
 **INFINEX 2K26 — Global AI Hackathon**  
 *UN Sustainable Development Goals (SDGs): 3, 6, 9, 11, 13*
 
@@ -87,6 +89,7 @@ TerraGuard-AI/
 ## 🚀 Quick Start & Local Development
 
 ### Prerequisites
+
 - **Node.js**: `v18+` or `v20+` (Tested on `v22.17.0`)
 - **Python**: `3.11+` (Tested on `3.13.5`)
 - **npm**: `v10+`
@@ -96,34 +99,47 @@ TerraGuard-AI/
 ### 1. Backend Setup (FastAPI)
 
 1. Open a terminal in the project root:
+
    ```powershell
    cd apps/backend
    ```
+
 2. Activate the virtual environment:
    - **Windows:**
+
      ```powershell
      .\.venv\Scripts\Activate.ps1
      ```
+
    - **macOS / Linux:**
+
      ```bash
      source .venv/bin/activate
      ```
+
 3. Install dependencies (if not already installed):
+
    ```bash
    pip install -r requirements.txt
    ```
+
 4. Copy the environment template:
+
    ```powershell
    cp .env.example .env
    ```
+
 5. Run the FastAPI development server:
+
    ```powershell
    uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
+
 6. Verify Backend:
    - **OpenAPI Interactive Documentation:** [http://localhost:8000/api/v1/docs](http://localhost:8000/api/v1/docs)
    - **System Health Check:** [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
    - **Run Test Suite:**
+
      ```powershell
      pytest tests/
      ```
@@ -133,21 +149,29 @@ TerraGuard-AI/
 ### 2. Frontend Setup (Next.js)
 
 1. Open a second terminal in the project root:
+
    ```powershell
    cd apps/web
    ```
+
 2. Copy the environment template:
+
    ```powershell
    cp .env.example .env.local
    ```
+
 3. Install dependencies:
+
    ```bash
    npm install
    ```
+
 4. Start the Next.js development server:
+
    ```bash
    npm run dev
    ```
+
 5. Open your browser:
    - **Command Center Dashboard:** [http://localhost:3000](http://localhost:3000)
    - **Frontend Health Check:** [http://localhost:3000/api/health](http://localhost:3000/api/health)
@@ -157,6 +181,7 @@ TerraGuard-AI/
 ### 3. Monorepo Root Shortcuts
 
 From the root directory, you can also execute:
+
 ```bash
 # Start frontend
 npm run dev:web
@@ -171,6 +196,7 @@ npm run test:backend
 ---
 
 ## 🎨 UI Design System Rules
+
 - **Canvas:** Light neutral background (`#F8FAFC`, `#FFFFFF`)
 - **Navigation:** Deep Midnight Navy (`#0B132B`, `#1C2541`)
 - **Accents:** Electric Cyan (`#06B6D4`) & Marine Blue (`#0284C7`)

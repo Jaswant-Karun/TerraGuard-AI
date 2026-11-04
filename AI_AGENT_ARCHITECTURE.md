@@ -1,16 +1,19 @@
 # TerraGuard AI — AI & ML Agent Architecture Specification
+
 **INFINEX 2K26 — Global AI Hackathon**
 
 ---
 
 ## 1. AI System Overview
+
 TerraGuard AI integrates a hybrid intelligence architecture:
+
 1. **Perception Engine (Multimodal Gemini Vision):** Rapid visual classification of citizen and field hazard photos into structured disaster intelligence.
 2. **Predictive Engine (XGBoost / Scikit-Learn):** Geospatial and temporal risk forecasting trained on topographic, meteorological, and infrastructure variables.
 3. **Explainability Engine (XAI):** Decomposes black-box predictions into transparent, accountable factor attributions for urban administrators.
 4. **Action Synthesis Engine (Gemini LLM):** Generates actionable, context-aware disaster mitigation playbooks and automated dispatch instructions.
 
-```
+```text
                       +-----------------------------+
                       |   Citizen Photo / Ingest    |
                       +--------------+--------------+
@@ -47,6 +50,7 @@ TerraGuard AI integrates a hybrid intelligence architecture:
 ## 2. Gemini 2.0 Vision Hazard Perception Engine
 
 ### 2.1 Multimodal Prompt Strategy
+
 The system feeds image payloads alongside localized context (GPS, address, weather at submission) to Gemini 2.0 with a strict JSON schema contract:
 
 ```
@@ -60,6 +64,7 @@ Output ONLY strict JSON matching the schema provided.
 ```
 
 ### 2.2 Pydantic Validation Schema
+
 ```python
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -80,12 +85,14 @@ class GeminiHazardAnalysis(BaseModel):
 ## 3. Predictive Risk Machine Learning Engine
 
 ### 3.1 Model Architecture (XGBoost Regressor & Classifier)
+
 - **Model 1: Urban Flood Inundation Probability (0.0 to 1.0)**
   - Algorithm: `XGBClassifier` with early stopping and logloss objective.
 - **Model 2: Composite Urban Risk Index (0.0 to 100.0)**
   - Algorithm: `XGBRegressor` with Huber loss for outlier resilience.
 
 ### 3.2 Input Feature Vector
+
 1. `precip_rate_mm_h`: Current precipitation rate from Open-Meteo.
 2. `precip_accum_24h_mm`: Cumulative 24-hour rainfall.
 3. `elevation_m`: Ground elevation derived from digital elevation models (DEM).
@@ -123,7 +130,7 @@ Municipal decision-makers must never rely on opaque black-box recommendations du
 ## 5. Agentic Mitigation & Tactical Playbook Generation
 
 When an incident or zone transitions to Severity 4 or 5, the Agentic Mitigation Planner synthesizes a tactical action checklist:
+
 1. **Resource Allocation:** Computes number of high-capacity water pumps, barriers, or evacuation buses required based on zone population and inundation depth.
 2. **Dynamic Route Diversion:** Analyzes unobstructed adjacent roads to compute safe ingress/egress corridors for emergency medical vehicles.
 3. **Automated Escalation Triggers:** Emits structured payloads directly to n8n webhook pipelines to notify police dispatch, public utility boards, and citizen alert broadcast channels without human lag.
-

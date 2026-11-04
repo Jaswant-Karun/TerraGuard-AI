@@ -1,4 +1,5 @@
 # TerraGuard AI — REST API Design & Endpoint Specification
+
 **Backend Framework:** Python FastAPI (v0.111+)
 **Base API Route:** `/api/v1`
 **Specification Standard:** OpenAPI 3.1 & Pydantic v2 Models
@@ -8,9 +9,11 @@
 ## 1. Authentication & User Management
 
 ### 1.1 User Registration
+
 - **Endpoint:** `POST /api/v1/auth/register`
 - **Description:** Creates a new citizen or emergency operator account.
 - **Request Body:**
+
 ```json
 {
   "email": "resident@city.gov",
@@ -20,7 +23,9 @@
   "phone": "+1-555-0199"
 }
 ```
+
 - **Response (201 Created):**
+
 ```json
 {
   "status": "success",
@@ -34,16 +39,20 @@
 ```
 
 ### 1.2 User Login & Token Issuance
+
 - **Endpoint:** `POST /api/v1/auth/login`
 - **Description:** Authenticates credentials and returns a signed JWT bearer token.
 - **Request Body (`application/x-www-form-urlencoded` or JSON):**
+
 ```json
 {
   "username": "resident@city.gov",
   "password": "StrongPassword123!"
 }
 ```
+
 - **Response (200 OK):**
+
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -62,9 +71,11 @@
 ## 2. Incident & Hazard Reporting
 
 ### 2.1 Submit Hazard Incident (Citizen or Auto-Sensor)
+
 - **Endpoint:** `POST /api/v1/incidents/report`
 - **Description:** Ingests a new hazard report with optional media image. Asynchronously queues Gemini Vision image classification and dispatches high-severity alerts.
 - **Request Body:**
+
 ```json
 {
   "title": "Severe Waterlogging Underpass",
@@ -76,7 +87,9 @@
   "image_url": "https://res.cloudinary.com/terraguard/image/upload/sample_flood.jpg"
 }
 ```
+
 - **Response (201 Created):**
+
 ```json
 {
   "status": "success",
@@ -93,6 +106,7 @@
 ```
 
 ### 2.2 Query Geospatial Incidents (GeoJSON FeatureCollection)
+
 - **Endpoint:** `GET /api/v1/incidents`
 - **Query Parameters:**
   - `lat` (float, optional): Center latitude
@@ -102,6 +116,7 @@
   - `category` (string, optional): `FLOOD`, `FIRE`, `AIR_POLLUTION`, etc.
   - `min_severity` (int, default: `1`): 1–5
 - **Response (200 OK — GeoJSON FeatureCollection):**
+
 ```json
 {
   "type": "FeatureCollection",
@@ -129,9 +144,11 @@
 ```
 
 ### 2.3 Update Incident Triage Status
+
 - **Endpoint:** `PATCH /api/v1/incidents/{incident_id}/status`
 - **Headers:** `Authorization: Bearer <TOKEN>` (Requires `RESPONDER` or `ADMIN`)
 - **Request Body:**
+
 ```json
 {
   "status": "DISPATCHED",
@@ -139,7 +156,9 @@
   "assigned_department": "MUNICIPAL_STORMWATER_CORPS"
 }
 ```
+
 - **Response (200 OK):**
+
 ```json
 {
   "status": "success",
@@ -154,9 +173,11 @@
 ## 3. Environmental Telemetry & Sensors
 
 ### 3.1 Live Environmental Telemetry
+
 - **Endpoint:** `GET /api/v1/telemetry/live`
 - **Query Parameters:** `lat` (float), `lng` (float)
 - **Response (200 OK):**
+
 ```json
 {
   "location": {
@@ -183,9 +204,11 @@
 ```
 
 ### 3.2 24-Hour Timeseries (For Recharts Visualizations)
+
 - **Endpoint:** `GET /api/v1/telemetry/timeseries`
 - **Query Parameters:** `hours` (default: 24), `station_id` (optional)
 - **Response (200 OK):**
+
 ```json
 {
   "metrics": [
@@ -201,8 +224,10 @@
 ## 4. Predictive Risk Engine & Spatial Zones
 
 ### 4.1 Urban Risk Zones Boundary & Scores
+
 - **Endpoint:** `GET /api/v1/risks/zones`
 - **Response (200 OK — GeoJSON FeatureCollection of Polygons):**
+
 ```json
 {
   "type": "FeatureCollection",
@@ -234,8 +259,10 @@
 ```
 
 ### 4.2 On-Demand AI Risk Simulation
+
 - **Endpoint:** `POST /api/v1/risks/simulate`
 - **Request Body:**
+
 ```json
 {
   "zone_code": "URBAN-ZONE-04A",
@@ -243,7 +270,9 @@
   "duration_hours": 3
 }
 ```
+
 - **Response (200 OK):**
+
 ```json
 {
   "projected_risk_score": 92.1,
@@ -260,9 +289,11 @@
 ## 5. Webhooks & Automation Integration
 
 ### 5.1 n8n Action Callback
+
 - **Endpoint:** `POST /api/v1/webhooks/n8n/action-callback`
 - **Headers:** `X-TerraGuard-Webhook-Secret: <SECRET>`
 - **Request Body:**
+
 ```json
 {
   "workflow_id": "WF-CRITICAL-HAZARD-01",
@@ -279,8 +310,10 @@
 ## 6. System Health & Diagnostics
 
 ### 6.1 Health Check
+
 - **Endpoint:** `GET /api/v1/health`
 - **Response (200 OK):**
+
 ```json
 {
   "status": "healthy",
@@ -296,4 +329,3 @@
   }
 }
 ```
-

@@ -1,9 +1,11 @@
 # TerraGuard AI — n8n Automation & Webhook Workflow Architecture
+
 **INFINEX 2K26 — Global AI Hackathon**
 
 ---
 
 ## 1. Architectural Principles & Isolation Rule
+>
 > [!IMPORTANT]
 > **Strict Isolation Decision:** MongoDB Atlas stores all TerraGuard domain data (telemetry, incidents, risk zones, users). The **n8n automation engine** runs in an isolated container with its own internal database (persistent SQLite storage on Render or independent PostgreSQL). n8n and MongoDB Atlas will never share collections, credentials, or execution tables.
 
@@ -34,6 +36,7 @@ All communication between TerraGuard's FastAPI backend and the n8n automation en
 ## 2. Core Automation Workflows
 
 ### 2.1 Workflow 1: `WF-CRITICAL-HAZARD-ESCALATION`
+
 - **Objective:** Immediate, zero-latency multi-channel notification and alert routing when a catastrophic hazard (Flood, Fire, Landslide) is detected or predicted.
 - **Trigger:** Webhook Node (`POST /webhook/critical-hazard`)
 - **Node Pipeline:**
@@ -45,6 +48,7 @@ All communication between TerraGuard's FastAPI backend and the n8n automation en
   4. **HTTP Request Callback:** Sends delivery confirmation back to FastAPI endpoint `POST /api/v1/webhooks/n8n/action-callback` for tamper-proof audit logging.
 
 ### 2.2 Workflow 2: `WF-CITIZEN-REPORT-TRIAGE`
+
 - **Objective:** Automated verification, routing, and citizen receipt acknowledgment.
 - **Trigger:** Webhook Node (`POST /webhook/citizen-report`)
 - **Node Pipeline:**
@@ -56,6 +60,7 @@ All communication between TerraGuard's FastAPI backend and the n8n automation en
   3. **Citizen SMS/Email Confirmation:** Sends instant notification to the citizen with tracking ID: *"TerraGuard AI has verified your report #TG-9412. Municipal teams have been alerted."*
 
 ### 2.3 Workflow 3: `WF-SCHEDULED-TELEMETRY-HEALTH-SYNC`
+
 - **Objective:** Periodic environmental ingest trigger and infrastructure watchdog.
 - **Trigger:** Cron Schedule Node (Every 15 minutes: `*/15 * * * *`)
 - **Node Pipeline:**
@@ -68,6 +73,7 @@ All communication between TerraGuard's FastAPI backend and the n8n automation en
 ## 3. Webhook Security & Payload Specifications
 
 ### 3.1 Outgoing Webhook from FastAPI to n8n
+
 ```http
 POST https://n8n-terraguard.onrender.com/webhook/critical-hazard
 Content-Type: application/json
@@ -92,6 +98,7 @@ X-TerraGuard-Webhook-Secret: tg_sec_live_99a8b7c6d5e4f3a2b1
 ```
 
 ### 3.2 Incoming Callback from n8n to FastAPI
+
 ```http
 POST https://terraguard-api.onrender.com/api/v1/webhooks/n8n/action-callback
 Content-Type: application/json
@@ -106,4 +113,3 @@ X-TerraGuard-Webhook-Secret: tg_sec_live_99a8b7c6d5e4f3a2b1
   "execution_timestamp": "2026-11-04T12:35:12Z"
 }
 ```
-

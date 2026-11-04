@@ -1,4 +1,5 @@
 # TerraGuard AI — Technology Stack & Dependency Specification
+
 **INFINEX 2K26 — Global AI Hackathon**
 
 ---
@@ -22,12 +23,12 @@
 | **Primary Database** | MongoDB Atlas | `7.0+` | Native GeoJSON `2dsphere` spatial indexing, flexible document schemas for diverse environmental telemetry |
 | **Async DB Driver** | Motor (PyMongo async) | `3.4+` | Non-blocking database I/O integrated seamlessly with FastAPI event loops |
 | **AI Vision & LLM** | Google Gemini 2.0 Flash / Pro | Google GenAI SDK | State-of-the-art multimodal image analysis, rapid hazard classification, and dynamic response generation |
-| **ML Predictive Engine**| Scikit-Learn & XGBoost | Latest | Low-latency inference for tabular environmental risk scoring and flood/air risk regression |
-| **Explainable AI (XAI)**| Feature Attribution / TreeExpl | Native | Transparent breakdown of risk score contributors (e.g., Rainfall: 42%, Elevation: 28%) |
+| **ML Predictive Engine** | Scikit-Learn & XGBoost | Latest | Low-latency inference for tabular environmental risk scoring and flood/air risk regression |
+| **Explainable AI (XAI)** | Feature Attribution / TreeExpl | Native | Transparent breakdown of risk score contributors (e.g., Rainfall: 42%, Elevation: 28%) |
 | **Automation Engine** | n8n | Latest Docker | Visual low-code workflow automation, event-driven webhooks, multi-channel alerting |
 | **Weather Telemetry** | Open-Meteo API | REST v1 | High-resolution precipitation, wind, humidity, and temperature data with zero API key constraints |
 | **Air Quality Data** | OpenAQ API | REST v3 | Global air sensor data (PM2.5, PM10, NO2, SO2, CO) |
-| **Media Asset Storage**| Cloudinary / S3-compatible | Python SDK | Automatic image optimization, CDN distribution, and secure upload signing for hazard imagery |
+| **Media Asset Storage** | Cloudinary / S3-compatible | Python SDK | Automatic image optimization, CDN distribution, and secure upload signing for hazard imagery |
 | **Frontend Hosting** | Vercel | Production | Global edge network, automatic preview deployments, zero-config Next.js optimization |
 | **Backend Hosting** | Render | Docker Web Service | Fully managed containerized hosting, persistent env secrets, zero-downtime deploys |
 | **Automation Hosting** | Render | Docker with Disk | Isolated container with persistent storage volume for n8n workflow execution history |
@@ -38,6 +39,7 @@
 ## 2. Dependency Breakdown
 
 ### 2.1 Frontend Dependencies (`frontend/package.json`)
+
 ```json
 {
   "name": "terraguard-ai-frontend",
@@ -78,6 +80,7 @@
 ```
 
 ### 2.2 Backend Dependencies (`backend/requirements.txt`)
+
 ```txt
 fastapi>=0.111.0,<0.112.0
 uvicorn[standard]>=0.30.0,<0.31.0
@@ -103,17 +106,19 @@ python-dotenv>=1.0.1
 ## 3. Technology Rationale & Architecture Decision Records (ADRs)
 
 ### ADR-01: MapLibre GL JS vs Google Maps / Leaflet
+
 - **Context:** The core visual focus of TerraGuard AI is an interactive, real-time smart-city command map.
 - **Decision:** Use **MapLibre GL JS** over Leaflet or Google Maps.
 - **Justification:** Leaflet relies on HTML DOM markers which suffer frame-rate degradation when rendering thousands of sensor points or polygon zones. Google Maps incurs heavy per-load billing and restrictive styling controls. MapLibre GL JS runs on high-performance WebGL, renders dynamic vector data smoothly at 60 FPS, supports hardware-accelerated heatmaps and 3D terrain, and allows free tile fetching using open standards.
 
 ### ADR-02: Asynchronous Motor Driver vs Synchronous ORM
+
 - **Context:** Environmental telemetry ingestion requires handling concurrent polling streams from Open-Meteo, OpenAQ, citizen uploads, and dashboard websocket/polling queries without blocking.
 - **Decision:** Utilize **Motor (async MongoDB driver)** with Pydantic v2 schemas.
 - **Justification:** Motor integrates directly into Python's `asyncio` event loop. Synchronous drivers (like vanilla PyMongo or standard SQL ORMs without async session pools) would bottleneck under concurrent webhook traffic.
 
 ### ADR-03: Isolation of n8n Automation Engine Database
+
 - **Context:** n8n requires its own database to store execution logs, node states, and credentials.
 - **Decision:** n8n will **NEVER** share collections or database instances with TerraGuard AI's MongoDB Atlas cluster.
 - **Justification:** Mixing automation runner metadata with production business domains risks accidental schema conflicts, table locks, and elevated security privileges. n8n will run with its own dedicated persistent volume on Render (or SQLite/Postgres container).
-
