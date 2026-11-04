@@ -327,3 +327,23 @@ async def test_create_location_rbac():
             },
         )
     assert res.status_code in [401, 403]
+
+
+@pytest.mark.asyncio
+async def test_get_map_layers_geojson_endpoint():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        res = await ac.get("/api/v1/geospatial/map-layers")
+    assert res.status_code == 200
+    data = res.json()
+    assert "risk_zones" in data
+    assert "citizen_reports" in data
+    assert "verified_incidents" in data
+    assert "facilities" in data
+    assert "environmental_sensors" in data
+    assert "safe_routes" in data
+    assert data["risk_zones"]["type"] == "FeatureCollection"
+    assert data["facilities"]["type"] == "FeatureCollection"
+    assert "metadata" in data
+    assert "attribution" in data["metadata"]
+

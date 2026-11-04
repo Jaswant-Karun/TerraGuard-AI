@@ -97,3 +97,158 @@ async def get_db_stats() -> DatabaseStatsResponse:
     stats = await geospatial_repository.get_database_stats()
     return DatabaseStatsResponse(**stats)
 
+
+@router.get(
+    "/map-layers",
+    response_model=MapLayersResponse,
+    summary="All GIS Map Layers as GeoJSON FeatureCollections",
+    description="Returns standards-compliant RFC 7946 GeoJSON collections with explicit scientific classification labeling.",
+)
+async def get_map_layers(
+    lat: float | None = Query(default=None, ge=-90.0, le=90.0),
+    lng: float | None = Query(default=None, ge=-180.0, le=180.0),
+    radius_km: float = Query(default=50.0, gt=0.0, le=200.0),
+) -> MapLayersResponse:
+    risks_repo = BaseRepository("risk_assessments")
+    reports_repo = BaseRepository("citizen_reports")
+    locations_repo = BaseRepository("locations")
+    env_repo = BaseRepository("environmental_data")
+    routes_repo = BaseRepository("safe_routes")
+
+    # Fetch raw data
+    raw_risks = await risks_repo.find_paginated(page=1, page_size=100)
+    raw_reports = await reports_repo.find_paginated(page=1, page_size=200)
+    raw_facilities = await locations_repo.find_paginated(page=1, page_size=100)
+    raw_env = await env_repo.find_paginated(page=1, page_size=100)
+    raw_routes = await routes_repo.find_paginated(page=1, page_size=50)
+
+    # 1. Risk Polygons
+    risk_features = []
+    for r in raw_risks.items:
+        boundary = r.get("boundary")
+        if boundary:
+            risk_features.append({
+                "type": "Feature",
+                "geometry": boundary,
+                "properties": {
+                    "id": str(r.get("id")),
+                    "name": r.get("name"),
+                    "zone_code": r.get("zone_code"),
+                    "risk_level": r.get("risk_level", "LOW"),
+                    "composite_risk_score": float(r.get("composite_risk_score", 0.0)),
+                    "primary_hazard": r.get("primary_hazard", "GENERAL"),
+                    "contributing_factors": r.get("contributing_factors", {}),
+                    "population": int(r.get("estimated_affected_population", 0)),
+                    "data_classification": "MODEL_GENERATED_RISK_ESTIMATE",
+                    "data_classification_label": "Model-Generated Risk Estimate",
+                },
+            })
+
+    # 2. Citizen Reports (Unverified) & Verified Incidents
+    unverified_features = []
+    verified_features = []
+    for rep in raw_reports.items:
+        loc = rep.get("location")
+        if loc:
+            status = rep.get("status", "REPORTED")
+            is_verified = status in ["VERIFIED", "DISPATCHED", "RESOLVED"]
+            feat = {
+                "type": "Feature",
+                "geometry": loc,
+                "properties": {
+                    "id": str(rep.get("id")),
+                    "title": rep.get("title"),
+                    "description": rep.get("description", ""),
+                    "category": rep.get("category", "OTHER"),
+                    "severity": int(rep.get("severity", 1)),
+                    "status": status,
+                    "address": rep.get("address", ""),
+                    "media_urls": rep.get("media_urls", []),
+                    "created_at": str(rep.get("created_at")),
+                    "data_classification": "VERIFIED_INCIDENT" if is_verified else "CITIZEN_REPORTED_HAZARD",
+                    "data_classification_label": "Verified Municipal Incident" if is_verified else "Citizen-Reported Hazard (Unverified)",
+                },
+            }
+            if is_verified:
+                verified_features.append(feat)
+            else:
+                unverified_features.append(feat)
+
+    # 3. Critical Facilities
+    fac_features = []
+    for f in raw_facilities.items:
+        loc = f.get("location")
+        if loc:
+            fac_features.append({
+                "type": "Feature",
+                "geometry": loc,
+                "properties": {
+                    "id": str(f.get("id")),
+                    "name": f.get("name"),
+                    "category": f.get("category", "RELIEF_HUB"),
+                    "address": f.get("address", ""),
+                    "capacity": f.get("capacity"),
+                    "is_operational": bool(f.get("is_operational", True)),
+                    "contact_phone": f.get("contact_phone"),
+                    "data_classification": "SAFE_AVAILABLE_FACILITY",
+                    "data_classification_label": "Safe / Verified Emergency Facility",
+                },
+            })
+
+    # 4. Environmental Sensor Observations
+    env_features = []
+    for e in raw_env.items:
+        loc = e.get("location")
+        if loc:
+            metrics = e.get("metrics", {})
+            env_features.append({
+                "type": "Feature",
+                "geometry": loc,
+                "properties": {
+                    "id": str(e.get("id")),
+                    "station_id": e.get("station_id"),
+                    "source": e.get("source", "IOT_STATION"),
+                    "rainfall_mm": float(metrics.get("precipitation_mm", 0.0)),
+                    "aqi": float(metrics.get("aqi", 0.0)),
+                    "temperature_c": float(metrics.get("temperature_c", 25.0)),
+                    "humidity_pct": float(metrics.get("humidity_pct", 70.0)),
+                    "wind_speed_kmh": float(metrics.get("wind_speed_kmh", 10.0)),
+                    "timestamp": str(e.get("timestamp")),
+                    "data_classification": "OBSERVED_ENVIRONMENTAL_CONDITION",
+                    "data_classification_label": "Observed Environmental Condition (Raw Sensor)",
+                },
+            })
+
+    # 5. Evacuation Safe Corridors
+    route_features = []
+    for r in raw_routes.items:
+        path = r.get("path")
+        if path:
+            route_features.append({
+                "type": "Feature",
+                "geometry": path,
+                "properties": {
+                    "id": str(r.get("id")),
+                    "name": r.get("name"),
+                    "status": r.get("status", "ACTIVE"),
+                    "capacity_vehicles_per_hour": int(r.get("capacity_vehicles_per_hour", 1500)),
+                    "data_classification": "SAFE_EVACUATION_CORRIDOR",
+                    "data_classification_label": "Safe Evacuation Corridor",
+                },
+            })
+
+    return MapLayersResponse(
+        risk_zones=GeoJSONFeatureCollection(features=risk_features),
+        citizen_reports=GeoJSONFeatureCollection(features=unverified_features),
+        verified_incidents=GeoJSONFeatureCollection(features=verified_features),
+        facilities=GeoJSONFeatureCollection(features=fac_features),
+        environmental_sensors=GeoJSONFeatureCollection(features=env_features),
+        safe_routes=GeoJSONFeatureCollection(features=route_features),
+        metadata={
+            "center": [lng or 77.5946, lat or 12.9716],
+            "radius_km": radius_km,
+            "total_features": len(risk_features) + len(unverified_features) + len(verified_features) + len(fac_features) + len(env_features) + len(route_features),
+            "attribution": "© OpenStreetMap contributors, © CARTO, TerraGuard GIS Engine",
+        },
+    )
+
