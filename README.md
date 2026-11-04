@@ -1,6 +1,6 @@
 # TerraGuard AI — Urban Risk Intelligence Platform
 
-### Predict. Prevent. Protect
+## Predict. Prevent. Protect
 
 **INFINEX 2K26 — Global AI Hackathon**  
 *UN Sustainable Development Goals (SDGs): 3, 6, 9, 11, 13*
@@ -26,7 +26,7 @@ The master architectural foundation of TerraGuard AI:
 
 ## 📁 Repository Layout
 
-```
+```text
 TerraGuard-AI/
 ├── apps/
 │   ├── web/                     # Next.js 14 App Router, React 18, TypeScript, Tailwind CSS

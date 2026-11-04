@@ -21,7 +21,7 @@ The system addresses **UN Sustainable Development Goals (SDGs)**:
 
 ## 2. High-Level System Architecture
 
-```
+```text
 +----------------------------------------------------------------------------------------------------+
 |                                      TERRAGUARD AI PLATFORM                                       |
 +----------------------------------------------------------------------------------------------------+
@@ -74,7 +74,7 @@ The system addresses **UN Sustainable Development Goals (SDGs)**:
 
 The project adopts a structured, cleanly separated monorepo layout that prevents cross-layer coupling while facilitating simultaneous local development and independent cloud deployments (Vercel + Render).
 
-```
+```text
 TerraGuard-AI/
 |-- .github/                          # CI/CD Workflows, PR templates, and automated tests
 |   `-- workflows/
