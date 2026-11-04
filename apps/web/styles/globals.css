@@ -1,3 +1,5 @@
+@import "maplibre-gl/dist/maplibre-gl.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,3 +37,22 @@
   background: #94A3B8;
 }
 
+/* Custom MapLibre popup style overrides */
+.maplibregl-popup-content {
+  padding: 0 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 25px -5px rgba(11, 19, 43, 0.15), 0 8px 10px -6px rgba(11, 19, 43, 0.1) !important;
+  border: 1px solid #E2E8F0 !important;
+  background: #FFFFFF !important;
+}
+
+.maplibregl-popup-close-button {
+  padding: 6px 10px !important;
+  color: #64748B !important;
+  font-size: 16px !important;
+}
+
+.maplibregl-popup-close-button:hover {
+  background: transparent !important;
+  color: #0F172A !important;
+}
