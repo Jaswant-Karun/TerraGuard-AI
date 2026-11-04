@@ -1,7 +1,8 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
-from main import app
+
 from app.repositories.user_repository import UserRepository
+from main import app
 
 
 @pytest.fixture(autouse=True)
@@ -264,6 +265,7 @@ async def test_forgot_and_reset_password():
             },
         )
         assert new_login.status_code == 200
+
 
 @pytest.mark.asyncio
 async def test_role_based_access_control():

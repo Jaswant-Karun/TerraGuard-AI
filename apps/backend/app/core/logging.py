@@ -8,10 +8,7 @@ def setup_logging() -> None:
     """Configures centralized structured logging for the TerraGuard backend."""
     log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
 
-    log_format = (
-        "[%(asctime)s] [%(levelname)s] [%(name)s] "
-        "[%(filename)s:%(lineno)d] - %(message)s"
-    )
+    log_format = "[%(asctime)s] [%(levelname)s] [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
 
     logging.basicConfig(
         level=log_level,

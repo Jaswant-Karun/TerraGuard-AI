@@ -1,6 +1,8 @@
 from datetime import UTC, datetime
 from typing import Any
+
 from fastapi import APIRouter, Depends, status
+
 from app.api.deps import get_current_user, require_role
 from app.core.config import settings
 from app.core.errors import AppException
@@ -157,9 +159,7 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
             error_code="TOKEN_REVOKED",
         )
 
-    new_access_token = create_access_token(
-        subject=user_id, role=user.get("role", "CITIZEN")
-    )
+    new_access_token = create_access_token(subject=user_id, role=user.get("role", "CITIZEN"))
 
     user_response = UserResponse(
         id=user_id,
@@ -217,9 +217,7 @@ async def get_me(current_user: dict[str, Any] = Depends(get_current_user)) -> Us
     summary="Privileged route restricted to Coordinators and Administrators",
 )
 async def privileged_dispatch(
-    current_user: dict[str, Any] = Depends(
-        require_role(UserRole.COORDINATOR, UserRole.ADMIN)
-    ),
+    current_user: dict[str, Any] = Depends(require_role(UserRole.COORDINATOR, UserRole.ADMIN)),
 ) -> dict:
     return {
         "status": "success",

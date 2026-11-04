@@ -16,6 +16,4 @@ class HealthResponse(BaseModel):
     environment: str = Field(description="Deployment environment")
     timestamp: str = Field(description="ISO 8601 UTC timestamp")
     uptime_seconds: float = Field(description="Application process uptime in seconds")
-    services: HealthServicesStatus = Field(
-        description="Subservice operational statuses"
-    )
+    services: HealthServicesStatus = Field(description="Subservice operational statuses")

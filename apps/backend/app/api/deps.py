@@ -1,5 +1,8 @@
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
+
 from fastapi import Depends, Header
+
 from app.core.errors import AppException
 from app.core.security import decode_token
 from app.repositories.user_repository import UserRepository
@@ -7,7 +10,7 @@ from app.schemas.user import UserRole
 
 
 async def get_current_user(
-    authorization: str | None = Header(None, description="Bearer <JWT Access Token>")
+    authorization: str | None = Header(None, description="Bearer <JWT Access Token>"),
 ) -> dict[str, Any]:
     """Dependency that extracts, decodes, and verifies the active JWT user."""
     if not authorization or not authorization.startswith("Bearer "):
@@ -50,7 +53,7 @@ def require_role(*allowed_roles: UserRole) -> Callable:
     """Dependency factory for enforcing Role-Based Access Control (RBAC)."""
 
     async def role_checker(
-        current_user: dict[str, Any] = Depends(get_current_user)
+        current_user: dict[str, Any] = Depends(get_current_user),
     ) -> dict[str, Any]:
         user_role = current_user.get("role")
         if user_role not in [r.value for r in allowed_roles]:

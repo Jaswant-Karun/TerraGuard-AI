@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -14,8 +15,12 @@ class UserRegisterRequest(BaseModel):
     email: EmailStr = Field(description="User primary email address")
     password: str = Field(min_length=8, description="Password with minimum 8 characters")
     full_name: str = Field(min_length=2, max_length=100, description="User full display name")
-    role: UserRole = Field(default=UserRole.CITIZEN, description="Assigned role in TerraGuard platform")
-    phone: str | None = Field(default=None, description="Optional phone number for emergency SMS alerts")
+    role: UserRole = Field(
+        default=UserRole.CITIZEN, description="Assigned role in TerraGuard platform"
+    )
+    phone: str | None = Field(
+        default=None, description="Optional phone number for emergency SMS alerts"
+    )
 
 
 class UserLoginRequest(BaseModel):
@@ -51,4 +56,6 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     token: str = Field(description="Password reset verification token")
-    new_password: str = Field(min_length=8, description="New secret password (minimum 8 characters)")
+    new_password: str = Field(
+        min_length=8, description="New secret password (minimum 8 characters)"
+    )

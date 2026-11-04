@@ -1,9 +1,10 @@
 import time
 from datetime import UTC, datetime
 
+from fastapi import APIRouter, status
+
 from app.core.config import settings
 from app.schemas.health import HealthResponse, HealthServicesStatus
-from fastapi import APIRouter, status
 
 router = APIRouter()
 

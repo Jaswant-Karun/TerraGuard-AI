@@ -60,12 +60,8 @@ def register_exception_handlers(app: FastAPI) -> None:
     """Registers centralized exception handlers for the FastAPI application."""
 
     @app.exception_handler(AppException)
-    async def app_exception_handler(
-        request: Request, exc: AppException
-    ) -> JSONResponse:
-        logger.warning(
-            f"AppException: [{exc.error_code}] {exc.message} - Path: {request.url.path}"
-        )
+    async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
+        logger.warning(f"AppException: [{exc.error_code}] {exc.message} - Path: {request.url.path}")
         return JSONResponse(
             status_code=exc.status_code,
             content={
@@ -105,9 +101,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(StarletteHTTPException)
-    async def http_exception_handler(
-        request: Request, exc: StarletteHTTPException
-    ) -> JSONResponse:
+    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
         return JSONResponse(
             status_code=exc.status_code,
             content={
@@ -119,9 +113,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(Exception)
-    async def unhandled_exception_handler(
-        request: Request, exc: Exception
-    ) -> JSONResponse:
+    async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         logger.error(
             f"Unhandled exception on {request.url.path}: {exc!s}",
             exc_info=exc,

@@ -1,6 +1,8 @@
 import logging
 from typing import Any
+
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+
 from app.core.config import settings
 
 logger = logging.getLogger("terraguard.database")
@@ -25,7 +27,9 @@ class DatabaseManager:
             # Ping database to verify connection
             await cls.client.admin.command("ping")
             cls._use_fallback = False
-            logger.info("Successfully connected to MongoDB Atlas database [%s]", settings.DATABASE_NAME)
+            logger.info(
+                "Successfully connected to MongoDB Atlas database [%s]", settings.DATABASE_NAME
+            )
         except Exception as err:
             logger.warning(
                 "MongoDB Atlas unreachable (%s). Initializing async resilient in-memory storage fallback.",

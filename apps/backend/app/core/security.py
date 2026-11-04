@@ -1,7 +1,9 @@
 from datetime import UTC, datetime, timedelta
 from typing import Any
+
 import bcrypt
 import jwt
+
 from app.core.config import settings
 from app.core.errors import AppException
 
@@ -16,16 +18,12 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifies a plain password against the stored bcrypt hash."""
     try:
-        return bcrypt.checkpw(
-            plain_password.encode("utf-8"), hashed_password.encode("utf-8")
-        )
+        return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
     except Exception:
         return False
 
 
-def create_access_token(
-    subject: str, role: str, expires_delta: timedelta | None = None
-) -> str:
+def create_access_token(subject: str, role: str, expires_delta: timedelta | None = None) -> str:
     """Creates a signed, short-lived JWT access token."""
     now = datetime.now(UTC)
     if expires_delta:
@@ -40,14 +38,10 @@ def create_access_token(
         "iat": now,
         "exp": expire,
     }
-    return jwt.encode(
-        to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
-    )
+    return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
-def create_refresh_token(
-    subject: str, expires_delta: timedelta | None = None
-) -> str:
+def create_refresh_token(subject: str, expires_delta: timedelta | None = None) -> str:
     """Creates a signed, longer-lived JWT refresh token."""
     now = datetime.now(UTC)
     if expires_delta:
@@ -61,17 +55,13 @@ def create_refresh_token(
         "iat": now,
         "exp": expire,
     }
-    return jwt.encode(
-        to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
-    )
+    return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
 def decode_token(token: str, expected_type: str = "access") -> dict[str, Any]:
     """Decodes and validates a JWT token's signature, expiration, and token type."""
     try:
-        payload = jwt.decode(
-            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
-        )
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
     except jwt.ExpiredSignatureError:
         raise AppException(
             message="Token has expired. Please re-authenticate.",
