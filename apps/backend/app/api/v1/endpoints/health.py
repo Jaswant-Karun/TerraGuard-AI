@@ -40,3 +40,4 @@ async def get_health() -> HealthResponse:
 )
 async def get_readiness() -> dict:
     return {"ready": True, "timestamp": datetime.now(timezone.utc).isoformat()}
+

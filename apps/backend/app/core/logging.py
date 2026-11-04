@@ -27,3 +27,4 @@ def setup_logging() -> None:
 
     logger = logging.getLogger("terraguard")
     logger.info("Structured logging initialized for TerraGuard AI Backend")
+

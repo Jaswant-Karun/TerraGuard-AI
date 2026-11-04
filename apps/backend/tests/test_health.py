@@ -45,3 +45,4 @@ async def test_404_centralized_error_handling():
     data = response.json()
     assert data["status"] == "error"
     assert "error_code" in data
+

@@ -129,3 +129,4 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "path": request.url.path,
             },
         )
+

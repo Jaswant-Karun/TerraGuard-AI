@@ -9,7 +9,7 @@ class HealthServicesStatus(BaseModel):
 
 
 class HealthResponse(BaseModel):
-    status: str = Field(example="healthy", description="Overall health state")
+    status: str = Field(json_schema_extra={"example": "healthy"}, description="Overall health state")
     app_name: str = Field(description="Application title")
     version: str = Field(description="Semantic version string")
     environment: str = Field(description="Deployment environment")
