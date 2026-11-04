@@ -198,3 +198,4 @@ class BaseRepository:
         """Utility for test suites."""
         store = self._get_memory_store()
         store.clear()
+

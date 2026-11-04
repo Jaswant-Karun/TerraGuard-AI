@@ -141,3 +141,4 @@ async def delete_location(
             error_code="LOCATION_NOT_FOUND",
         )
     return {"deleted": True, "id": location_id}
+

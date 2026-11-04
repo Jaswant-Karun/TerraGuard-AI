@@ -93,3 +93,4 @@ async def get_historical_events(
 async def get_db_stats() -> DatabaseStatsResponse:
     stats = await geospatial_repository.get_database_stats()
     return DatabaseStatsResponse(**stats)
+
