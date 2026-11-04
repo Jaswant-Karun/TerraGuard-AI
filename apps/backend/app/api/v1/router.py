@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, health
+from app.api.v1.endpoints import auth, geospatial, health, locations
 
 api_v1_router = APIRouter()
 
@@ -9,7 +9,9 @@ api_v1_router.include_router(health.router, tags=["Health & Diagnostics"])
 
 # Mount authentication endpoints
 api_v1_router.include_router(auth.router, prefix="/auth", tags=["Authentication & User Management"])
-# api_v1_router.include_router(incidents.router, prefix="/incidents", tags=["Incidents"])
-# api_v1_router.include_router(telemetry.router, prefix="/telemetry", tags=["Telemetry"])
-# api_v1_router.include_router(risks.router, prefix="/risks", tags=["Predictive Risks"])
-# api_v1_router.include_router(webhooks.router, prefix="/webhooks", tags=["Webhooks"])
+
+# Mount locations & critical infrastructure endpoints
+api_v1_router.include_router(locations.router, prefix="/locations", tags=["Locations & Facilities"])
+
+# Mount geospatial intelligence endpoints
+api_v1_router.include_router(geospatial.router, prefix="/geospatial", tags=["Geospatial Intelligence"])
