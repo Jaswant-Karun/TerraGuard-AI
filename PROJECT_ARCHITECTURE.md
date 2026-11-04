@@ -201,3 +201,4 @@ TerraGuard AI adopts a **Premium Smart-City Command Center** aesthetic:
    - Stateless JWT tokens signed with HMAC-SHA256.
    - Granular Role-Based Access Control (RBAC): `CITIZEN`, `FIELD_RESPONDER`, `URBAN_PLANNER`, `CITY_ADMIN`.
 4. **Resilient Fallback Design:** When external APIs (e.g., OpenAQ or Open-Meteo) experience rate limits or localized outages, the system surfaces an explicit `UNAVAILABLE_DEGRADED` banner with the last verified cache timestamp rather than generating synthetic "mock" live data.
+
