@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
+import { AuthProvider } from "@/features/auth/AuthContext";
 
 export const metadata: Metadata = {
   title: "TerraGuard AI — Urban Risk Intelligence & Disaster Prevention",
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className="h-full min-h-screen bg-background text-foreground antialiased selection:bg-brand-cyan/20 selection:text-brand-cyan">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
