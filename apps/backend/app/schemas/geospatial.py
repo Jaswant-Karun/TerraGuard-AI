@@ -54,3 +54,19 @@ class DatabaseStatsResponse(BaseModel):
     latency_ms: float | None = None
     collections: dict[str, int]
     total_documents: int
+
+
+class GeoJSONFeatureCollection(BaseModel):
+    type: str = "FeatureCollection"
+    features: list[dict[str, Any]] = []
+
+
+class MapLayersResponse(BaseModel):
+    risk_zones: GeoJSONFeatureCollection
+    citizen_reports: GeoJSONFeatureCollection
+    verified_incidents: GeoJSONFeatureCollection
+    facilities: GeoJSONFeatureCollection
+    environmental_sensors: GeoJSONFeatureCollection
+    safe_routes: GeoJSONFeatureCollection
+    metadata: dict[str, Any]
+

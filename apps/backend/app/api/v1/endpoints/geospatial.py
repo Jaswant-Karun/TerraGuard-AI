@@ -2,9 +2,12 @@ from typing import Any
 
 from fastapi import APIRouter, Query
 
+from app.repositories.base_repository import BaseRepository
 from app.repositories.geospatial_repository import geospatial_repository
 from app.schemas.geospatial import (
     DatabaseStatsResponse,
+    GeoJSONFeatureCollection,
+    MapLayersResponse,
     NearbyReportsResponse,
     PolygonQueryRequest,
 )
