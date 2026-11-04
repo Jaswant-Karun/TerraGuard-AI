@@ -1,0 +1,22 @@
+{
+  "name": "terraguard-ai-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TerraGuard AI — Urban Risk Intelligence, Prediction & Disaster Prevention Platform",
+  "scripts": {
+    "dev:web": "npm run dev --prefix apps/web",
+    "build:web": "npm run build --prefix apps/web",
+    "lint:web": "npm run lint --prefix apps/web",
+    "dev:backend": "powershell -Command \"& apps/backend/.venv/Scripts/uvicorn main:app --app-dir apps/backend --reload --port 8000\"",
+    "test:backend": "powershell -Command \"& apps/backend/.venv/Scripts/pytest apps/backend/tests\""
+  },
+  "keywords": [
+    "ai",
+    "disaster-prevention",
+    "smart-city",
+    "urban-resilience",
+    "geospatial"
+  ],
+  "author": "TerraGuard AI Team",
+  "license": "MIT"
+}
