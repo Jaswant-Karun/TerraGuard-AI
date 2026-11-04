@@ -11,7 +11,7 @@
 
 All communication between TerraGuard's FastAPI backend and the n8n automation engine occurs exclusively via **cryptographically secured, asynchronous HTTP webhooks**.
 
-```
+```text
 +------------------------------------+               +-------------------------------------+
 |        FastAPI Backend             |               |             n8n Engine              |
 |  (Disaster Triage & Event Router)  |               |    (Automated Response Pipelines)   |
