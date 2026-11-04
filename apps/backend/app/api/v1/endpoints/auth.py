@@ -211,6 +211,23 @@ async def get_me(current_user: dict[str, Any] = Depends(get_current_user)) -> Us
     )
 
 
+@router.get(
+    "/privileged-dispatch",
+    status_code=status.HTTP_200_OK,
+    summary="Privileged route restricted to Coordinators and Administrators",
+)
+async def privileged_dispatch(
+    current_user: dict[str, Any] = Depends(
+        require_role(UserRole.COORDINATOR, UserRole.ADMIN)
+    ),
+) -> dict:
+    return {
+        "status": "success",
+        "message": "Authorized for emergency dispatch controls.",
+        "user_role": current_user.get("role"),
+    }
+
+
 @router.post(
     "/forgot-password",
     status_code=status.HTTP_200_OK,

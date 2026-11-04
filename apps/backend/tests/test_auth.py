@@ -264,3 +264,56 @@ async def test_forgot_and_reset_password():
             },
         )
         assert new_login.status_code == 200
+
+@pytest.mark.asyncio
+async def test_role_based_access_control():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. Register a Citizen
+        await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": "regular.citizen@city.gov",
+                "password": "CitizenPass1234!",
+                "full_name": "Citizen Jane",
+                "role": "CITIZEN",
+            },
+        )
+        login_cit = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "regular.citizen@city.gov", "password": "CitizenPass1234!"},
+        )
+        cit_token = login_cit.json()["access_token"]
+
+        # Citizen attempts to access privileged dispatch -> 403 Forbidden
+        cit_access = await ac.get(
+            "/api/v1/auth/privileged-dispatch",
+            headers={"Authorization": f"Bearer {cit_token}"},
+        )
+        assert cit_access.status_code == 403
+        assert cit_access.json()["error_code"] == "FORBIDDEN_INSUFFICIENT_ROLE"
+
+        # 2. Register an Administrator
+        await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": "root.admin@city.gov",
+                "password": "AdminPass1234!",
+                "full_name": "Super Admin",
+                "role": "ADMIN",
+            },
+        )
+        login_adm = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "root.admin@city.gov", "password": "AdminPass1234!"},
+        )
+        adm_token = login_adm.json()["access_token"]
+
+        # Admin accesses privileged dispatch -> 200 OK
+        adm_access = await ac.get(
+            "/api/v1/auth/privileged-dispatch",
+            headers={"Authorization": f"Bearer {adm_token}"},
+        )
+        assert adm_access.status_code == 200
+        assert adm_access.json()["status"] == "success"
+        assert adm_access.json()["user_role"] == "ADMIN"
