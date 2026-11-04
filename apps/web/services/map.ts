@@ -123,3 +123,4 @@ export async function searchLocations(query: string): Promise<GeocodingResult[]>
     return [];
   }
 }
+
