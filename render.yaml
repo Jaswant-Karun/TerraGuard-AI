@@ -45,10 +45,7 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
       - key: N8N_WEBHOOK_URL
-        fromService:
-          type: web
-          name: terraguard-n8n
-          property: url
+        value: "https://terraguard-n8n.onrender.com/webhook"
       - key: N8N_WEBHOOK_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS

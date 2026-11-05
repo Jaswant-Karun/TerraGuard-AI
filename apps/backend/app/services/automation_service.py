@@ -138,6 +138,8 @@ class AutomationService:
     target_url = path_or_url
     if not target_url.startswith("http"):
       base = settings.N8N_WEBHOOK_URL.rstrip("/")
+      if base and not base.startswith("http://") and not base.startswith("https://"):
+        base = f"https://{base}"
       target_url = f"{base}/{path_or_url.lstrip('/')}"
 
     headers = {
