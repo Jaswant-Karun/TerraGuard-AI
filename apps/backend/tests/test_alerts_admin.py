@@ -1,9 +1,9 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from core.security import create_access_token
+from app.core.security import create_access_token
+from app.repositories.user_repository import UserRepository
 from main import app
-from repositories.user_repository import UserRepository
 
 
 def make_auth_headers(user_id: str, role: str) -> dict[str, str]:
