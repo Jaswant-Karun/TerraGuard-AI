@@ -16,20 +16,17 @@ async def get_factual_environment_data(lat: float, lng: float) -> dict[str, Any]
         env = await environmental_service.get_current_environment(lat=lat, lng=lng)
         return {
             "source": env.source,
-            "data_freshness": env.data_freshness,
             "temperature_c": env.temperature_c,
             "humidity_pct": env.humidity_pct,
             "wind_speed_kmh": env.wind_speed_kmh,
             "rainfall_mm": env.rainfall_mm,
             "weather_condition": env.weather_condition,
             "air_quality": {
-                "aqi": env.air_quality.aqi,
-                "category": env.air_quality.category,
-                "pm25": env.air_quality.pm25,
-                "pm10": env.air_quality.pm10,
-                "dominant_pollutant": env.air_quality.dominant_pollutant,
+                "aqi": env.aqi,
+                "pm25": env.pm25,
+                "pm10": env.pm10,
             },
-            "last_updated": env.retrieval_timestamp,
+            "last_updated": env.retrieved_at,
         }
     except Exception as e:
         logger.warning(f"Failed to fetch live environment tool data: {e}")
