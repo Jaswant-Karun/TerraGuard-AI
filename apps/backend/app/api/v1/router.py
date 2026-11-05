@@ -1,7 +1,9 @@
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
+    admin,
     agent,
+    alerts,
     auth,
     automation,
     dashboard,
@@ -22,6 +24,12 @@ api_v1_router.include_router(health.router, tags=["Health & Diagnostics"])
 
 # Mount authentication endpoints
 api_v1_router.include_router(auth.router, prefix="/auth", tags=["Authentication & User Management"])
+
+# Mount alerts & notifications
+api_v1_router.include_router(alerts.router)
+
+# Mount operations administration command panel
+api_v1_router.include_router(admin.router)
 
 # Mount predictive risk intelligence & ML engine
 api_v1_router.include_router(risk.router, prefix="/risk", tags=["Environmental Risk Intelligence & ML"])
