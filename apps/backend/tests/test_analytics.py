@@ -135,3 +135,4 @@ async def test_analytics_service_direct_unit():
     pdf_bytes = service.generate_pdf_report(overview)
     assert len(pdf_bytes) > 2000
     assert pdf_bytes[:5] == b"%PDF-"
+
