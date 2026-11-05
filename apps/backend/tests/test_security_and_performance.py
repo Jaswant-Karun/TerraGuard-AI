@@ -96,8 +96,9 @@ async def test_api_input_validation_boundaries():
         invalid_lng_res = await client.get("/api/v1/environment/current?lat=12.9&lng=195.0")
         assert invalid_lng_res.status_code == 422
 
-        # 3. Invalid enum in export format
-        invalid_export = await client.get("/api/v1/analytics/reports/export?format=exe")
+        # 3. Invalid enum in export format (with authentication)
+        auth_h = make_auth_headers("citizen_test_validator", "CITIZEN")
+        invalid_export = await client.get("/api/v1/analytics/reports/export?format=exe", headers=auth_h)
         assert invalid_export.status_code == 422
 
 
