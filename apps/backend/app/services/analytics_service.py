@@ -1,8 +1,7 @@
 import csv
 import io
 import math
-from datetime import datetime, timedelta, timezone
-from typing import Any
+from datetime import UTC, datetime, timedelta
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
@@ -103,7 +102,7 @@ class AnalyticsService:
             "status": "ONLINE",
             "coverage_pct": 100.0,
             "freshness_lag_minutes": 12,
-            "last_sync_timestamp": datetime.now(timezone.utc).isoformat(),
+            "last_sync_timestamp": datetime.now(UTC).isoformat(),
             "data_type": "OBSERVED_MEASUREMENT",
         },
         {
@@ -113,7 +112,7 @@ class AnalyticsService:
             "status": "ONLINE",
             "coverage_pct": 82.5,
             "freshness_lag_minutes": 18,
-            "last_sync_timestamp": datetime.now(timezone.utc).isoformat(),
+            "last_sync_timestamp": datetime.now(UTC).isoformat(),
             "data_type": "OBSERVED_MEASUREMENT",
         },
         {
@@ -123,7 +122,7 @@ class AnalyticsService:
             "status": "ONLINE",
             "coverage_pct": 100.0,
             "freshness_lag_minutes": 1440,
-            "last_sync_timestamp": datetime.now(timezone.utc).isoformat(),
+            "last_sync_timestamp": datetime.now(UTC).isoformat(),
             "data_type": "GEOSPATIAL",
         },
         {
@@ -133,7 +132,7 @@ class AnalyticsService:
             "status": "ONLINE",
             "coverage_pct": 88.0,
             "freshness_lag_minutes": 5,
-            "last_sync_timestamp": datetime.now(timezone.utc).isoformat(),
+            "last_sync_timestamp": datetime.now(UTC).isoformat(),
             "data_type": "GOVERNMENT_SENSOR",
         },
     ]
@@ -204,7 +203,7 @@ class AnalyticsService:
             except Exception:
                 days = 30
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # 2. Query actual records from repositories if available
         alerts_repo = BaseRepository("alerts")
@@ -470,7 +469,7 @@ class AnalyticsService:
         output = io.StringIO()
         writer = csv.writer(output)
 
-        now_str = datetime.now(timezone.utc).isoformat()
+        now_str = datetime.now(UTC).isoformat()
 
         # Metadata Header
         writer.writerow(["# TERRAGUARD AI - MUNICIPAL ENVIRONMENTAL & RISK INTELLIGENCE REPORT"])
@@ -689,7 +688,7 @@ class AnalyticsService:
         )
         story.append(
             Paragraph(
-                f"Official Municipal Intelligence Report | Filter: {overview.filters.get('time_range')} | Zone: {overview.filters.get('location')} | Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
+                f"Official Municipal Intelligence Report | Filter: {overview.filters.get('time_range')} | Zone: {overview.filters.get('location')} | Generated: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M UTC')}",
                 body_style,
             )
         )
