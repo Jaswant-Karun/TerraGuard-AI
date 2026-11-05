@@ -5,8 +5,8 @@ import math
 from typing import Any
 import httpx
 
-from app.core.database import db_manager, serialize_doc
-from app.repositories.geospatial_repository import haversine_distance_meters
+from app.core.database import db_manager, haversine_distance_meters
+from app.repositories.base_repository import serialize_doc
 from app.repositories.locations_repository import locations_repository
 from app.schemas.routing import (
     FacilityDTO,
@@ -353,9 +353,11 @@ class SafeRoutingService:
                     hazards.append(doc)
         else:
             # Memory store fallback
-            from app.repositories.citizen_reports_repository import citizen_reports_repo
+            from app.repositories.citizen_reports_repository import (
+                citizen_reports_repository,
+            )
 
-            store = citizen_reports_repo._get_memory_store()
+            store = citizen_reports_repository._get_memory_store()
             for doc in store.values():
                 cat = doc.get("category", "")
                 if cat in [
