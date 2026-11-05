@@ -1,4 +1,4 @@
-from pydantic import field_validator
+from pydantic import ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,6 +31,26 @@ class Settings(BaseSettings):
         elif isinstance(v, (list, str)):
             return v
         raise ValueError(v)
+
+    @field_validator("JWT_SECRET_KEY")
+    @classmethod
+    def validate_jwt_secret(cls, v: str, info: ValidationInfo) -> str:
+        env = info.data.get("ENVIRONMENT", "development")
+        if env == "production" and ("dev-insecure" in v or len(v) < 32):
+            raise ValueError(
+                "In production, JWT_SECRET_KEY must be a cryptographically strong secret of at least 32 characters."
+            )
+        return v
+
+    @field_validator("N8N_WEBHOOK_SECRET")
+    @classmethod
+    def validate_webhook_secret(cls, v: str, info: ValidationInfo) -> str:
+        env = info.data.get("ENVIRONMENT", "development")
+        if env == "production" and v == "tg_dev_secret_key":
+            raise ValueError(
+                "In production, N8N_WEBHOOK_SECRET must not use the default development secret."
+            )
+        return v
 
     # Database Configuration (for Phase 2 connection)
     MONGODB_URI: str = "mongodb://localhost:27017/terraguard"

@@ -120,6 +120,7 @@ export function NavigationRouteMap({
         mapInstance.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update Route Layers and Markers when data changes

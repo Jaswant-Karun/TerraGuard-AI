@@ -78,6 +78,7 @@ export default function SafeNavigationPage() {
   useEffect(() => {
     executeRouteCalculation(origin, destination, routeMode);
     loadFacilities(destination[0], destination[1]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadFacilities = async (lng: number, lat: number) => {
