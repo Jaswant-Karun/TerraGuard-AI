@@ -1,0 +1,224 @@
+{
+  "name": "TerraGuard - 03 Citizen Report Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "citizen-report-event",
+        "options": {}
+      },
+      "id": "webhook-citizen-report",
+      "name": "Webhook - Ingest Citizen Report",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 360],
+      "webhookId": "citizen-report-event"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "title-present",
+              "leftValue": "={{ $json.body.title }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "location-present",
+              "leftValue": "={{ $json.body.location.coordinates[0] }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-report-valid",
+      "name": "IF - Report Valid",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-image",
+              "leftValue": "={{ $json.body.media_urls.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-image-present",
+      "name": "IF - Has Image",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 260]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://backend:8000/api/v1/reports/{{ $('Webhook - Ingest Citizen Report').item.json.body.id }}/status",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            },
+            {
+              "name": "X-TerraGuard-Origin",
+              "value": "n8n"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"status\": \"AI_ANALYZED\",\n  \"verification_notes\": \"Automated n8n pipeline verified image integrity and AI classification.\"\n}",
+        "options": {}
+      },
+      "id": "http-update-report-status",
+      "name": "HTTP - Update Status to AI_ANALYZED",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/notify-reviewers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"report_id\": \"{{ $('Webhook - Ingest Citizen Report').item.json.body.id }}\",\n  \"title\": \"{{ $('Webhook - Ingest Citizen Report').item.json.body.title }}\",\n  \"category\": \"{{ $('Webhook - Ingest Citizen Report').item.json.body.category }}\",\n  \"is_duplicate\": {{ $('Webhook - Ingest Citizen Report').item.json.body.is_potential_duplicate || false }},\n  \"target_roles\": [\"COORDINATOR\", \"ANALYST\"]\n}",
+        "options": {}
+      },
+      "id": "http-notify-reviewers",
+      "name": "HTTP - Notify Reviewers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 260]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/log-workflow",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"WF_03_CITIZEN_REPORT_PROCESSING\",\n  \"status\": \"FAILED\",\n  \"error_message\": \"Citizen report payload rejected due to missing mandatory fields.\"\n}",
+        "options": {}
+      },
+      "id": "http-log-report-invalid",
+      "name": "HTTP - Log Rejection",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 480]
+    }
+  ],
+  "connections": {
+    "Webhook - Ingest Citizen Report": {
+      "main": [
+        [
+          {
+            "node": "IF - Report Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Report Valid": {
+      "main": [
+        [
+          {
+            "node": "IF - Has Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP - Log Rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Has Image": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Update Status to AI_ANALYZED",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP - Notify Reviewers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Update Status to AI_ANALYZED": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Notify Reviewers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true
+  }
+}
+

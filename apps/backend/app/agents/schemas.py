@@ -63,3 +63,4 @@ class AgentInfo(BaseModel):
     domain: str
     description: str
     capabilities: list[str]
+

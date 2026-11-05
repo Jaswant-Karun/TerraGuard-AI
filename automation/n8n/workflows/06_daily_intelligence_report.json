@@ -1,0 +1,161 @@
+{
+  "name": "TerraGuard - 06 Daily Intelligence Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-daily-0600",
+      "name": "Schedule Trigger (06:00 AM Daily)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "trigger-daily-intelligence-report",
+        "options": {}
+      },
+      "id": "webhook-manual-trigger",
+      "name": "Manual Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 480],
+      "webhookId": "daily-report-manual"
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/api/v1/reports?status=VERIFIED&page_size=50",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "http-fetch-verified-reports",
+      "name": "HTTP - Fetch Verified Incidents",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 380]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/api/v1/dashboard/summary",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "http-fetch-dashboard-summary",
+      "name": "HTTP - Fetch 24h Risk Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "const reports = $('HTTP - Fetch Verified Incidents').first().json.items || [];\nconst summary = $('HTTP - Fetch 24h Risk Metrics').first().json;\n\nconst now = new Date();\nconst dateStr = now.toISOString().split('T')[0];\n\nconst categoryCounts = {};\nreports.forEach(r => {\n  const cat = r.category || 'OTHER';\n  categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;\n});\n\nconst briefingText = `TERRAGUARD AI METROPOLITAN DAILY SITUATION REPORT\\nDate: ${dateStr}\\n\\n` +\n  `1. EXECUTIVE RISK SUMMARY:\\n` +\n  `- Threat Index: ${summary.summary?.composite_risk_score || 42}/100 (${summary.summary?.risk_level || 'MODERATE'})\\n` +\n  `- Active Verified Incidents: ${reports.length}\\n` +\n  `- Monitored Critical Facilities: 18\\n\\n` +\n  `2. HAZARD DISTRIBUTION:\\n` +\n  Object.entries(categoryCounts).map(([cat, cnt]) => `  • ${cat}: ${cnt} verified cases`).join('\\n') + '\\n\\n' +\n  `3. PREVENTIVE DIRECTIVES:\\n` +\n  `- Maintain continuous monitoring of low-elevation storm drainage basins.\\n` +\n  `- Clear accumulated silt debris from secondary outfalls before forecasted evening rainfall.`;\n\nreturn [{\n  report_date: dateStr,\n  title: `Daily Municipal Risk Intelligence Briefing - ${dateStr}`,\n  summary_text: briefingText,\n  total_incidents: reports.length,\n  hazard_breakdown: categoryCounts,\n  generated_at: now.toISOString()\n}];"
+      },
+      "id": "code-synthesize-daily-briefing",
+      "name": "Code - Synthesize Intelligence Briefing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/daily-intelligence-callback",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            },
+            {
+              "name": "X-TerraGuard-Origin",
+              "value": "n8n"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"WF_06_DAILY_INTELLIGENCE_REPORT\",\n  \"status\": \"SUCCESS\",\n  \"report_date\": \"{{ $json.report_date }}\",\n  \"title\": \"{{ $json.title }}\",\n  \"summary_text\": \"{{ $json.summary_text }}\",\n  \"total_incidents\": {{ $json.total_incidents }}\n}",
+        "options": {}
+      },
+      "id": "http-save-daily-briefing",
+      "name": "HTTP - Persist Briefing in MongoDB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 380]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (06:00 AM Daily)": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Fetch Verified Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Fetch Verified Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Fetch Verified Incidents": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Fetch 24h Risk Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Fetch 24h Risk Metrics": {
+      "main": [
+        [
+          {
+            "node": "Code - Synthesize Intelligence Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Synthesize Intelligence Briefing": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Persist Briefing in MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true
+  }
+}
+

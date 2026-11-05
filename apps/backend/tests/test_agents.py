@@ -156,3 +156,4 @@ async def test_api_agent_chat_xai_explanation():
         assert body["identified_domain"] == "RISK_EXPLANATION"
         assert "Threat Score" in body["reply"] or "Factor" in body["reply"]
         assert len(body["factual_data_sources"]) > 0
+

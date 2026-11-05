@@ -1,0 +1,208 @@
+{
+  "name": "TerraGuard - 02 Risk Threshold Detection",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "risk-threshold-check",
+        "options": {}
+      },
+      "id": "webhook-risk-event",
+      "name": "Webhook - Ingest Risk Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 340],
+      "webhookId": "risk-threshold-check"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "threshold-score",
+              "leftValue": "={{ $json.body.composite_risk_score }}",
+              "rightValue": 65,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-threshold-breached",
+      "name": "IF - Risk Score >= 65",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 340]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "duplicate-check",
+              "leftValue": "={{ $json.body.is_recent_duplicate_alert || false }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-not-duplicate-alert",
+      "name": "IF - Not Duplicate Alert",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 260]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/create-alert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            },
+            {
+              "name": "X-TerraGuard-Origin",
+              "value": "n8n"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"Elevated {{ $('Webhook - Ingest Risk Event').item.json.body.primary_hazard }} Alert\",\n  \"message\": \"{{ $('Webhook - Ingest Risk Event').item.json.body.explanation }}\",\n  \"severity\": \"{{ $('Webhook - Ingest Risk Event').item.json.body.risk_level }}\",\n  \"target_zone\": \"{{ $('Webhook - Ingest Risk Event').item.json.body.zone_code || 'METRO-CORE' }}\",\n  \"lat\": {{ $('Webhook - Ingest Risk Event').item.json.body.location.coordinates[1] }},\n  \"lng\": {{ $('Webhook - Ingest Risk Event').item.json.body.location.coordinates[0] }},\n  \"radius_km\": 5.0\n}",
+        "options": {}
+      },
+      "id": "http-create-alert-backend",
+      "name": "HTTP - Create Alert in MongoDB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/log-workflow",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"WF_02_RISK_THRESHOLD\",\n  \"status\": \"SUCCESS\",\n  \"alert_created\": true,\n  \"alert_id\": \"{{ $json.id }}\"\n}",
+        "options": {}
+      },
+      "id": "http-log-alert-success",
+      "name": "HTTP - Log Alert Generated",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/log-workflow",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"WF_02_RISK_THRESHOLD\",\n  \"status\": \"SUCCESS\",\n  \"action_taken\": \"DEDUP_COOLDOWN_ACTIVE\",\n  \"note\": \"Suppressed duplicate alert within 60-minute window for target zone.\"\n}",
+        "options": {}
+      },
+      "id": "http-log-dedup-suppressed",
+      "name": "HTTP - Log Duplicate Cooldown",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 360]
+    }
+  ],
+  "connections": {
+    "Webhook - Ingest Risk Event": {
+      "main": [
+        [
+          {
+            "node": "IF - Risk Score >= 65",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Risk Score >= 65": {
+      "main": [
+        [
+          {
+            "node": "IF - Not Duplicate Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Not Duplicate Alert": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Create Alert in MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP - Log Duplicate Cooldown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Create Alert in MongoDB": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Log Alert Generated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true
+  }
+}
+

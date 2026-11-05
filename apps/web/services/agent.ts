@@ -59,3 +59,4 @@ export async function fetchSuggestedQuestions(): Promise<SuggestedQuestion[]> {
 
   return res.json();
 }
+

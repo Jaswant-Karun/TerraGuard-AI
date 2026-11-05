@@ -1,0 +1,223 @@
+{
+  "name": "TerraGuard - 01 Environmental Monitoring",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger-node",
+      "name": "Schedule Trigger (Every 15m)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "trigger-environmental-monitoring",
+        "options": {}
+      },
+      "id": "webhook-trigger-node",
+      "name": "Manual Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 480],
+      "webhookId": "env-monitoring-manual"
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/api/v1/environment/current?lat=12.9716&lng=77.5946",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "http-fetch-environment",
+      "name": "HTTP - Fetch Live Environment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 380]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "temp-check",
+              "leftValue": "={{ $json.temperature_c }}",
+              "rightValue": 60,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            },
+            {
+              "id": "freshness-check",
+              "leftValue": "={{ $json.data_freshness }}",
+              "rightValue": "FAILED",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-telemetry-valid",
+      "name": "IF - Telemetry Valid",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/risk/assess",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lat\": {{ $json.location.coordinates[1] }},\n  \"lng\": {{ $json.location.coordinates[0] }},\n  \"rainfall_intensity_mmh\": {{ $json.rainfall_mm || 0 }},\n  \"temperature_c\": {{ $json.temperature_c || 25 }},\n  \"aqi\": {{ $json.air_quality.aqi || 50 }}\n}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "http-trigger-risk-assessment",
+      "name": "HTTP - Trigger Risk Assessment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/risk-assessment-callback",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            },
+            {
+              "name": "X-TerraGuard-Origin",
+              "value": "n8n"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"WF_01_ENV_MONITORING\",\n  \"status\": \"SUCCESS\",\n  \"assessment_id\": \"{{ $json.id }}\",\n  \"composite_risk_score\": {{ $json.composite_risk_score }},\n  \"risk_level\": \"{{ $json.risk_level }}\"\n}",
+        "options": {}
+      },
+      "id": "http-log-success-callback",
+      "name": "HTTP - Log Workflow Receipt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/risk-assessment-callback",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"WF_01_ENV_MONITORING\",\n  \"status\": \"FAILED\",\n  \"error_message\": \"Environmental data telemetry validation failed or out of physical bounds.\"\n}",
+        "options": {}
+      },
+      "id": "http-log-telemetry-error",
+      "name": "HTTP - Log Validation Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 480]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (Every 15m)": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Fetch Live Environment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Fetch Live Environment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Fetch Live Environment": {
+      "main": [
+        [
+          {
+            "node": "IF - Telemetry Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Telemetry Valid": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Trigger Risk Assessment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP - Log Validation Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Trigger Risk Assessment": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Log Workflow Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true
+  }
+}
+

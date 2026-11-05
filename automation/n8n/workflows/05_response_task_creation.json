@@ -1,0 +1,159 @@
+{
+  "name": "TerraGuard - 05 Response Task Creation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "response-task-creation",
+        "options": {}
+      },
+      "id": "webhook-approved-risk-event",
+      "name": "Webhook - Ingest Approved Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 320],
+      "webhookId": "response-task-creation"
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $json.body;\nconst score = event.composite_risk_score || 75.0;\nconst hazard = event.primary_hazard || 'FLOOD';\nconst zone = event.zone_code || 'METRO-ZONE-04';\nconst lat = event.location?.coordinates?.[1] || 12.9352;\nconst lng = event.location?.coordinates?.[0] || 77.6245;\n\nlet department = 'MUNICIPAL_STORMWATER_CORPS';\nlet instructions = 'Deploy mobile trailer dewatering pump unit to clear pooling storm runoff.';\nlet priority = 'HIGH';\nlet requiresApproval = false;\n\nif (score >= 80.0) {\n  priority = 'URGENT';\n  requiresApproval = true;\n  instructions = 'Initiate mandatory underpass vehicular barricading and stage civil evacuation buses.';\n} else if (hazard === 'FALLEN_TREE') {\n  department = 'URBAN_FORESTRY_DIVISION';\n  instructions = 'Clear downed timber obstructing arterial roadway; verify overhead line safety.';\n}\n\nreturn [{\n  title: `Emergency Task: ${hazard} Mitigation in ${zone}`,\n  assigned_department: department,\n  priority: priority,\n  status: requiresApproval ? 'PENDING' : 'DISPATCHED',\n  requires_human_approval: requiresApproval,\n  instructions: instructions,\n  location: {\n    type: 'Point',\n    coordinates: [lng, lat]\n  }\n}];"
+      },
+      "id": "code-generate-task",
+      "name": "Code - Formulate Tactical Task",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 320]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "approval-check",
+              "leftValue": "={{ $json.requires_human_approval }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-requires-approval",
+      "name": "IF - Requires Human Approval",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/task-dispatch-callback",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            },
+            {
+              "name": "X-TerraGuard-Origin",
+              "value": "n8n"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"WF_05_RESPONSE_TASK_CREATION\",\n  \"status\": \"PENDING_APPROVAL\",\n  \"title\": \"{{ $json.title }}\",\n  \"assigned_department\": \"{{ $json.assigned_department }}\",\n  \"priority\": \"{{ $json.priority }}\",\n  \"instructions\": \"{{ $json.instructions }}\",\n  \"location\": {{ JSON.stringify($json.location) }},\n  \"requires_human_approval\": true\n}",
+        "options": {}
+      },
+      "id": "http-queue-pending-approval",
+      "name": "HTTP - Queue For Coordinator Approval",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/task-dispatch-callback",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            },
+            {
+              "name": "X-TerraGuard-Origin",
+              "value": "n8n"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"WF_05_RESPONSE_TASK_CREATION\",\n  \"status\": \"DISPATCHED\",\n  \"title\": \"{{ $json.title }}\",\n  \"assigned_department\": \"{{ $json.assigned_department }}\",\n  \"priority\": \"{{ $json.priority }}\",\n  \"instructions\": \"{{ $json.instructions }}\",\n  \"location\": {{ JSON.stringify($json.location) }},\n  \"requires_human_approval\": false\n}",
+        "options": {}
+      },
+      "id": "http-direct-dispatch",
+      "name": "HTTP - Save Task & Dispatch to Field",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - Ingest Approved Event": {
+      "main": [
+        [
+          {
+            "node": "Code - Formulate Tactical Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Formulate Tactical Task": {
+      "main": [
+        [
+          {
+            "node": "IF - Requires Human Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Requires Human Approval": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Queue For Coordinator Approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP - Save Task & Dispatch to Field",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true
+  }
+}
+

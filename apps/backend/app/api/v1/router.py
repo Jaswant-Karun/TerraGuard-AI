@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     agent,
     auth,
+    automation,
     dashboard,
     environment,
     geospatial,
@@ -37,6 +38,9 @@ api_v1_router.include_router(reports.router)
 
 # Mount AI Multi-Agent Command Center
 api_v1_router.include_router(agent.router)
+
+# Mount n8n Automation Engine & Webhooks
+api_v1_router.include_router(automation.router)
 
 # Mount geospatial intelligence endpoints
 api_v1_router.include_router(geospatial.router, prefix="/geospatial", tags=["Geospatial Intelligence"])

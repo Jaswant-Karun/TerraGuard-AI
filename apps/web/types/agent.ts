@@ -70,3 +70,4 @@ export interface SuggestedQuestion {
   question: string;
   agent: string;
 }
+

@@ -138,7 +138,7 @@ class ResponseTaskModel(BaseModel):
     incident_id: str | None = None
     assigned_department: str = Field(..., description="e.g. MUNICIPAL_STORMWATER_CORPS")
     assigned_to_user_id: str | None = None
-    status: Literal["PENDING", "EN_ROUTE", "IN_PROGRESS", "COMPLETED", "CANCELLED"] = Field(
+    status: Literal["PENDING", "DISPATCHED", "EN_ROUTE", "IN_PROGRESS", "COMPLETED", "CANCELLED"] = Field(
         default="PENDING"
     )
     priority: Literal["LOW", "MEDIUM", "HIGH", "URGENT"] = Field(default="MEDIUM")

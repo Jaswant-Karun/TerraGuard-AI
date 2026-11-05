@@ -196,3 +196,4 @@ async def get_factual_safe_routes(origin_zone: str, lat: float, lng: float) -> l
             "destination": "Metro District Hospital",
         },
     ]
+

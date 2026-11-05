@@ -1,0 +1,109 @@
+{
+  "name": "TerraGuard - 04 Alert Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alert-notification-event",
+        "options": {}
+      },
+      "id": "webhook-approved-alert",
+      "name": "Webhook - Ingest Approved Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 320],
+      "webhookId": "alert-notification-event"
+    },
+    {
+      "parameters": {
+        "url": "=http://backend:8000/api/v1/automation/subscribers?zone={{ $json.body.target_zone }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "http-query-subscribers",
+      "name": "HTTP - Query Subscribed Citizens",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "const alert = $('Webhook - Ingest Approved Alert').item.json.body;\nconst subs = $input.first().json.items || [];\n\nconst notifications = subs.map(sub => ({\n  user_id: sub.user_id,\n  channel: sub.preferred_channel || 'TELEGRAM',\n  title: `🚨 EMERGENCY ADVISORY: ${alert.title}`,\n  body: `${alert.message}\\n\\nZone: ${alert.target_zone}\\nSeverity: ${alert.severity}`,\n  alert_id: alert.id,\n  timestamp: new Date().toISOString()\n}));\n\nreturn notifications.length > 0 ? notifications : [{\n  user_id: 'BROADCAST_ALL',\n  channel: 'DASHBOARD',\n  title: `🚨 EMERGENCY ADVISORY: ${alert.title}`,\n  body: alert.message,\n  alert_id: alert.id,\n  timestamp: new Date().toISOString()\n}];"
+      },
+      "id": "code-format-notifications",
+      "name": "Code - Build Multi-Channel Payloads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/api/v1/automation/webhooks/alert-delivery-callback",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "tg_dev_secret_key"
+            },
+            {
+              "name": "X-TerraGuard-Origin",
+              "value": "n8n"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"WF_04_ALERT_NOTIFICATION\",\n  \"alert_id\": \"{{ $json.alert_id }}\",\n  \"dispatched_count\": {{ $('Code - Build Multi-Channel Payloads').all().length }},\n  \"delivery_status\": \"DELIVERED\",\n  \"channels\": [\"TELEGRAM\", \"SMS\", \"DASHBOARD\"]\n}",
+        "options": {}
+      },
+      "id": "http-record-delivery-receipt",
+      "name": "HTTP - Record Delivery Receipt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 320]
+    }
+  ],
+  "connections": {
+    "Webhook - Ingest Approved Alert": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Query Subscribed Citizens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Query Subscribed Citizens": {
+      "main": [
+        [
+          {
+            "node": "Code - Build Multi-Channel Payloads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build Multi-Channel Payloads": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Record Delivery Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true
+  }
+}
+

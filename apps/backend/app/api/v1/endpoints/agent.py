@@ -81,3 +81,4 @@ async def get_suggested_questions() -> list[dict[str, str]]:
             "agent": "AIR_QUALITY_AGENT",
         },
     ]
+
