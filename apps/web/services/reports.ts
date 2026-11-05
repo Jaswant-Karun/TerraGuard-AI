@@ -3,6 +3,7 @@ import {
   ReportListResponse,
   VisionAnalysisDTO,
 } from "@/types/report";
+import { getAccessToken } from "./auth";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
@@ -11,11 +12,12 @@ export async function submitHazardReport(
   formData: FormData,
   token?: string | null
 ): Promise<ReportItem> {
+  const effectiveToken = token || getAccessToken();
   const headers: Record<string, string> = {
     Accept: "application/json",
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  if (effectiveToken) {
+    headers["Authorization"] = `Bearer ${effectiveToken}`;
   }
 
   const res = await fetch(`${API_BASE_URL}/reports`, {
@@ -126,12 +128,13 @@ export async function updateReportStatus(
   notes?: string,
   token?: string | null
 ): Promise<ReportItem> {
+  const effectiveToken = token || getAccessToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  if (effectiveToken) {
+    headers["Authorization"] = `Bearer ${effectiveToken}`;
   }
 
   const res = await fetch(`${API_BASE_URL}/reports/${reportId}/status`, {

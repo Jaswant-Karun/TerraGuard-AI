@@ -4,19 +4,27 @@ import {
   AgentInfo,
   SuggestedQuestion,
 } from "@/types/agent";
+import { getAccessToken } from "./auth";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
 export async function chatWithAgent(
-  payload: AgentChatRequest
+  payload: AgentChatRequest,
+  token?: string | null
 ): Promise<AgentChatResponse> {
+  const effectiveToken = token || getAccessToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+  if (effectiveToken) {
+    headers["Authorization"] = `Bearer ${effectiveToken}`;
+  }
+
   const res = await fetch(`${API_BASE_URL}/agent/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 

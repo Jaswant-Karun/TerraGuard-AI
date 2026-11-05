@@ -3,6 +3,7 @@ import {
   RouteQueryRequest,
   RouteQueryResponse,
 } from "@/types/navigation";
+import { getAccessToken } from "./auth";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
@@ -11,14 +12,21 @@ const API_BASE_URL =
  * Compute safe navigation routes with hazard avoidance and alternative paths
  */
 export async function fetchSafeRoutes(
-  payload: RouteQueryRequest
+  payload: RouteQueryRequest,
+  token?: string | null
 ): Promise<RouteQueryResponse> {
+  const effectiveToken = token || getAccessToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+  if (effectiveToken) {
+    headers["Authorization"] = `Bearer ${effectiveToken}`;
+  }
+
   const res = await fetch(`${API_BASE_URL}/navigation/routes`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
+    headers,
     body: JSON.stringify(payload),
     cache: "no-store",
   });
