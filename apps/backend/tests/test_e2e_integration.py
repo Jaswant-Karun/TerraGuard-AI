@@ -161,8 +161,8 @@ async def test_e2e_critical_journeys():
         )
         assert chat_res.status_code == 200
         chat_data = chat_res.json()
-        assert chat_data["assigned_agent"] is not None
-        assert "explanation" in chat_data
+        assert chat_data["agent_name"] is not None
+        assert "reply" in chat_data
 
         # =====================================================================
         # JOURNEY 7: n8n Automation Engine & Webhooks
