@@ -72,9 +72,9 @@ async def test_e2e_critical_journeys():
         map_res = await client.get("/api/v1/geospatial/map-layers")
         assert map_res.status_code == 200
         map_data = map_res.json()
-        assert "flood_risk_zones" in map_data
-        assert "hospitals" in map_data
-        assert "shelters" in map_data
+        assert "risk_zones" in map_data
+        assert "facilities" in map_data
+        assert "citizen_reports" in map_data
 
         # =====================================================================
         # JOURNEY 4: Environmental Data Collection & Risk Engine
@@ -83,7 +83,11 @@ async def test_e2e_critical_journeys():
         assert env_res.status_code == 200
         env_data = env_res.json()
         assert "temperature_c" in env_data
-        assert "air_quality" in env_data
+        assert "rainfall_mm" in env_data
+
+        aq_res = await client.get("/api/v1/environment/air-quality?lat=12.9716&lng=77.5946")
+        assert aq_res.status_code == 200
+        assert "aqi" in aq_res.json()
 
         # Assess Risk via Scikit / XGBoost models
         risk_req = {
