@@ -1,4 +1,5 @@
 import { MapLayersData } from "@/types/map";
+import { getAccessToken } from "./auth";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
@@ -7,6 +8,7 @@ export async function fetchMapLayers(params?: {
   lat?: number;
   lng?: number;
   radiusKm?: number;
+  token?: string | null;
 }): Promise<MapLayersData> {
   const query = new URLSearchParams();
   if (params?.lat !== undefined) query.set("lat", params.lat.toString());
@@ -18,12 +20,18 @@ export async function fetchMapLayers(params?: {
     query.toString() ? `?${query.toString()}` : ""
   }`;
 
+  const token = params?.token || getAccessToken();
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const res = await fetch(url, {
     method: "GET",
     cache: "no-store",
-    headers: {
-      Accept: "application/json",
-    },
+    headers,
   });
 
   if (!res.ok) {

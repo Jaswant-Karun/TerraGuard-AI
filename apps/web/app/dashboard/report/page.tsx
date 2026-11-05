@@ -100,7 +100,7 @@ const QUICK_ZONES = [
 ];
 
 export default function ReportHazardPage() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   // Form State
   const [title, setTitle] = useState("");
@@ -234,7 +234,6 @@ export default function ReportHazardPage() {
         formData.append("image", selectedFile);
       }
 
-      const token = typeof window !== "undefined" ? localStorage.getItem("tg_access_token") : null;
       const result = await submitHazardReport(formData, token);
       setSubmittedReport(result);
     } catch (err: unknown) {

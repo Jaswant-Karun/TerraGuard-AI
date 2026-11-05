@@ -4,19 +4,27 @@ import {
   RiskAssessmentResponse,
   RiskExplanationResponse,
 } from "@/types/risk";
+import { getAccessToken } from "./auth";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
 export async function assessRisk(
-  payload: RiskAssessmentRequest
+  payload: RiskAssessmentRequest,
+  token?: string | null
 ): Promise<RiskAssessmentResponse> {
+  const effectiveToken = token || getAccessToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+  if (effectiveToken) {
+    headers["Authorization"] = `Bearer ${effectiveToken}`;
+  }
+
   const res = await fetch(`${API_BASE_URL}/risk/assess`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 
