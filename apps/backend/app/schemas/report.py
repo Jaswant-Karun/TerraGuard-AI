@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -53,8 +54,8 @@ class ReportResponse(BaseModel):
     duplicate_metadata: dict[str, Any] = Field(default_factory=dict)
     verification_notes: str | None = None
     verified_by_user_id: str | None = None
-    created_at: str
-    updated_at: str | None = None
+    created_at: datetime | str
+    updated_at: datetime | str | None = None
 
 
 class ReportStatusUpdateRequest(BaseModel):

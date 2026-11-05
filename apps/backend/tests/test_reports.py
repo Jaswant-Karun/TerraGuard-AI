@@ -1,5 +1,4 @@
 from io import BytesIO
-
 import pytest
 from httpx import ASGITransport, AsyncClient
 from PIL import Image
@@ -8,7 +7,7 @@ from app.core.security import create_access_token
 from app.services.duplicate_service import duplicate_service
 from app.services.storage_service import storage_service
 from app.services.vision_service import vision_service
-from main import create_application
+from main import app
 
 
 def create_dummy_image_bytes(color: tuple[int, int, int] = (30, 80, 200), format: str = "JPEG") -> bytes:
@@ -17,27 +16,6 @@ def create_dummy_image_bytes(color: tuple[int, int, int] = (30, 80, 200), format
     buf = BytesIO()
     img.save(buf, format=format)
     return buf.getvalue()
-
-
-@pytest.fixture
-def test_app():
-    return create_application()
-
-
-@pytest.fixture
-async def async_client(test_app):
-    async with AsyncClient(
-        transport=ASGITransport(app=test_app),
-        base_url="http://testserver",
-    ) as client:
-        yield client
-
-
-@pytest.fixture
-def coordinator_token():
-    return create_access_token(
-        data={"sub": "user_coord_123", "email": "coord@terraguard.ai", "role": "COORDINATOR"}
-    )
 
 
 # ---------------------------------------------------------
@@ -114,92 +92,126 @@ async def test_duplicate_detection_logic():
 # Integration Tests: Report Endpoints
 # ---------------------------------------------------------
 @pytest.mark.asyncio
-async def test_create_report_with_image_upload(async_client):
-    img_bytes = create_dummy_image_bytes(color=(50, 100, 220))
+async def test_create_report_with_image_upload():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        img_bytes = create_dummy_image_bytes(color=(50, 100, 220))
 
-    files = {
-        "image": ("hazard.jpg", img_bytes, "image/jpeg"),
-    }
-    data = {
-        "title": "Severe Waterlogging on 80 Feet Road",
-        "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
-        "category": "WATERLOGGING",
-        "lat": "12.9352",
-        "lng": "77.6245",
-        "address": "80 Feet Rd, 4th Block, Koramangala",
-        "severity": "3",
-    }
+        files = {
+            "image": ("hazard.jpg", img_bytes, "image/jpeg"),
+        }
+        data = {
+            "title": "Severe Waterlogging on 80 Feet Road",
+            "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
+            "category": "WATERLOGGING",
+            "lat": "12.9352",
+            "lng": "77.6245",
+            "address": "80 Feet Rd, 4th Block, Koramangala",
+            "severity": "3",
+        }
 
-    res = await async_client.post("/api/v1/reports", data=data, files=files)
-    assert res.status_code == 201
-    body = res.json()
-    assert body["title"] == "Severe Waterlogging on 80 Feet Road"
-    assert body["category"] == "WATERLOGGING"
-    assert body["status"] == "REPORTED"  # Unverified initially
-    assert len(body["media_urls"]) == 1
-    assert body["ai_analysis"] is not None
-    assert body["ai_analysis"]["predicted_category"] is not None
-    assert body["is_potential_duplicate"] is False
-    report_id = body["id"]
+        res = await ac.post("/api/v1/reports", data=data, files=files)
+        assert res.status_code == 201
+        body = res.json()
+        assert body["title"] == "Severe Waterlogging on 80 Feet Road"
+        assert body["category"] == "WATERLOGGING"
+        assert body["status"] == "REPORTED"  # Unverified initially
+        assert len(body["media_urls"]) == 1
+        assert body["ai_analysis"] is not None
+        assert body["ai_analysis"]["predicted_category"] is not None
+        assert body["is_potential_duplicate"] is False
+        report_id = body["id"]
 
-    # Now submit another report nearby with same image to test duplicate detection
-    res2 = await async_client.post("/api/v1/reports", data=data, files=files)
-    assert res2.status_code == 201
-    body2 = res2.json()
-    assert body2["id"] != report_id  # Not deleted, distinct report created
-    assert body2["is_potential_duplicate"] is True
-    assert body2["duplicate_of_report_id"] == report_id
-
-
-@pytest.mark.asyncio
-async def test_preview_image_analysis(async_client):
-    img_bytes = create_dummy_image_bytes(color=(20, 150, 50))
-    files = {
-        "image": ("tree_branch.jpg", img_bytes, "image/jpeg"),
-    }
-    data = {
-        "category_hint": "FALLEN_TREE",
-        "description_hint": "Large banyan branch snapped across street",
-    }
-    res = await async_client.post("/api/v1/reports/analyze-image", data=data, files=files)
-    assert res.status_code == 200
-    body = res.json()
-    assert body["predicted_category"] == "FALLEN_TREE"
-    assert len(body["safety_precautions"]) > 0
+        # Now submit another report nearby with same image to test duplicate detection
+        res2 = await ac.post("/api/v1/reports", data=data, files=files)
+        assert res2.status_code == 201
+        body2 = res2.json()
+        assert body2["id"] != report_id  # Not deleted, distinct report created
+        assert body2["is_potential_duplicate"] is True
+        assert body2["duplicate_of_report_id"] == report_id
 
 
 @pytest.mark.asyncio
-async def test_list_and_get_report(async_client):
-    # List reports
-    res = await async_client.get("/api/v1/reports")
-    assert res.status_code == 200
-    body = res.json()
-    assert "items" in body
-    assert body["total"] >= 1
-
-    report_id = body["items"][0]["id"]
-    # Get by ID
-    res_single = await async_client.get(f"/api/v1/reports/{report_id}")
-    assert res_single.status_code == 200
-    assert res_single.json()["id"] == report_id
+async def test_preview_image_analysis():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        img_bytes = create_dummy_image_bytes(color=(20, 150, 50))
+        files = {
+            "image": ("tree_branch.jpg", img_bytes, "image/jpeg"),
+        }
+        data = {
+            "category_hint": "FALLEN_TREE",
+            "description_hint": "Large banyan branch snapped across street",
+        }
+        res = await ac.post("/api/v1/reports/analyze-image", data=data, files=files)
+        assert res.status_code == 200
+        body = res.json()
+        assert body["predicted_category"] == "FALLEN_TREE"
+        assert len(body["safety_precautions"]) > 0
 
 
 @pytest.mark.asyncio
-async def test_update_report_status_rbac(async_client, coordinator_token):
-    # Fetch first report
-    res_list = await async_client.get("/api/v1/reports")
-    report_id = res_list.json()["items"][0]["id"]
+async def test_list_and_get_report():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # Create a report first
+        img_bytes = create_dummy_image_bytes()
+        files = {"image": ("hazard.jpg", img_bytes, "image/jpeg")}
+        data = {
+            "title": "Choked Storm Culvert",
+            "description": "Plastic bottles and debris blocking storm drain outlet.",
+            "category": "WASTE_ACCUMULATION",
+            "lat": "12.9716",
+            "lng": "77.5946",
+        }
+        create_res = await ac.post("/api/v1/reports", data=data, files=files)
+        assert create_res.status_code == 201
+        created_id = create_res.json()["id"]
 
-    # Without token -> 401
-    patch_data = {"status": "VERIFIED", "verification_notes": "Field unit verified on-site."}
-    res_unauth = await async_client.patch(f"/api/v1/reports/{report_id}/status", json=patch_data)
-    assert res_unauth.status_code == 401
+        # List reports
+        res = await ac.get("/api/v1/reports")
+        assert res.status_code == 200
+        body = res.json()
+        assert "items" in body
+        assert body["total"] >= 1
 
-    # With coordinator token -> 200
-    headers = {"Authorization": f"Bearer {coordinator_token}"}
-    res_auth = await async_client.patch(
-        f"/api/v1/reports/{report_id}/status", json=patch_data, headers=headers
-    )
-    assert res_auth.status_code == 200
-    assert res_auth.json()["status"] == "VERIFIED"
-    assert res_auth.json()["verification_notes"] == "Field unit verified on-site."
+        # Get by ID
+        res_single = await ac.get(f"/api/v1/reports/{created_id}")
+        assert res_single.status_code == 200
+        assert res_single.json()["id"] == created_id
+
+
+@pytest.mark.asyncio
+async def test_update_report_status_rbac():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # Create a report
+        img_bytes = create_dummy_image_bytes()
+        files = {"image": ("pothole.jpg", img_bytes, "image/jpeg")}
+        data = {
+            "title": "Deep Pothole on Outer Ring Road",
+            "description": "Asphalt depression 15cm deep posing hazard to motorists.",
+            "category": "DAMAGED_ROAD",
+            "lat": "12.9250",
+            "lng": "77.6800",
+        }
+        create_res = await ac.post("/api/v1/reports", data=data, files=files)
+        assert create_res.status_code == 201
+        report_id = create_res.json()["id"]
+
+        # Without token -> 401
+        patch_data = {"status": "VERIFIED", "verification_notes": "Field unit verified on-site."}
+        res_unauth = await ac.patch(f"/api/v1/reports/{report_id}/status", json=patch_data)
+        assert res_unauth.status_code == 401
+
+        # With coordinator token -> 200
+        coord_token = create_access_token(
+            data={"sub": "user_coord_123", "email": "coord@terraguard.ai", "role": "COORDINATOR"}
+        )
+        headers = {"Authorization": f"Bearer {coord_token}"}
+        res_auth = await ac.patch(
+            f"/api/v1/reports/{report_id}/status", json=patch_data, headers=headers
+        )
+        assert res_auth.status_code == 200
+        assert res_auth.json()["status"] == "VERIFIED"
+        assert res_auth.json()["verification_notes"] == "Field unit verified on-site."
