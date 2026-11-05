@@ -6,7 +6,9 @@ import { usePathname } from "next/navigation";
 import {
   Activity,
   AlertTriangle,
+  BarChart3,
   Bot,
+  Building2,
   ChevronLeft,
   ChevronRight,
   Compass,
