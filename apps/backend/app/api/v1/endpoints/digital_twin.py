@@ -1,4 +1,5 @@
 from typing import Any
+
 from fastapi import APIRouter, status
 
 from app.schemas.digital_twin import DigitalTwinSummaryResponse

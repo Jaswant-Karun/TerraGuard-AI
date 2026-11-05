@@ -1,8 +1,8 @@
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from app.core.database import db_manager, serialize_doc
-from app.repositories.base_repository import BaseRepository
+from app.core.database import db_manager
+from app.repositories.base_repository import serialize_doc
 from app.schemas.digital_twin import (
     DigitalTwinSummaryResponse,
     HistoricalBenchmarkDTO,
