@@ -5,6 +5,7 @@ from app.api.v1.endpoints import (
     auth,
     automation,
     dashboard,
+    digital_twin,
     environment,
     geospatial,
     health,
@@ -45,6 +46,9 @@ api_v1_router.include_router(automation.router)
 
 # Mount safe navigation and routing intelligence
 api_v1_router.include_router(navigation.router)
+
+# Mount 3D Digital Twin and visual analytics
+api_v1_router.include_router(digital_twin.router)
 
 # Mount geospatial intelligence endpoints
 api_v1_router.include_router(geospatial.router, prefix="/geospatial", tags=["Geospatial Intelligence"])
