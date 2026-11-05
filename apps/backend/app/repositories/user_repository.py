@@ -81,6 +81,26 @@ class UserRepository:
         return None
 
     @classmethod
+    async def list_users(cls, page: int = 1, page_size: int = 50) -> tuple[list[dict[str, Any]], int]:
+        """Returns paginated users and total count."""
+        if not db_manager.is_fallback() and db_manager.db is not None:
+            total = await db_manager.db["users"].count_documents({})
+            cursor = db_manager.db["users"].find({}).skip((page - 1) * page_size).limit(page_size)
+            raw = await cursor.to_list(length=page_size)
+            results = []
+            for d in raw:
+                doc = dict(d)
+                doc["id"] = str(doc.get("_id"))
+                results.append(doc)
+            return results, total
+
+        # Fallback in-memory
+        users = list(cls._in_memory_users.values())
+        total = len(users)
+        start = (page - 1) * page_size
+        return users[start : start + page_size], total
+
+    @classmethod
     async def save_refresh_token(cls, user_id: str, refresh_token: str) -> None:
         await cls.update(user_id, {"refresh_token": refresh_token})
 
