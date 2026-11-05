@@ -216,8 +216,8 @@ class VisionService:
                 img_rgb = img.convert("RGB")
                 _width, _height = img_rgb.size
                 # Sample center crop
-                crop = img_rgb.resize((64, 64))
-                pixels = list(crop.getdata())
+                crop = img_rgb.resize((32, 32))
+                pixels = [crop.getpixel((x, y)) for x in range(32) for y in range(32)]
                 avg_r = sum(p[0] for p in pixels) / len(pixels)
                 avg_g = sum(p[1] for p in pixels) / len(pixels)
                 avg_b = sum(p[2] for p in pixels) / len(pixels)
