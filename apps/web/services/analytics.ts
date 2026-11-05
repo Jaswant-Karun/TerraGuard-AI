@@ -83,3 +83,4 @@ export async function downloadReportFile(
   a.remove();
   window.URL.revokeObjectURL(blobUrl);
 }
+
