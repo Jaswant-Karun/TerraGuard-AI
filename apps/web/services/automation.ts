@@ -76,12 +76,13 @@ export async function triggerWorkflow(
   payload?: Record<string, any>,
   token?: string | null
 ): Promise<WorkflowTriggerResponse> {
+  const effectiveToken = token || getAccessToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  if (effectiveToken) {
+    headers["Authorization"] = `Bearer ${effectiveToken}`;
   }
 
   const res = await fetch(`${API_BASE_URL}/automation/workflows/${workflowId}/trigger`, {
