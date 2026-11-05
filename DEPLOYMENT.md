@@ -96,7 +96,7 @@ TerraGuard provides a declarative [`render.yaml`](file:///c:/Users/jaswant%20kar
    Add the following in Vercel Project Settings $\to$ Environment Variables:
    - `NEXT_PUBLIC_API_URL`: `https://terraguard-api.onrender.com/api/v1`
    - `NEXT_PUBLIC_API_BASE_URL`: `https://terraguard-api.onrender.com/api/v1`
-   - `NEXT_PUBLIC_MAP_TILE_URL`: `https://basemaps.cartocdn.com/gl/positron-gl-style/style.json`
+   - `NEXT_PUBLIC_MAP_TILE_URL`: `https://tile.openstreetmap.org/{z}/{x}/{y}.png`
    - `NEXT_PUBLIC_DEFAULT_LAT`: `12.9716`
    - `NEXT_PUBLIC_DEFAULT_LNG`: `77.5946`
 4. **Deploy:**

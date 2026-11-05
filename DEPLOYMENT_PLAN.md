@@ -51,7 +51,7 @@ TerraGuard AI is engineered for multi-cloud production resilience:
 | Variable Name | Description | Example / Recommended Value |
 | :--- | :--- | :--- |
 | `NEXT_PUBLIC_API_BASE_URL` | Render FastAPI public URL | `https://terraguard-api.onrender.com/api/v1` |
-| `NEXT_PUBLIC_MAP_TILE_URL` | MapLibre basemap style | `https://basemaps.cartocdn.com/gl/positron-gl-style/style.json` |
+| `NEXT_PUBLIC_MAP_TILE_URL` | MapLibre basemap style | `https://tile.openstreetmap.org/{z}/{x}/{y}.png` |
 | `NEXT_PUBLIC_DEFAULT_LAT` | Default center latitude | `12.9716` |
 | `NEXT_PUBLIC_DEFAULT_LNG` | Default center longitude | `77.5946` |
 | `NEXT_PUBLIC_APP_NAME` | Branding title | `TerraGuard AI` |

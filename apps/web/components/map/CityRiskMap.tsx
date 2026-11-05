@@ -48,7 +48,7 @@ export function CityRiskMap({
       try {
         const maplibregl = (await import("maplibre-gl")).default;
 
-        // Clean light command center basemap style (OSM / Carto Positron GL style)
+        // Clean OpenStreetMap command center basemap style (Free, no API key required)
         map = new maplibregl.Map({
           container: mapContainer.current,
           style: {
@@ -57,11 +57,12 @@ export function CityRiskMap({
               "osm-tiles": {
                 type: "raster",
                 tiles: [
-                  "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-                  "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+                  "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 ],
                 tileSize: 256,
-                attribution: "© OpenStreetMap contributors, © CARTO",
+                attribution: "© OpenStreetMap contributors",
               },
             },
             layers: [

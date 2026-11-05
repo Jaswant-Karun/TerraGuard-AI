@@ -69,11 +69,12 @@ export function NavigationRouteMap({
               "osm-tiles": {
                 type: "raster",
                 tiles: [
-                  "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-                  "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+                  "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 ],
                 tileSize: 256,
-                attribution: "© OpenStreetMap contributors, © CARTO",
+                attribution: "© OpenStreetMap contributors",
               },
             },
             layers: [
