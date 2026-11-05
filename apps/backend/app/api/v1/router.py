@@ -7,6 +7,7 @@ from app.api.v1.endpoints import (
     geospatial,
     health,
     locations,
+    reports,
     risk,
 )
 
@@ -29,6 +30,9 @@ api_v1_router.include_router(dashboard.router, prefix="/dashboard", tags=["Comma
 
 # Mount locations & critical infrastructure endpoints
 api_v1_router.include_router(locations.router, prefix="/locations", tags=["Locations & Facilities"])
+
+# Mount citizen hazard reporting & AI vision
+api_v1_router.include_router(reports.router)
 
 # Mount geospatial intelligence endpoints
 api_v1_router.include_router(geospatial.router, prefix="/geospatial", tags=["Geospatial Intelligence"])

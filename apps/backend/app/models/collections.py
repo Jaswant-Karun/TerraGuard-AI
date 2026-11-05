@@ -66,23 +66,39 @@ class CitizenReportModel(BaseModel):
     title: str = Field(..., min_length=3, max_length=150)
     description: str = Field(..., min_length=5)
     category: Literal[
+        "WATERLOGGING",
+        "ROAD_FLOODING",
+        "DAMAGED_ROAD",
+        "FALLEN_TREE",
+        "WASTE_ACCUMULATION",
+        "OTHER",
         "FLOOD",
         "AIR_POLLUTION",
         "FIRE",
         "LANDSLIDE",
         "INFRASTRUCTURE_FAILURE",
         "WATER_CONTAMINATION",
-        "OTHER",
     ] = Field(...)
-    severity: int = Field(default=1, ge=1, le=5, description="Severity 1 to 5")
-    status: Literal["REPORTED", "AI_ANALYZED", "VERIFIED", "DISPATCHED", "RESOLVED", "REJECTED"] = Field(
-        default="REPORTED"
-    )
+    severity: int = Field(default=2, ge=1, le=5, description="Severity 1 to 5")
+    status: Literal[
+        "REPORTED",
+        "AI_ANALYZED",
+        "VERIFIED",
+        "DISPATCHED",
+        "RESOLVED",
+        "REJECTED",
+    ] = Field(default="REPORTED")
     location: GeoJSONPoint = Field(..., description="Location of incident [lng, lat]")
     address: str | None = None
     media_urls: list[str] = Field(default_factory=list)
+    image_hash: str | None = None
     reported_by_user_id: str | None = None
     ai_analysis: dict[str, Any] = Field(default_factory=dict)
+    is_potential_duplicate: bool = False
+    duplicate_of_report_id: str | None = None
+    duplicate_metadata: dict[str, Any] = Field(default_factory=dict)
+    verification_notes: str | None = None
+    verified_by_user_id: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime | None = None
 

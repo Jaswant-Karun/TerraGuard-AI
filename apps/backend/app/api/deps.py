@@ -49,6 +49,27 @@ async def get_current_user(
     return user
 
 
+async def get_optional_current_user(
+    authorization: str | None = Header(None, description="Bearer <JWT Access Token>"),
+) -> dict[str, Any] | None:
+    """Dependency that extracts user if Authorization header is present, or returns None."""
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+
+    try:
+        token = authorization.split("Bearer ", 1)[1].strip()
+        payload = decode_token(token, expected_type="access")
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        user = await UserRepository.find_by_id(user_id)
+        if not user or not user.get("is_active", True):
+            return None
+        return user
+    except Exception:
+        return None
+
+
 def require_role(*allowed_roles: UserRole) -> Callable:
     """Dependency factory for enforcing Role-Based Access Control (RBAC)."""
 
