@@ -659,3 +659,4 @@ export default function AlertsManagementPage() {
     </div>
   );
 }
+

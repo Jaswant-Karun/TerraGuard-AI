@@ -98,3 +98,4 @@ export interface AdminOverview {
   system_health: SystemHealth;
   recent_audit_logs: AuditLogItem[];
 }
+
