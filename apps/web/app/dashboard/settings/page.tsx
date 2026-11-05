@@ -113,11 +113,12 @@ export default function SettingsPage() {
 
   const toggleZone = (zoneName: string) => {
     if (!preferences) return;
-    const exists = preferences.subscribed_zones.includes(zoneName);
+    const currentZones = preferences.monitored_zones || [];
+    const exists = currentZones.includes(zoneName);
     const updated = exists
-      ? preferences.subscribed_zones.filter((z) => z !== zoneName)
-      : [...preferences.subscribed_zones, zoneName];
-    setPreferences({ ...preferences, subscribed_zones: updated });
+      ? currentZones.filter((z) => z !== zoneName)
+      : [...currentZones, zoneName];
+    setPreferences({ ...preferences, monitored_zones: updated });
   };
 
   return (
@@ -270,24 +271,9 @@ export default function SettingsPage() {
               {/* Channel Toggles */}
               <div>
                 <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
-                  Broadcast Delivery Channels
+                  Broadcast Delivery Channels & Thresholds
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                  <label className="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5 cursor-pointer hover:bg-slate-100 transition">
-                    <input
-                      type="checkbox"
-                      checked={preferences.in_app_enabled}
-                      onChange={(e) =>
-                        setPreferences({ ...preferences, in_app_enabled: e.target.checked })
-                      }
-                      className="mt-0.5 rounded text-blue-600"
-                    />
-                    <div>
-                      <div className="text-xs font-bold text-slate-800">In-App Drawer</div>
-                      <div className="text-[11px] text-slate-500">Live feed notifications</div>
-                    </div>
-                  </label>
-
                   <label className="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5 cursor-pointer hover:bg-slate-100 transition">
                     <input
                       type="checkbox"
@@ -318,23 +304,40 @@ export default function SettingsPage() {
                     </div>
                   </label>
 
-                  <label className="p-3 rounded-lg border border-red-200 bg-red-50/50 flex items-start gap-2.5 cursor-pointer hover:bg-red-50 transition">
+                  <label className="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5 cursor-pointer hover:bg-slate-100 transition">
                     <input
                       type="checkbox"
-                      checked={preferences.critical_override_quiet_hours}
+                      checked={preferences.telegram_enabled}
+                      onChange={(e) =>
+                        setPreferences({ ...preferences, telegram_enabled: e.target.checked })
+                      }
+                      className="mt-0.5 rounded text-blue-600"
+                    />
+                    <div>
+                      <div className="text-xs font-bold text-slate-800">Telegram Bot</div>
+                      <div className="text-[11px] text-slate-500">Instant push channel</div>
+                    </div>
+                  </label>
+
+                  <div className="p-3 rounded-lg border border-slate-200 bg-slate-50">
+                    <div className="text-xs font-bold text-slate-800 mb-1">Min Severity Level</div>
+                    <select
+                      value={preferences.min_severity_alert}
                       onChange={(e) =>
                         setPreferences({
                           ...preferences,
-                          critical_override_quiet_hours: e.target.checked,
+                          min_severity_alert: Number(e.target.value),
                         })
                       }
-                      className="mt-0.5 rounded text-red-600"
-                    />
-                    <div>
-                      <div className="text-xs font-bold text-red-900">Critical Override</div>
-                      <div className="text-[11px] text-red-700">Bypass quiet hours</div>
-                    </div>
-                  </label>
+                      className="w-full text-xs bg-white border border-slate-200 rounded px-2 py-1"
+                    >
+                      <option value={1}>Level 1+ (All Alerts)</option>
+                      <option value={2}>Level 2+ (Elevated)</option>
+                      <option value={3}>Level 3+ (Moderate)</option>
+                      <option value={4}>Level 4+ (High & Critical)</option>
+                      <option value={5}>Level 5 (Critical Only)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -348,7 +351,7 @@ export default function SettingsPage() {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                   {MONITORED_ZONES.map((zone) => {
-                    const isSubscribed = preferences.subscribed_zones.includes(zone.name);
+                    const isSubscribed = preferences.monitored_zones?.includes(zone.name) ?? false;
                     return (
                       <div
                         key={zone.code}
