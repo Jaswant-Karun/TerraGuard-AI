@@ -4,6 +4,7 @@ from app.api.v1.endpoints import (
     admin,
     agent,
     alerts,
+    analytics,
     auth,
     automation,
     dashboard,
@@ -60,3 +61,6 @@ api_v1_router.include_router(digital_twin.router)
 
 # Mount geospatial intelligence endpoints
 api_v1_router.include_router(geospatial.router, prefix="/geospatial", tags=["Geospatial Intelligence"])
+
+# Mount advanced analytics and report generation
+api_v1_router.include_router(analytics.router)
