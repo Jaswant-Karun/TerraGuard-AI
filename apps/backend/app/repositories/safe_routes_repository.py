@@ -1,9 +1,8 @@
 from typing import Any
 
-from app.core.database import db_manager, serialize_doc
+from app.core.database import db_manager, haversine_distance_meters
 from app.models.collections import SafeRouteModel
-from app.repositories.base_repository import BaseRepository
-from app.repositories.geospatial_repository import haversine_distance_meters
+from app.repositories.base_repository import BaseRepository, serialize_doc
 
 
 class SafeRoutesRepository(BaseRepository):
