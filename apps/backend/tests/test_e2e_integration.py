@@ -196,7 +196,8 @@ async def test_e2e_critical_journeys():
         )
         assert route_res.status_code == 200
         route_data = route_res.json()
-        assert len(route_data["routes"]) >= 1
+        assert "primary_route" in route_data
+        assert route_data["primary_route"]["distance_km"] > 0
         assert route_data["disclaimer"] is not None
 
         facilities_res = await client.get(

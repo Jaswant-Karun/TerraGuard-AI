@@ -78,6 +78,10 @@ async def list_workflow_logs(
     "/trigger/{workflow_id}",
     summary="Manually trigger an n8n workflow execution from the command center",
 )
+@router.post(
+    "/workflows/{workflow_id}/trigger",
+    summary="Manually trigger an n8n workflow execution (REST alias)",
+)
 async def trigger_workflow(
     workflow_id: str,
     payload: dict[str, Any] | None = None,
