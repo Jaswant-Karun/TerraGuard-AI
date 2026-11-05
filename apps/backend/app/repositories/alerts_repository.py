@@ -1,9 +1,9 @@
 from datetime import UTC, datetime
 from typing import Any
 
-from app.core.database import db_manager, serialize_doc
+from app.core.database import db_manager
 from app.models.collections import AlertModel
-from app.repositories.base_repository import BaseRepository
+from app.repositories.base_repository import BaseRepository, serialize_doc
 
 SAMPLE_ALERTS = [
     {

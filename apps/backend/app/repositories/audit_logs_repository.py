@@ -1,8 +1,8 @@
 from datetime import UTC, datetime
 from typing import Any
 
-from app.core.database import db_manager, serialize_doc
-from app.repositories.base_repository import BaseRepository
+from app.core.database import db_manager
+from app.repositories.base_repository import BaseRepository, serialize_doc
 
 
 class AuditLogsRepository(BaseRepository):
