@@ -40,8 +40,7 @@ async def get_admin_overview(
     ),
 ) -> AdminOverviewResponse:
     # 1. User count
-    users_page = await UserRepository.find_all(page=1, page_size=1)
-    total_users = users_page.total
+    _, total_users = await UserRepository.list_users(page=1, page_size=1)
 
     # 2. Alerts
     active_alerts = await alerts_repository.list_alerts(is_active=True, limit=100)
@@ -138,7 +137,7 @@ async def list_users(
         require_role(UserRole.ADMIN, UserRole.COORDINATOR)
     ),
 ) -> list[AdminUserListItem]:
-    page_data = await UserRepository.find_all(page=page, page_size=page_size)
+    users_list, _ = await UserRepository.list_users(page=page, page_size=page_size)
     return [
         AdminUserListItem(
             id=u["id"],
@@ -149,7 +148,7 @@ async def list_users(
             is_active=u.get("is_active", True),
             created_at=u.get("created_at") or datetime.now(UTC),
         )
-        for u in page_data.items
+        for u in users_list
     ]
 
 
