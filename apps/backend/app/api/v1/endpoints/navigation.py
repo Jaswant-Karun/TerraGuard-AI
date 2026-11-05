@@ -1,4 +1,5 @@
 from typing import Any
+
 from fastapi import APIRouter, Query, status
 
 from app.repositories.safe_routes_repository import safe_routes_repository
