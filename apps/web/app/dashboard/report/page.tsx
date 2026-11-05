@@ -483,6 +483,7 @@ export default function ReportHazardPage() {
                 <div className="border border-slate-200 rounded-xl bg-slate-50 p-3 flex flex-col items-center justify-center min-h-[180px] overflow-hidden relative">
                   {previewUrl ? (
                     <div className="w-full h-full flex flex-col items-center justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={previewUrl}
                         alt="Hazard upload preview"
