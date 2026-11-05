@@ -99,3 +99,4 @@ export async function fetchEvacuationCorridors(): Promise<any[]> {
 
   return res.json();
 }
+

@@ -81,3 +81,4 @@ export interface NearbyFacilitiesResponse {
   center: [number, number];
   radius_km: number;
 }
+
