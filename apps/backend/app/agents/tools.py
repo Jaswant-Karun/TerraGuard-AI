@@ -140,16 +140,16 @@ async def get_factual_nearby_facilities(
 ) -> list[dict[str, Any]]:
     """Retrieves emergency shelters, hospitals, and fire stations near coordinates."""
     try:
-        facilities = await geospatial_repository.find_facilities_near(
+        facilities = await geospatial_repository.find_nearby_facilities(
             lng=lng, lat=lat, radius_meters=radius_meters, limit=10
         )
         return [
             {
                 "name": f.get("name"),
-                "facility_type": f.get("facility_type"),
+                "facility_type": f.get("facility_type") or f.get("category"),
                 "address": f.get("address"),
                 "capacity": f.get("capacity"),
-                "is_active": f.get("is_active", True),
+                "is_active": f.get("is_operational", True),
             }
             for f in facilities
         ]
