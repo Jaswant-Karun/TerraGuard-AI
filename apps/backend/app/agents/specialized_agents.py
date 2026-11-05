@@ -489,10 +489,10 @@ class EmergencyResponsePlanningAgent(BaseAgent):
             reply += f"- {d}\n"
 
         reply += (
-            f"\n**Department Dispatch Sequence:**\n"
-            f"1. **Stormwater Corps:** Pre-position high-capacity dewatering units at vulnerable culverts.\n"
-            f"2. **Civil Protection:** Verify standby power generation at critical medical centers.\n"
-            f"3. **Citizen Communications:** Issue hyper-local advisory bulletins via mobile channels."
+            "\n**Department Dispatch Sequence:**\n"
+            "1. **Stormwater Corps:** Pre-position high-capacity dewatering units at vulnerable culverts.\n"
+            "2. **Civil Protection:** Verify standby power generation at critical medical centers.\n"
+            "3. **Citizen Communications:** Issue hyper-local advisory bulletins via mobile channels."
         )
 
         activities = [
@@ -576,8 +576,8 @@ class ReportSummarizationAgent(BaseAgent):
                 )
 
             reply += (
-                f"\n*Summary:* Most citizen submissions involve localized water stagnation and road surface defects. "
-                f"Emergency teams have been dispatched to high-severity markers."
+                "\n*Summary:* Most citizen submissions involve localized water stagnation and road surface defects. "
+                "Emergency teams have been dispatched to high-severity markers."
             )
 
         activities = [
