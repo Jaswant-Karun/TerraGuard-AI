@@ -19,7 +19,7 @@ export function AIInsightsFeed({ insights }: Props) {
             <Bot className="h-4 w-4 text-cyan-600" />
             AI Prevention & Early Response Directives
             <span className="flex items-center gap-1 text-[10px] font-bold text-cyan-700 bg-cyan-50 border border-cyan-200 px-2 py-0.5 rounded-full">
-              <Sparkles className="h-3 w-3" /> Gemini 2.0 Vision + XGBoost
+              <Sparkles className="h-3 w-3" /> Multimodal Vision + Predictive AI
             </span>
           </h2>
           <p className="text-xs text-slate-500">

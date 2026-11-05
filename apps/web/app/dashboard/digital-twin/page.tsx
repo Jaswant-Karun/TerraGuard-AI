@@ -578,7 +578,7 @@ export default function DigitalTwinPage() {
                 Verified Historical Disaster Benchmarks
               </h2>
               <p className="text-xs text-slate-500">
-                Real catastrophic weather events archived in MongoDB collection <code className="text-blue-700 font-mono">historical_events</code> used to baseline predictive ML models.
+                Real catastrophic weather events archived across historical meteorological observation archives used to baseline predictive risk models.
               </p>
             </div>
           </div>

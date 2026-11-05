@@ -225,14 +225,14 @@ export default function AutomationCenterPage() {
                 </span>
                 <Badge variant="outline" className="text-emerald-400 border-emerald-500/40 bg-emerald-950/40 font-mono text-[11px]">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-1.5" />
-                  n8n Engine Active
+                  Automation Engine Active
                 </Badge>
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
                 Automation Center & Workflow Engine
               </h1>
               <p className="mt-1 text-sm text-slate-300 max-w-2xl">
-                Enterprise automation pipelines powered by authenticated n8n webhooks.
+                Enterprise automation pipelines executing autonomous disaster mitigation workflows.
                 Periodically ingests sensor telemetry, classifies hazards via AI vision,
                 and orchestrates rapid civic response without human delays.
               </p>
@@ -502,7 +502,7 @@ export default function AutomationCenterPage() {
                 </span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Cryptographically audited execution logs persisted in MongoDB collection <code className="text-blue-700 bg-blue-50 px-1 py-0.5 rounded font-mono">workflow_logs</code>.
+                Cryptographically audited incident escalation traces and municipal response records.
               </p>
             </div>
 
@@ -638,10 +638,10 @@ export default function AutomationCenterPage() {
             </span>
             <div>
               <h2 className="text-base font-bold text-slate-900">
-                Technical Specification & Documentation References
+                Municipal Disaster Standard Operating Protocols (SOPs)
               </h2>
               <p className="text-xs text-slate-500">
-                Engineered for INFINEX 2K26 under UN Sustainable Development Goals 3, 6, 9, 11 & 13.
+                Automated multi-department escalation workflows triggered under acute climate threat conditions.
               </p>
             </div>
           </div>
@@ -649,46 +649,46 @@ export default function AutomationCenterPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
             <div className="border border-slate-200 rounded-lg p-4 bg-slate-50/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-slate-900">N8N_SETUP.md</span>
-                <Badge variant="outline" className="text-[10px] text-slate-600 bg-white">
-                  Configuration
+                <span className="text-xs font-bold text-slate-900">SOP-01: Flash Inundation Protocol</span>
+                <Badge variant="outline" className="text-[10px] text-rose-700 bg-rose-50 border-rose-200">
+                  Critical
                 </Badge>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                Setup guide for running n8n via Docker or npm with isolated SQLite storage, custom credentials, and tunnel configurations.
+                Pre-deploys mobile suction pump units, activates stormwater sluice gates, and reroutes traffic away from underpasses within 3 minutes of precipitation breach.
               </p>
-              <div className="text-[11px] font-mono text-slate-500 bg-white p-2 rounded border border-slate-200">
-                docker run -p 5678:5678 -v ~/.n8n:/data n8nio/n8n
+              <div className="text-[11px] font-medium text-slate-600 bg-white p-2 rounded border border-slate-200">
+                Assigned: Stormwater Engineering Corps &amp; Traffic Police
               </div>
             </div>
 
             <div className="border border-slate-200 rounded-lg p-4 bg-slate-50/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-slate-900">N8N_WORKFLOWS.md</span>
-                <Badge variant="outline" className="text-[10px] text-slate-600 bg-white">
-                  6 Workflows
+                <span className="text-xs font-bold text-slate-900">SOP-02: Atmospheric Inversion Protocol</span>
+                <Badge variant="outline" className="text-[10px] text-amber-700 bg-amber-50 border-amber-200">
+                  High Priority
                 </Badge>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                Complete node architecture, cron cadences, and trigger specifications for all 6 importable JSON workflow manifests in <code className="text-blue-700 font-mono">automation/n8n/workflows/</code>.
+                Issues localized air toxicity alerts, dispatches mist-spraying tankers to arterial corridors, and triggers construction dust curtailment orders.
               </p>
-              <div className="text-[11px] font-mono text-slate-500 bg-white p-2 rounded border border-slate-200">
-                automation/n8n/workflows/01_*.json ... 06_*.json
+              <div className="text-[11px] font-medium text-slate-600 bg-white p-2 rounded border border-slate-200">
+                Assigned: Pollution Control Board &amp; Public Health Dept
               </div>
             </div>
 
             <div className="border border-slate-200 rounded-lg p-4 bg-slate-50/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-slate-900">N8N_WEBHOOKS.md</span>
-                <Badge variant="outline" className="text-[10px] text-slate-600 bg-white">
-                  Security
+                <span className="text-xs font-bold text-slate-900">SOP-03: Mass Evacuation Protocol</span>
+                <Badge variant="outline" className="text-[10px] text-blue-700 bg-blue-50 border-blue-200">
+                  Rapid Rescue
                 </Badge>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                Cryptographic authentication spec, HMAC signature headers, origin validation, payload schemas, and anti-loop guards.
+                Broadcasts neighborhood sirens, notifies community ward volunteers, opens emergency relief shelters, and establishes mobile medical triage posts.
               </p>
-              <div className="text-[11px] font-mono text-slate-500 bg-white p-2 rounded border border-slate-200 truncate">
-                X-Webhook-Secret: tg_dev_secret_key
+              <div className="text-[11px] font-medium text-slate-600 bg-white p-2 rounded border border-slate-200">
+                Assigned: Disaster Response Force (SDRF) &amp; Red Cross
               </div>
             </div>
           </div>

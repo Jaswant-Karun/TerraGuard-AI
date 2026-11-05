@@ -227,7 +227,7 @@ export default function PredictionPage() {
                   variant="outline"
                   className="bg-cyan-50 text-cyan-700 border-cyan-200 text-[10px]"
                 >
-                  Scikit-Learn ML + XGBoost
+                  Predictive Risk Intelligence
                 </Badge>
               </h1>
               <p className="text-xs text-slate-500 hidden sm:block">
@@ -421,9 +421,9 @@ export default function PredictionPage() {
 
               <div className="space-y-3 text-xs">
                 <div>
-                  <div className="text-slate-400 font-medium">Architecture</div>
+                  <div className="text-slate-400 font-medium">Model Methodology</div>
                   <div className="font-semibold text-slate-800 mt-0.5">
-                    Scikit-Learn GradientBoostingRegressor + EPA/NOAA Standards
+                    Hydrological Surface Inundation Estimator &amp; Meteorological Standards
                   </div>
                 </div>
 
@@ -876,8 +876,7 @@ export default function PredictionPage() {
                   Recent Prediction Logs for {selectedZone.name}
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Chronological record of recent model inference runs stored in
-                  MongoDB
+                  Chronological record of recent model inference runs archived in predictive intelligence ledger
                 </p>
               </div>
             </div>

@@ -14,7 +14,7 @@
 | **CSS & Styling** | Tailwind CSS | `3.4+` | Rapid utility-first styling, consistent command-center design tokens, zero runtime CSS overhead |
 | **Animation Engine** | Framer Motion | `11.x` | Production-grade physics-based UI transitions, reactive counter animators, alert dialog entry/exit |
 | **Geospatial Mapping** | MapLibre GL JS | `4.x` | High-performance WebGL vector tile rendering, zero API key requirement for OSM tiles, smooth 60fps interaction |
-| **Map Tile Provider** | OpenStreetMap / Carto Light | Dynamic CDN | Clean light-mode basemap ensuring maximum contrast for colored hazard overlays and heatmaps |
+| **Map Tile Provider** | OpenStreetMap Standard | Dynamic CDN | Clean light-mode basemap ensuring maximum contrast for colored hazard overlays and heatmaps |
 | **Data Visualization** | Recharts | `2.12+` | Declarative SVG charting optimized for React, animated timeseries, responsive chart containers |
 | **Iconography** | Lucide React | Latest | Clean, sharp, modern SVG icons matching command-center aesthetics |
 | **Backend Framework** | Python FastAPI | `0.111+` | High-throughput asynchronous async/await API, automated OpenAPI docs, native Pydantic v2 support |

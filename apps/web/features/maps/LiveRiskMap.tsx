@@ -124,6 +124,7 @@ export function LiveRiskMap({
               "osm-tiles": {
                 type: "raster",
                 tiles: [
+                  "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                   "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -169,7 +170,7 @@ export function LiveRiskMap({
         });
       } catch (err: any) {
         if (isMounted) {
-          setMapError("Could not initialize MapLibre GL engine: " + err.message);
+          setMapError("Could not initialize map visualizer: " + err.message);
         }
       }
     }
@@ -939,7 +940,7 @@ export function LiveRiskMap({
 
       {/* Basemap Attribution Badge */}
       <div className="absolute bottom-1 right-2 z-10 text-[10px] text-slate-500 bg-white/80 px-2 py-0.5 rounded shadow-xs backdrop-blur-xs select-none">
-        © OpenStreetMap contributors, © CARTO, TerraGuard GIS Engine
+        © OpenStreetMap contributors, TerraGuard GIS Engine
       </div>
     </div>
   );

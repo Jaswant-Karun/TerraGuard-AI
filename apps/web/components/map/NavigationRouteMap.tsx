@@ -69,6 +69,7 @@ export function NavigationRouteMap({
               "osm-tiles": {
                 type: "raster",
                 tiles: [
+                  "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                   "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",

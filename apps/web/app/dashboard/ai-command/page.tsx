@@ -97,12 +97,12 @@ export default function AiCommandCenterPage() {
             content:
               "Welcome to the **TerraGuard AI Multi-Agent Command Center**. " +
               "I am your central autonomous orchestrator, coordinating 9 domain-specialized agents " +
-              "grounded in verified environmental telemetry, trained Scikit-Learn models, and emergency protocols. " +
+              "grounded in verified environmental telemetry, trained predictive risk models, and emergency protocols. " +
               "Select a metropolitan zone or submit an operational inquiry to begin.",
             timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             identified_domain: "ORCHESTRATOR",
             agent_name: "TerraGuard AI Orchestrator",
-            factual_data_sources: ["Open-Meteo Weather", "OpenAQ Telemetry", "Scikit-Learn ML"],
+            factual_data_sources: ["Open-Meteo Weather", "OpenAQ Telemetry", "Predictive Risk AI"],
           },
         ]);
       } catch (err) {
@@ -132,7 +132,7 @@ export default function AiCommandCenterPage() {
     setCurrentActivities([
       "Analyzing user inquiry domain...",
       "Gathering verified Open-Meteo & OpenAQ telemetry...",
-      "Evaluating Scikit-Learn predictive hydrological models...",
+      "Evaluating predictive hydrological risk models...",
     ]);
 
     try {

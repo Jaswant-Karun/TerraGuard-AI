@@ -191,7 +191,7 @@ export default function AdvancedAnalyticsPage() {
             <div>
               <div className="text-xs font-bold text-amber-900">[MODEL-BASED ESTIMATES]</div>
               <div className="text-[11px] text-amber-700 leading-tight mt-0.5">
-                XGBoost flood inferences & NOAA heat calculations with confidence scores.
+                Predictive flood inferences &amp; thermal heat calculations with confidence scores.
               </div>
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function AdvancedAnalyticsPage() {
             <div>
               <div className="text-xs font-bold text-purple-900">[AI-GENERATED SUMMARIES]</div>
               <div className="text-[11px] text-purple-700 leading-tight mt-0.5">
-                Gemini multi-agent analytical syntheses with explicit safety disclaimers.
+                Multi-agent analytical syntheses with explicit safety disclaimers.
               </div>
             </div>
           </div>
@@ -583,7 +583,7 @@ export default function AdvancedAnalyticsPage() {
                   Geographic Risk Indices & Predictive Hazard Estimates
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Cross-sector comparative matrix based on XGBoost and NOAA models.
+                  Cross-sector comparative matrix based on hydrological &amp; atmospheric models.
                 </p>
               </div>
               <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 bg-amber-50">

@@ -171,7 +171,7 @@ function ProfileContent() {
 
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/90 space-y-1.5">
                 <div className="flex items-center justify-between font-bold text-navy-900">
-                  <span>Emergency Dispatch & n8n Escalation</span>
+                  <span>Emergency Dispatch &amp; Rapid Escalation</span>
                   <Badge
                     variant={
                       ["COORDINATOR", "ADMIN"].includes(user.role)

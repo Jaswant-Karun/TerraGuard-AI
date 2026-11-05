@@ -248,7 +248,7 @@ async def get_map_layers(
             "center": [lng or 77.5946, lat or 12.9716],
             "radius_km": radius_km,
             "total_features": len(risk_features) + len(unverified_features) + len(verified_features) + len(fac_features) + len(env_features) + len(route_features),
-            "attribution": "© OpenStreetMap contributors, © CARTO, TerraGuard GIS Engine",
+            "attribution": "© OpenStreetMap contributors, TerraGuard GIS Engine",
         },
     )
 

@@ -820,33 +820,33 @@ export default function AdminOperationsPage() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
             <div>
               <h2 className="text-base font-bold text-slate-900">
-                Machine Learning Model Provenance &amp; Telemetry Health
+                Predictive Intelligence &amp; Autonomous Telemetry Health
               </h2>
               <p className="text-xs text-slate-500">
-                Operational status of hydrological regressors, Open-Meteo external telemetry, and n8n broker.
+                Operational status of hydrological models, meteorological sensor telemetry, and automated dispatch brokers.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2 text-xs">
-                <div className="font-bold text-slate-900">XGBoost Flood Predictor</div>
-                <div className="text-slate-600">Version: <strong>v1.0.0 (Scikit/XGBoost)</strong></div>
+                <div className="font-bold text-slate-900">Hydrological Inundation Model</div>
+                <div className="text-slate-600">Model Type: <strong>Gradient Risk Forecaster</strong></div>
                 <div className="text-slate-600">Accuracy: <strong>89.4% ROC-AUC</strong></div>
-                <div className="text-emerald-700 font-medium">Status: Active In-Memory</div>
+                <div className="text-emerald-700 font-medium">Status: Active Continuous Ingestion</div>
               </div>
 
               <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2 text-xs">
-                <div className="font-bold text-slate-900">Heat Index &amp; AQI Regressor</div>
-                <div className="text-slate-600">Version: <strong>v1.1 (Atmospheric Inversion)</strong></div>
-                <div className="text-slate-600">MAE: <strong>±1.2°C ambient</strong></div>
-                <div className="text-emerald-700 font-medium">Status: Active In-Memory</div>
+                <div className="font-bold text-slate-900">Atmospheric Inversion &amp; AQI Forecaster</div>
+                <div className="text-slate-600">Model Type: <strong>Urban Dispersion Analyzer</strong></div>
+                <div className="text-slate-600">Precision: <strong>±1.2°C ambient</strong></div>
+                <div className="text-emerald-700 font-medium">Status: Active Continuous Ingestion</div>
               </div>
 
               <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2 text-xs">
-                <div className="font-bold text-slate-900">n8n Automation Broker</div>
-                <div className="text-slate-600">Port: <strong>5678 (Dedicated Volume)</strong></div>
-                <div className="text-slate-600">HMAC Secret: <strong>Enforced SHA-256</strong></div>
-                <div className="text-emerald-700 font-medium">Status: 6 Workflows Operational</div>
+                <div className="font-bold text-slate-900">Autonomous Incident Dispatcher</div>
+                <div className="text-slate-600">Dispatch Pipeline: <strong>Continuous Active Monitoring</strong></div>
+                <div className="text-slate-600">Security: <strong>HMAC Signature Verified</strong></div>
+                <div className="text-emerald-700 font-medium">Status: 6 Core Workflows Operational</div>
               </div>
             </div>
           </div>

@@ -57,6 +57,7 @@ export function CityRiskMap({
               "osm-tiles": {
                 type: "raster",
                 tiles: [
+                  "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                   "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -313,7 +314,7 @@ export function CityRiskMap({
       {!mapLoaded && !mapError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/90 backdrop-blur-sm z-10 space-y-3">
           <div className="w-8 h-8 rounded-full border-2 border-brand-cyan border-t-transparent animate-spin" />
-          <p className="text-xs font-mono text-slate-500">Rendering Geospatial Tile Engine...</p>
+          <p className="text-xs font-mono text-slate-500">Loading Live Geospatial Radar...</p>
         </div>
       )}
 
