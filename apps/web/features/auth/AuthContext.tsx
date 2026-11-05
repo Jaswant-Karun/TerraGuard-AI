@@ -10,10 +10,12 @@ import {
   logout as apiLogout,
   refresh as apiRefresh,
   fetchMe,
+  getAccessToken,
 } from "@/services/auth";
 
 interface AuthContextType {
   user: UserProfile | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (data: LoginPayload) => Promise<void>;
@@ -26,6 +28,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [token, setToken] = useState<string | null>(getAccessToken());
   const [isLoading, setIsLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
@@ -34,12 +37,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const tokens = await apiRefresh();
       if (tokens) {
         setUser(tokens.user);
+        setToken(tokens.access_token);
       } else {
         const currentUser = await fetchMe();
         setUser(currentUser);
+        setToken(getAccessToken());
       }
     } catch {
       setUser(null);
+      setToken(null);
     } finally {
       setIsLoading(false);
     }
@@ -54,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const authResult = await apiLogin(data);
       setUser(authResult.user);
+      setToken(authResult.access_token);
     } finally {
       setIsLoading(false);
     }
@@ -69,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password: data.password,
       });
       setUser(authResult.user);
+      setToken(authResult.access_token);
     } finally {
       setIsLoading(false);
     }
@@ -79,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await apiLogout();
       setUser(null);
+      setToken(null);
     } finally {
       setIsLoading(false);
     }
@@ -88,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        token,
         isAuthenticated: !!user,
         isLoading,
         login,

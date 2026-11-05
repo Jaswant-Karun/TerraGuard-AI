@@ -7,17 +7,19 @@ import {
   NotificationPreference,
   ResponseTaskItem,
 } from "@/types/alerts_admin";
+import { getAccessToken } from "@/services/auth";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
 function authHeaders(token?: string | null): Record<string, string> {
+  const effectiveToken = token || getAccessToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  if (effectiveToken) {
+    headers["Authorization"] = `Bearer ${effectiveToken}`;
   }
   return headers;
 }

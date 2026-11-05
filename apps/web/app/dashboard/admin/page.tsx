@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Activity,
   AlertCircle,
@@ -116,13 +116,7 @@ export default function AdminOperationsPage() {
   const isAuthorized = ["ADMIN", "COORDINATOR", "ANALYST"].includes(userRole);
   const isAdmin = userRole === "ADMIN";
 
-  useEffect(() => {
-    if (token && isAuthorized) {
-      loadOverviewData();
-    }
-  }, [token, isAuthorized]);
-
-  const loadOverviewData = async () => {
+  const loadOverviewData = useCallback(async () => {
     if (!token) return;
     try {
       setLoadingOverview(true);
@@ -134,7 +128,13 @@ export default function AdminOperationsPage() {
     } finally {
       setLoadingOverview(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (token && isAuthorized) {
+      loadOverviewData();
+    }
+  }, [token, isAuthorized, loadOverviewData]);
 
   const loadUsersTab = async () => {
     if (!token) return;
