@@ -287,7 +287,8 @@ async def test_e2e_critical_journeys():
         # 3. Admin successfully accesses overview
         admin_overview_res = await client.get("/api/v1/admin/overview", headers=admin_headers)
         assert admin_overview_res.status_code == 200
-        assert "stats" in admin_overview_res.json()
+        assert "total_users" in admin_overview_res.json()
+        assert "system_health" in admin_overview_res.json()
 
         # 4. Admin verifies citizen report
         verify_res = await client.put(
