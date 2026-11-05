@@ -64,3 +64,4 @@ export interface HistoricalRiskResponse {
   page: number;
   page_size: number;
 }
+
