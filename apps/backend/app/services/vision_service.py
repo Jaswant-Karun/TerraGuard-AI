@@ -1,8 +1,6 @@
-import base64
 import json
 import logging
 from io import BytesIO
-from typing import Any
 
 from PIL import Image
 from pydantic import BaseModel, Field
@@ -216,7 +214,7 @@ class VisionService:
         try:
             with Image.open(BytesIO(image_bytes)) as img:
                 img_rgb = img.convert("RGB")
-                width, height = img_rgb.size
+                _width, _height = img_rgb.size
                 # Sample center crop
                 crop = img_rgb.resize((64, 64))
                 pixels = list(crop.getdata())

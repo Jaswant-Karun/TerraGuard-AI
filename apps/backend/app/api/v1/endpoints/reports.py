@@ -9,7 +9,7 @@ from fastapi import (
     UploadFile,
 )
 
-from app.api.deps import get_current_user, get_optional_current_user, require_role
+from app.api.deps import get_optional_current_user, require_role
 from app.schemas.report import (
     ReportListResponse,
     ReportResponse,
