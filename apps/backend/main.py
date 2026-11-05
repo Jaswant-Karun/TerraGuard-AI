@@ -3,12 +3,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
 from app.core.database import db_manager
 from app.core.errors import register_exception_handlers
 from app.core.logging import setup_logging
+from app.services.storage_service import STORAGE_BASE_DIR
 
 # Initialize structured logging
 setup_logging()
@@ -51,6 +53,13 @@ def create_application() -> FastAPI:
 
     # Register centralized exception handlers
     register_exception_handlers(app)
+
+    # Securely mount media storage for uploaded hazard images (read-only)
+    app.mount(
+        "/uploads/hazard_media",
+        StaticFiles(directory=str(STORAGE_BASE_DIR)),
+        name="hazard_media",
+    )
 
     # Mount API v1 router
     app.include_router(api_v1_router, prefix=settings.API_V1_STR)
