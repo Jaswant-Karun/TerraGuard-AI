@@ -81,7 +81,7 @@ async def test_hazard_avoidance_and_safety_classification():
         "status": "VERIFIED",
         "location": {"type": "Point", "coordinates": [77.6250, 12.9350]},
     }
-    store = citizen_reports_repo._get_memory_store()
+    store = citizen_reports_repository._get_memory_store()
     store["TEST-REP-FLOOD-01"] = hazard_doc
 
     transport = ASGITransport(app=app)
