@@ -7,7 +7,7 @@ from repositories.user_repository import UserRepository
 
 
 def make_auth_headers(user_id: str, role: str) -> dict[str, str]:
-    token = create_access_token({"sub": user_id, "role": role})
+    token = create_access_token(subject=user_id, role=role)
     return {"Authorization": f"Bearer {token}"}
 
 
