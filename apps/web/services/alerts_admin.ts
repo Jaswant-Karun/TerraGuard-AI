@@ -10,7 +10,9 @@ import {
 import { getAccessToken } from "@/services/auth";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "http://localhost:8000/api/v1";
 
 function authHeaders(token?: string | null): Record<string, string> {
   const effectiveToken = token || getAccessToken();

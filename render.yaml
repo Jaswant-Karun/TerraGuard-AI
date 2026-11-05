@@ -1,0 +1,117 @@
+# ==============================================================================
+# TerraGuard AI — Render Infrastructure as Code Blueprint (render.yaml)
+# Declares FastAPI Backend, Managed PostgreSQL, and n8n Automation Engine
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. FastAPI Core Intelligence Backend
+  # ----------------------------------------------------------------------------
+  - type: web
+    name: terraguard-api
+    runtime: python
+    region: oregon
+    plan: starter
+    rootDir: apps/backend
+    buildCommand: pip install -r requirements-prod.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --workers 2
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: MONGODB_URI
+        sync: false
+      - key: DATABASE_NAME
+        value: terraguard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: N8N_WEBHOOK_URL
+        fromService:
+          type: web
+          name: terraguard-n8n
+          property: url
+      - key: N8N_WEBHOOK_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: "https://terraguard.vercel.app,https://terraguard-web.vercel.app"
+
+  # ----------------------------------------------------------------------------
+  # 2. n8n Automation Engine (Docker Service with Persistent Disk)
+  # ----------------------------------------------------------------------------
+  - type: web
+    name: terraguard-n8n
+    runtime: image
+    image:
+      url: docker.n8n.io/n8nio/n8n:latest
+    region: oregon
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: n8n-storage
+      mountPath: /home/node/.n8n
+      sizeGB: 5
+    envVars:
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        fromDatabase:
+          name: terraguard-n8n-db
+          property: host
+      - key: DB_POSTGRESDB_PORT
+        fromDatabase:
+          name: terraguard-n8n-db
+          property: port
+      - key: DB_POSTGRESDB_DATABASE
+        fromDatabase:
+          name: terraguard-n8n-db
+          property: database
+      - key: DB_POSTGRESDB_USER
+        fromDatabase:
+          name: terraguard-n8n-db
+          property: user
+      - key: DB_POSTGRESDB_PASSWORD
+        fromDatabase:
+          name: terraguard-n8n-db
+          property: password
+      - key: N8N_ENCRYPTION_KEY
+        generateValue: true
+      - key: N8N_PROTOCOL
+        value: https
+      - key: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+        value: "true"
+      - key: EXECUTIONS_DATA_PRUNE
+        value: "true"
+      - key: EXECUTIONS_DATA_MAX_AGE
+        value: "168"
+      - key: GENERIC_TIMEZONE
+        value: Asia/Kolkata
+
+# ------------------------------------------------------------------------------
+# 3. Managed PostgreSQL Database (Backing n8n Workflows & Execution Receipts)
+# ------------------------------------------------------------------------------
+databases:
+  - name: terraguard-n8n-db
+    databaseName: terraguard_n8n
+    user: terraguard_user
+    region: oregon
+    plan: starter
+

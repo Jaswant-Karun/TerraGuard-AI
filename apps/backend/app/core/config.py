@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -59,14 +61,33 @@ class Settings(BaseSettings):
     # AI & External Integrations (for upcoming phases)
     GEMINI_API_KEY: str = ""
     CLOUDINARY_URL: str = ""
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
     N8N_WEBHOOK_URL: str = ""
     N8N_WEBHOOK_SECRET: str = "tg_dev_secret_key"
 
     # Security
     JWT_SECRET_KEY: str = "dev-insecure-secret-key-change-in-production-0123456789"
+    JWT_SECRET: str | None = None
+    ALLOWED_ORIGINS: str | list[str] | None = None
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    def model_post_init(self, __context: Any) -> None:
+        # Support JWT_SECRET alias
+        if self.JWT_SECRET and (self.JWT_SECRET_KEY == "dev-insecure-secret-key-change-in-production-0123456789" or not self.JWT_SECRET_KEY):
+            self.JWT_SECRET_KEY = self.JWT_SECRET
+        # Support ALLOWED_ORIGINS alias
+        if self.ALLOWED_ORIGINS:
+            if isinstance(self.ALLOWED_ORIGINS, str):
+                self.CORS_ORIGINS = [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
+            elif isinstance(self.ALLOWED_ORIGINS, list):
+                self.CORS_ORIGINS = self.ALLOWED_ORIGINS
+        # Assemble CLOUDINARY_URL if constituent keys provided
+        if not self.CLOUDINARY_URL and self.CLOUDINARY_CLOUD_NAME and self.CLOUDINARY_API_KEY and self.CLOUDINARY_API_SECRET:
+            self.CLOUDINARY_URL = f"cloudinary://{self.CLOUDINARY_API_KEY}:{self.CLOUDINARY_API_SECRET}@{self.CLOUDINARY_CLOUD_NAME}"
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=True, extra="ignore"

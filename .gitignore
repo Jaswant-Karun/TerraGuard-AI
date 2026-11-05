@@ -46,3 +46,7 @@ pnpm-debug.log*
 *.sqlite3
 .n8n/
 
+# Media uploads & scratch files
+apps/backend/storage/uploads/hazard_media/*
+!apps/backend/storage/uploads/hazard_media/.gitkeep
+
