@@ -1,4 +1,5 @@
 import io
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 from PIL import Image
@@ -297,18 +298,17 @@ async def test_e2e_critical_journeys():
             headers=admin_headers,
         )
         assert verify_res.status_code == 200
-        assert verify_res.json()["status"] == "VERIFIED"
+        assert verify_res.json()["report"]["status"] == "VERIFIED"
 
         # 5. Admin creates response task
         task_res = await client.post(
             "/api/v1/admin/tasks",
             json={
                 "title": "Deploy Dewatering Pump at Bellandur Outflow",
-                "task_type": "DEWATERING_PUMP_DEPLOYMENT",
+                "assigned_department": "MUNICIPAL_STORMWATER_CORPS",
                 "priority": "HIGH",
-                "target_zone": "Bellandur Basin",
-                "assigned_team": "BBMP Quick Response Squad 4",
-                "notes": "Clear culvert blockage immediately.",
+                "location": [77.6711, 12.9348],
+                "instructions": "Clear culvert blockage immediately.",
             },
             headers=admin_headers,
         )
