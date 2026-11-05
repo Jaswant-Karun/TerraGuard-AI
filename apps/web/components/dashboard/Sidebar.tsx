@@ -40,7 +40,8 @@ const NAV_ITEMS: NavItem[] = [
   { name: "Safe Navigation", href: "/dashboard/navigation", icon: Compass },
   { name: "AI Command Center", href: "/dashboard/ai-command", icon: Bot, badge: "GEMINI" },
   { name: "Automation Center", href: "/dashboard/automation", icon: Workflow, badge: "n8n" },
-  { name: "Historical Analytics", href: "/dashboard/analytics", icon: History, badge: "3D TWIN" },
+  { name: "Digital Twin 3D", href: "/dashboard/digital-twin", icon: Building2, badge: "3D" },
+  { name: "Analytics & Reports", href: "/dashboard/analytics", icon: BarChart3, badge: "REPORTS" },
   { name: "Alerts", href: "/dashboard/alerts", icon: ShieldAlert },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
   {
