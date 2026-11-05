@@ -11,41 +11,21 @@ def make_auth_headers(user_id: str, role: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
-@pytest.fixture
-async def citizen_user():
-    user = await UserRepository.create({
-        "email": "citizen_test@terraguard.ai",
+async def get_or_create_user(email: str, role: str, name: str) -> dict:
+    existing = await UserRepository.find_by_email(email)
+    if existing:
+        return existing
+    return await UserRepository.create({
+        "email": email,
         "hashed_password": "dummy_hashed_password",
-        "full_name": "Test Citizen",
-        "role": "CITIZEN",
+        "full_name": name,
+        "role": role,
     })
-    return user
-
-
-@pytest.fixture
-async def coordinator_user():
-    user = await UserRepository.create({
-        "email": "coordinator_test@terraguard.ai",
-        "hashed_password": "dummy_hashed_password",
-        "full_name": "Test Coordinator",
-        "role": "COORDINATOR",
-    })
-    return user
-
-
-@pytest.fixture
-async def admin_user():
-    user = await UserRepository.create({
-        "email": "admin_test@terraguard.ai",
-        "hashed_password": "dummy_hashed_password",
-        "full_name": "Test Admin",
-        "role": "ADMIN",
-    })
-    return user
 
 
 @pytest.mark.asyncio
-async def test_list_alerts_and_acknowledgement(citizen_user):
+async def test_list_alerts_and_acknowledgement():
+    citizen_user = await get_or_create_user("citizen_ack@terraguard.ai", "CITIZEN", "Citizen Ack")
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         # Public alerts list
@@ -64,10 +44,13 @@ async def test_list_alerts_and_acknowledgement(citizen_user):
 
 
 @pytest.mark.asyncio
-async def test_rbac_alert_creation(citizen_user, coordinator_user):
+async def test_rbac_alert_creation():
     """Verifies that ordinary citizens CANNOT issue official sirens (HTTP 403),
     while response coordinators CAN (HTTP 201).
     """
+    citizen_user = await get_or_create_user("citizen_siren@terraguard.ai", "CITIZEN", "Citizen Siren")
+    coordinator_user = await get_or_create_user("coord_siren@terraguard.ai", "COORDINATOR", "Coordinator Siren")
+
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         alert_payload = {
@@ -97,7 +80,9 @@ async def test_rbac_alert_creation(citizen_user, coordinator_user):
 
 
 @pytest.mark.asyncio
-async def test_notifications_feed_and_preferences(citizen_user):
+async def test_notifications_feed_and_preferences():
+    citizen_user = await get_or_create_user("citizen_feed@terraguard.ai", "CITIZEN", "Citizen Feed")
+
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         headers = make_auth_headers(citizen_user["id"], "CITIZEN")
@@ -129,10 +114,13 @@ async def test_notifications_feed_and_preferences(citizen_user):
 
 
 @pytest.mark.asyncio
-async def test_admin_panel_operations(admin_user, citizen_user):
+async def test_admin_panel_operations():
     """Verifies complete administrative command flow: overview, user role update,
     response task dispatch, and audit logging.
     """
+    admin_user = await get_or_create_user("admin_cmd@terraguard.ai", "ADMIN", "Admin Cmd")
+    citizen_user = await get_or_create_user("citizen_target@terraguard.ai", "CITIZEN", "Target Citizen")
+
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         admin_headers = make_auth_headers(admin_user["id"], "ADMIN")
