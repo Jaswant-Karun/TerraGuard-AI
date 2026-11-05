@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     geospatial,
     health,
     locations,
+    navigation,
     reports,
     risk,
 )
@@ -41,6 +42,9 @@ api_v1_router.include_router(agent.router)
 
 # Mount n8n Automation Engine & Webhooks
 api_v1_router.include_router(automation.router)
+
+# Mount safe navigation and routing intelligence
+api_v1_router.include_router(navigation.router)
 
 # Mount geospatial intelligence endpoints
 api_v1_router.include_router(geospatial.router, prefix="/geospatial", tags=["Geospatial Intelligence"])
