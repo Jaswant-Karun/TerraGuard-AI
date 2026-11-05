@@ -62,3 +62,4 @@ export interface ReportListResponse {
   page: number;
   page_size: number;
 }
+
