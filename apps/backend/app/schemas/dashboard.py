@@ -69,7 +69,7 @@ class DashboardNotificationDTO(BaseModel):
     title: str
     message: str
     type: Literal["ALERT", "TASK", "SYSTEM", "REPORT"]
-    severity: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]
+    severity: Literal["CRITICAL", "HIGH", "MODERATE", "MEDIUM", "LOW"]
     timestamp: str
     read: bool = False
 

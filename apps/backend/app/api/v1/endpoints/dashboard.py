@@ -270,13 +270,15 @@ async def get_dashboard_notifications() -> list[DashboardNotificationDTO]:
     for a in alerts.items:
         ts = a.get("created_at")
         ts_str = ts.isoformat() if isinstance(ts, datetime) else str(ts)
+        raw_sev = str(a.get("severity", "HIGH")).upper()
+        sev = raw_sev if raw_sev in {"CRITICAL", "HIGH", "MODERATE", "MEDIUM", "LOW"} else "HIGH"
         notifications.append(
             DashboardNotificationDTO(
                 id=str(a.get("id")),
                 title=a.get("title", "Emergency Alert"),
                 message=a.get("message", ""),
                 type="ALERT",
-                severity=a.get("severity", "HIGH"),
+                severity=sev,
                 timestamp=ts_str,
                 read=False,
             )
