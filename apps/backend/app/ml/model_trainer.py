@@ -135,3 +135,4 @@ def load_flood_model() -> tuple[Any | None, dict[str, Any] | None]:
         except Exception as err:
             logger.warning("Could not load persisted flood model: %s", err)
     return None, None
+

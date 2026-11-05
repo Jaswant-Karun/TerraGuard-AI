@@ -118,3 +118,4 @@ class HazardAggregator:
 
 
 hazard_aggregator = HazardAggregator()
+

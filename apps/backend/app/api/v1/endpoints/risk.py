@@ -57,3 +57,4 @@ async def get_risk_history(
 )
 async def explain_risk_assessment(assessment_id: str) -> RiskExplanationResponse:
     return await risk_service.explain_assessment(assessment_id)
+

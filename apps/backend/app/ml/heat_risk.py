@@ -121,3 +121,4 @@ class HeatRiskEstimator:
 
 
 heat_risk_estimator = HeatRiskEstimator()
+

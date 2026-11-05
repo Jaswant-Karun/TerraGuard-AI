@@ -64,7 +64,7 @@ def test_flood_model_training_and_inference():
     )
     assert res_flood.level in ["HIGH", "CRITICAL"]
     assert res_flood.score >= 50.0
-    assert "rainfall_intensity" in res_flood.explanation.lower()
+    assert "rainfall intensity" in res_flood.explanation.lower()
 
     # Dry weather
     res_dry = flood_risk_estimator.estimate(
@@ -152,3 +152,4 @@ async def test_api_get_risk_history_and_explain():
         assert "contributing_factors_breakdown" in exp_data
         assert "model_provenance" in exp_data
         assert "mitigation_directives" in exp_data
+

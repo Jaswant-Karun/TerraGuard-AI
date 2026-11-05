@@ -40,3 +40,4 @@ class ModelProvenance:
     metric_value: float | None = None
     is_ml_validated: bool = False
     notes: str = ""
+

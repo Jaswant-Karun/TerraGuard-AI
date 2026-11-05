@@ -127,3 +127,4 @@ class AirQualityRiskEstimator:
 
 
 air_quality_risk_estimator = AirQualityRiskEstimator()
+
