@@ -205,9 +205,16 @@ async def test_update_report_status_rbac():
         assert res_unauth.status_code == 401
 
         # With coordinator token -> 200
-        coord_token = create_access_token(
-            data={"sub": "user_coord_123", "email": "coord@terraguard.ai", "role": "COORDINATOR"}
-        )
+        from app.repositories.user_repository import UserRepository
+
+        user = await UserRepository.create({
+            "email": "coord@terraguard.ai",
+            "password_hash": "dummy_hash",
+            "full_name": "Field Coordinator",
+            "role": "COORDINATOR",
+            "is_active": True,
+        })
+        coord_token = create_access_token(subject=user["id"], role="COORDINATOR")
         headers = {"Authorization": f"Bearer {coord_token}"}
         res_auth = await ac.patch(
             f"/api/v1/reports/{report_id}/status", json=patch_data, headers=headers
