@@ -1,8 +1,8 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from app.main import app
-from app.repositories.citizen_reports_repository import citizen_reports_repo
+from main import app
+from repositories.citizen_reports_repository import citizen_reports_repo
 
 
 @pytest.mark.asyncio
