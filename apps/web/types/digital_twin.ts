@@ -66,3 +66,4 @@ export interface DigitalTwinSummaryResponse {
   historical_benchmarks: HistoricalBenchmark[];
   disclaimer: string;
 }
+

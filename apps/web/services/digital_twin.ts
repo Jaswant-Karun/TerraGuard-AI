@@ -50,3 +50,4 @@ export async function fetch3DBuildings(): Promise<any> {
 
   return res.json();
 }
+

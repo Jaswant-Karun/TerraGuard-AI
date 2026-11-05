@@ -62,3 +62,4 @@ async def test_get_3d_buildings_geojson():
         assert props["height"] > 0
         assert "min_height" in props
         assert "flood_vulnerability" in props
+
