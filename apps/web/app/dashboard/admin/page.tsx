@@ -509,7 +509,7 @@ export default function AdminOperationsPage() {
                     Cluster Architecture Health
                   </h3>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    MongoDB Atlas replica set, Open-Meteo external telemetry, and n8n webhook broker.
+                    Geospatial database, live meteorological telemetry, and automated emergency broker.
                   </p>
                   <div className="text-xs font-mono text-emerald-700 font-bold mt-3 space-y-1">
                     <div>Status: {overview?.system_health?.database_status}</div>

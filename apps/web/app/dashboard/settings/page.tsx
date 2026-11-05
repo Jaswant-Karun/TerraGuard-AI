@@ -386,10 +386,10 @@ export default function SettingsPage() {
             <div>
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Server className="w-4 h-4 text-emerald-600" />
-                Backend Telemetry Link & Cluster Health
+                Live Telemetry Link & Cluster Health
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Real-time API probe verifying connectivity between Next.js and FastAPI.
+                Real-time health probe verifying live connectivity to the core disaster intelligence engine.
               </p>
             </div>
             <span
@@ -412,13 +412,13 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
             <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <span className="text-[11px] text-slate-400 block">FastAPI Service:</span>
+              <span className="text-[11px] text-slate-400 block">Intelligence Core:</span>
               <span className="font-bold text-slate-800 font-mono">
                 {health?.services.api || "ONLINE"}
               </span>
             </div>
             <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <span className="text-[11px] text-slate-400 block">MongoDB Replica:</span>
+              <span className="text-[11px] text-slate-400 block">Spatial Store:</span>
               <span className="font-bold text-slate-800 font-mono">
                 {health?.services.database || "ONLINE"}
               </span>

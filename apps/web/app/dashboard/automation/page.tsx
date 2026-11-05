@@ -305,11 +305,11 @@ export default function AutomationCenterPage() {
             </span>
             <div>
               <h2 className="text-sm font-semibold text-slate-900">
-                Database Isolation & Production Webhook Architecture
+                Automated Incident Triage & Zero-Trust Architecture
               </h2>
               <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                n8n operates on an isolated execution store and <strong>never connects directly to MongoDB Atlas</strong>.
-                All municipal task dispatches, risk assessments, and alert broadcasts communicate via signed FastAPI webhooks with constant-time cryptographic verification.
+                Automated workflows operate in isolated execution sandboxes with strict cryptographic verification.
+                All municipal task orders, risk evaluations, and alert broadcasts communicate via signed, tamper-proof channels.
               </p>
             </div>
           </div>
