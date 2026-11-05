@@ -674,7 +674,7 @@ function LandingPageContent() {
                 </div>
               ) : (
                 <Button
-                  variant="critical"
+                  variant="danger"
                   size="lg"
                   onClick={handleTriggerSOS}
                   className="w-full py-4 text-base font-bold shadow-lg shadow-rose-600/30 hover:scale-[1.02] transition-transform"
