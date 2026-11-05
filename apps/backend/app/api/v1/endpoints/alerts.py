@@ -1,8 +1,9 @@
 from datetime import UTC, datetime, timedelta
 from typing import Any
+
 from fastapi import APIRouter, Depends, Query, Request, status
 
-from app.api.deps import get_current_user, get_optional_current_user, require_role
+from app.api.deps import get_current_user, require_role
 from app.core.errors import AppException
 from app.models.collections import AlertModel
 from app.repositories.alerts_repository import alerts_repository

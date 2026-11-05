@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from typing import Any
+
 from fastapi import APIRouter, Depends, Query, Request, status
 
 from app.api.deps import require_role

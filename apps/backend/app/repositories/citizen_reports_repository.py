@@ -120,5 +120,11 @@ class CitizenReportsRepository(BaseRepository):
         paged = filtered[skip : skip + limit]
         return [serialize_doc(d) for d in paged], total
 
+    async def list_reports(
+        self, status: str | None = None, limit: int = 50
+    ) -> list[dict[str, Any]]:
+        items, _ = await self.find_filtered(status=status, limit=limit)
+        return items
+
 
 citizen_reports_repository = CitizenReportsRepository()
