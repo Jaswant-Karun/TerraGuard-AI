@@ -24,6 +24,7 @@ import {
   Info,
   Layers,
   Lock,
+  MapPin,
   Megaphone,
   Radio,
   RefreshCw,
