@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Activity,
   AlertCircle,
@@ -79,15 +79,7 @@ export default function AlertsManagementPage() {
   // Acknowledgement tracking
   const [acknowledgingId, setAcknowledgingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadAlerts();
-    if (token) {
-      loadNotifications();
-      loadUserPreferences();
-    }
-  }, [token]);
-
-  const loadAlerts = async () => {
+  const loadAlerts = useCallback(async () => {
     try {
       setLoading(true);
       const data = await fetchAlerts();
@@ -97,9 +89,9 @@ export default function AlertsManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     if (!token) return;
     try {
       const data = await fetchNotificationFeed(token, unreadOnly);
@@ -107,9 +99,9 @@ export default function AlertsManagementPage() {
     } catch (err) {
       console.error("Failed to load notifications:", err);
     }
-  };
+  }, [token, unreadOnly]);
 
-  const loadUserPreferences = async () => {
+  const loadUserPreferences = useCallback(async () => {
     if (!token) return;
     try {
       const data = await fetchPreferences(token);
@@ -117,7 +109,15 @@ export default function AlertsManagementPage() {
     } catch (err) {
       console.error("Failed to load preferences:", err);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    loadAlerts();
+    if (token) {
+      loadNotifications();
+      loadUserPreferences();
+    }
+  }, [token, loadAlerts, loadNotifications, loadUserPreferences]);
 
   const handleAcknowledge = async (alertId: string) => {
     if (!token) {
