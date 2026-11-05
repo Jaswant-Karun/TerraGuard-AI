@@ -5,7 +5,6 @@ import numpy as np
 
 from app.ml.base import RiskSubscore, score_to_risk_level
 from app.ml.model_trainer import (
-    FEATURE_NAMES,
     load_flood_model,
     train_and_save_flood_model,
 )

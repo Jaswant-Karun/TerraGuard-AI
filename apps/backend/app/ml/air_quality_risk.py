@@ -1,4 +1,3 @@
-from typing import Any
 
 from app.ml.base import RiskSubscore, score_to_risk_level
 

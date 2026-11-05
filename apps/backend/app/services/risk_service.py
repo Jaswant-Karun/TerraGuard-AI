@@ -1,8 +1,6 @@
 import uuid
 from datetime import UTC, datetime
-from typing import Any
 
-from app.core.database import db_manager
 from app.core.errors import AppException
 from app.ml.aggregator import hazard_aggregator
 from app.repositories.base_repository import BaseRepository

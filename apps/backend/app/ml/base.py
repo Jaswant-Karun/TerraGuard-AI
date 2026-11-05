@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from dataclasses import dataclass
 from typing import Any, Literal
 
 RiskLevel = Literal["LOW", "MODERATE", "HIGH", "CRITICAL"]

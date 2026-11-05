@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Any
 
 from app.ml.air_quality_risk import air_quality_risk_estimator
 from app.ml.base import RiskLevel, RiskSubscore, score_to_risk_level
