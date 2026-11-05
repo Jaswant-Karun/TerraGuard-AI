@@ -84,25 +84,25 @@ class AgentOrchestrator:
         if "route" in q or "evacuat" in q or "path" in q or "corridor" in q or "navigat" in q:
             return self.agents["SAFE_ROUTE_AGENT"]
 
-        # 4. Summarize reports / incidents
-        if "summar" in q or "incident" in q or "verified" in q or "citizen" in q or "report" in q:
+        # 4. Image / Photo verification
+        if "image" in q or "photo" in q or "camera" in q or "picture" in q or "verify" in q:
+            return self.agents["IMAGE_VERIFICATION_AGENT"]
+
+        # 5. Summarize reports / incidents
+        if "summar" in q or "incident" in q or "citizen" in q or "report" in q:
             return self.agents["REPORT_SUMMARIZATION_AGENT"]
 
-        # 5. Flood / Inundation
+        # 6. Flood / Inundation
         if "flood" in q or "waterlog" in q or "drain" in q or "inundat" in q or "rain" in q:
             return self.agents["FLOOD_RISK_AGENT"]
 
-        # 6. Heat / Thermal stress
+        # 7. Heat / Thermal stress
         if "heat" in q or "hot" in q or "thermal" in q or "temperature" in q:
             return self.agents["HEAT_RISK_AGENT"]
 
-        # 7. Air quality / AQI / PM2.5
+        # 8. Air quality / AQI / PM2.5
         if "air" in q or "aqi" in q or "pollution" in q or "pm2" in q or "smog" in q:
             return self.agents["AIR_QUALITY_AGENT"]
-
-        # 8. Image / Photo verification
-        if "image" in q or "photo" in q or "camera" in q or "picture" in q or "verify" in q:
-            return self.agents["IMAGE_VERIFICATION_AGENT"]
 
         # Default: Environmental Monitoring
         return self.agents["ENVIRONMENTAL_MONITORING_AGENT"]
