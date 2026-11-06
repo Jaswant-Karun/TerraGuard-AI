@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Activity,
   AlertTriangle,
+  ArrowLeft,
   BarChart3,
   Bot,
   Building2,
@@ -13,6 +14,7 @@ import {
   ChevronRight,
   Compass,
   History,
+  Home,
   LayoutDashboard,
   MapPin,
   Radio,
@@ -91,6 +93,20 @@ export function Sidebar() {
         </button>
       </div>
 
+      {/* Return to Public Portal Homepage */}
+      <div className="px-3 pt-3 pb-1 border-b border-slate-800/60">
+        <Link
+          href="/"
+          title="Return to Public Portal Homepage"
+          className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/60 shadow-xs transition group ${
+            collapsed ? "justify-center px-0" : ""
+          }`}
+        >
+          <ArrowLeft className="h-4 w-4 text-cyan-400 shrink-0 group-hover:-translate-x-0.5 transition-transform" />
+          {!collapsed && <span>Back to Home</span>}
+        </Link>
+      </div>
+
       {/* Navigation Links */}
       <nav className="flex-1 space-y-1.5 overflow-y-auto px-3 py-4">
         {NAV_ITEMS.map((item) => {
@@ -138,6 +154,20 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Return to Public Website */}
+      <div className="px-3 pb-2">
+        <Link
+          href="/"
+          title="Return to Public Homepage"
+          className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-400 hover:text-cyan-300 hover:bg-slate-800/80 transition ${
+            collapsed ? "justify-center px-0" : ""
+          }`}
+        >
+          <Home className="h-4 w-4 text-slate-500 shrink-0" />
+          {!collapsed && <span>Public Homepage</span>}
+        </Link>
+      </div>
 
       {/* User Status Footer */}
       <div className="border-t border-slate-800 p-3">
