@@ -1,5 +1,5 @@
 {
-  "e52c2f0a-35b1-4534-a50f-e03160942ff0": {
+  "5ff6dea6-83e5-47b7-ad22-7a38fee52370": {
     "title": "Severe Waterlogging on 80 Feet Road",
     "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
     "category": "WATERLOGGING",
@@ -14,7 +14,7 @@
     },
     "address": "80 Feet Rd, 4th Block, Koramangala",
     "media_urls": [
-      "/uploads/hazard_media/hazard_051b04ca954f4abe997cf7014b9b5ab7_7cfcfdc7.jpg"
+      "/uploads/hazard_media/hazard_8f7214ee8d184e38ace66bce769f681f_7cfcfdc7.jpg"
     ],
     "image_hash": "7cfcfdc7cf3db91dad0e70bd7cb7ddee53044d59558c4cd558ea6f1a45d783ae",
     "ai_analysis": {
@@ -37,10 +37,10 @@
     },
     "is_potential_duplicate": false,
     "duplicate_metadata": {},
-    "created_at": "2026-11-06T16:54:34.834252+00:00",
-    "id": "e52c2f0a-35b1-4534-a50f-e03160942ff0"
+    "created_at": "2026-11-06T17:27:09.364653+00:00",
+    "id": "5ff6dea6-83e5-47b7-ad22-7a38fee52370"
   },
-  "69bbacaa-9069-4366-ac1d-447a8725ba28": {
+  "51d9510e-e753-4ebf-ac5a-6c7997b287b0": {
     "title": "Severe Waterlogging on 80 Feet Road",
     "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
     "category": "WATERLOGGING",
@@ -55,7 +55,7 @@
     },
     "address": "80 Feet Rd, 4th Block, Koramangala",
     "media_urls": [
-      "/uploads/hazard_media/hazard_8087dc5ef01040bdbdd9ac15c392926d_7cfcfdc7.jpg"
+      "/uploads/hazard_media/hazard_780f41bb639a4cbdb770676a7463a380_7cfcfdc7.jpg"
     ],
     "image_hash": "7cfcfdc7cf3db91dad0e70bd7cb7ddee53044d59558c4cd558ea6f1a45d783ae",
     "ai_analysis": {
@@ -77,17 +77,17 @@
       "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
     },
     "is_potential_duplicate": true,
-    "duplicate_of_report_id": "e52c2f0a-35b1-4534-a50f-e03160942ff0",
+    "duplicate_of_report_id": "5ff6dea6-83e5-47b7-ad22-7a38fee52370",
     "duplicate_metadata": {
-      "matched_report_id": "e52c2f0a-35b1-4534-a50f-e03160942ff0",
+      "matched_report_id": "5ff6dea6-83e5-47b7-ad22-7a38fee52370",
       "similarity_score": 1.0,
-      "reason": "Identical image hash detected. Matches report #e52c2f0a (0m away).",
+      "reason": "Identical image hash detected. Matches report #5ff6dea6 (0m away).",
       "distance_meters": 0.0
     },
-    "created_at": "2026-11-06T16:54:34.858054+00:00",
-    "id": "69bbacaa-9069-4366-ac1d-447a8725ba28"
+    "created_at": "2026-11-06T17:27:09.478202+00:00",
+    "id": "51d9510e-e753-4ebf-ac5a-6c7997b287b0"
   },
-  "f7b34ee6-db53-4a4a-ae00-b18e1bd74d8b": {
+  "58689752-896f-48c8-9410-45a9ac8f96ce": {
     "title": "Choked Storm Culvert",
     "description": "Plastic bottles and debris blocking storm drain outlet.",
     "category": "WASTE_ACCUMULATION",
@@ -101,7 +101,7 @@
       ]
     },
     "media_urls": [
-      "/uploads/hazard_media/hazard_afd372f6fa4a4db2b0217e8641d6d1e0_49b3268c.jpg"
+      "/uploads/hazard_media/hazard_3a3519f6f97d4a928d3908b5e9c66a95_49b3268c.jpg"
     ],
     "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
     "ai_analysis": {
@@ -125,10 +125,10 @@
     },
     "is_potential_duplicate": false,
     "duplicate_metadata": {},
-    "created_at": "2026-11-06T16:54:34.896459+00:00",
-    "id": "f7b34ee6-db53-4a4a-ae00-b18e1bd74d8b"
+    "created_at": "2026-11-06T17:27:09.607063+00:00",
+    "id": "58689752-896f-48c8-9410-45a9ac8f96ce"
   },
-  "1555b7cb-9b7c-404c-b196-938ddac17ed9": {
+  "71023b39-9310-40f9-8d29-5569474b519b": {
     "title": "Deep Pothole on Outer Ring Road",
     "description": "Asphalt depression 15cm deep posing hazard to motorists.",
     "category": "DAMAGED_ROAD",
@@ -142,7 +142,7 @@
       ]
     },
     "media_urls": [
-      "/uploads/hazard_media/hazard_30885f539f494d7c8fded530c7952aff_49b3268c.jpg"
+      "/uploads/hazard_media/hazard_07ccadb53aca4f0ea4c6efbe3ac90819_49b3268c.jpg"
     ],
     "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
     "ai_analysis": {
@@ -166,10 +166,55 @@
     },
     "is_potential_duplicate": false,
     "duplicate_metadata": {},
-    "created_at": "2026-11-06T16:54:34.921661+00:00",
-    "id": "1555b7cb-9b7c-404c-b196-938ddac17ed9",
-    "updated_at": "2026-11-06T16:54:34.931158+00:00",
+    "created_at": "2026-11-06T17:27:09.739177+00:00",
+    "id": "71023b39-9310-40f9-8d29-5569474b519b",
+    "updated_at": "2026-11-06T17:27:09.778506+00:00",
     "verification_notes": "Field unit verified on-site.",
-    "verified_by_user_id": "c2e39bd7-c5ce-4b4f-9ae2-036afcad1e3f"
+    "verified_by_user_id": "0f091b2a-1ab9-4536-9563-707b093c9016"
+  },
+  "eb4e5a0e-2277-439d-bee9-abcc4fea24cd": {
+    "title": "Severe Waterlogging near Bellandur Gate",
+    "description": "Standing water 18 inches deep submerging curb and sidewalk.",
+    "category": "WATERLOGGING",
+    "severity": 4,
+    "status": "VERIFIED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.6669,
+        12.9352
+      ]
+    },
+    "address": "Outer Ring Road, Bellandur",
+    "media_urls": [
+      "/uploads/hazard_media/hazard_691684d3c25541598af3580b12fda88f_f3afd141.png"
+    ],
+    "image_hash": "f3afd141c15ab9ec908ee966872aa79e7df5b46b480a2a46093ab2360f768765",
+    "reported_by_user_id": "baed4a9e-dd2d-44f9-bea9-bb495debc237",
+    "ai_analysis": {
+      "predicted_category": "WATERLOGGING",
+      "short_description": "Localized water stagnation and sidewalk waterlogging observed.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Standing rainwater pool",
+        "Stormwater drain backup"
+      ],
+      "confidence_estimate": 0.84,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Reduce vehicle speed to prevent hydroplaning",
+        "Watch for obscured potholes beneath water"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": false,
+    "duplicate_metadata": {},
+    "created_at": "2026-11-06T17:53:45.057226+00:00",
+    "id": "eb4e5a0e-2277-439d-bee9-abcc4fea24cd",
+    "verification_notes": "Ground-truthed by BBMP Patrol Squad 3",
+    "verified_by_user_id": "1c61a989-8c8e-41c8-a416-f0de99741662",
+    "updated_at": "2026-11-06T17:53:47.009134+00:00"
   }
 }

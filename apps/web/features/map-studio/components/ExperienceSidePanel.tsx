@@ -1,0 +1,243 @@
+"use client";
+
+import React from "react";
+import {
+  Activity,
+  AlertOctagon,
+  AlertTriangle,
+  Building2,
+  CheckCircle2,
+  Clock,
+  CloudRain,
+  Compass,
+  Droplets,
+  Flame,
+  Gauge,
+  Info,
+  Layers,
+  MapPin,
+  Mountain,
+  Navigation,
+  Radio,
+  ShieldAlert,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+  Waves,
+  Wind,
+  X,
+} from "lucide-react";
+import {
+  ExperienceId,
+  ExperienceViewMeta,
+  MapPreset,
+  MapStudioExperienceResponse,
+  SectorTelemetry,
+} from "../types/studio";
+
+interface ExperienceSidePanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+  experienceMeta: ExperienceViewMeta;
+  experienceData: MapStudioExperienceResponse | null;
+  telemetry: SectorTelemetry;
+  activePreset: MapPreset;
+  timeOffsetHours: number;
+  isDarkGIS?: boolean;
+}
+
+export function ExperienceSidePanel({
+  isOpen,
+  onClose,
+  experienceMeta,
+  experienceData,
+  telemetry,
+  activePreset,
+  timeOffsetHours,
+  isDarkGIS = true,
+}: ExperienceSidePanelProps) {
+  if (!isOpen) return null;
+
+  const data = experienceData?.side_panel_data || {};
+  const metrics = experienceData?.metrics || {};
+
+  return (
+    <div
+      className={`absolute top-12 right-3 z-20 w-84 md:w-88 max-h-[calc(100vh-7.5rem)] flex flex-col rounded-xl border shadow-2xl backdrop-blur-md select-none transition-all duration-200 overflow-hidden ${
+        isDarkGIS
+          ? "bg-slate-950/92 border-slate-800 text-slate-100"
+          : "bg-white/95 border-slate-200 text-slate-900 shadow-slate-900/10"
+      }`}
+    >
+      {/* Panel Header */}
+      <div
+        className={`flex items-center justify-between px-3.5 py-3 border-b ${
+          isDarkGIS ? "border-slate-800/80 bg-slate-900/40" : "border-slate-200/80 bg-slate-50/70"
+        }`}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-xs font-bold border border-cyan-500/30">
+            {experienceMeta.index}
+          </span>
+          <div className="truncate">
+            <h3 className="text-xs font-bold uppercase tracking-wider truncate">
+              {experienceMeta.name.replace(/^Map \d+ — /, "")}
+            </h3>
+            <span className="text-[10px] text-slate-400 block truncate">
+              {experienceMeta.category} Intelligence
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className={`p-1 rounded-md transition ${
+            isDarkGIS ? "text-slate-400 hover:text-white hover:bg-slate-800" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+          }`}
+          title="Close Intelligence Panel"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-3.5 py-3 space-y-3.5 text-xs">
+        {/* Focused Urban Sector Header */}
+        <div
+          className={`p-2.5 rounded-lg border ${
+            isDarkGIS ? "bg-slate-900/80 border-slate-700/80" : "bg-slate-50 border-slate-200"
+          }`}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+              Focused Location
+            </span>
+            <span
+              className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                activePreset.risk_level === "CRITICAL"
+                  ? "bg-rose-900/60 text-rose-200 border border-rose-600"
+                  : "bg-amber-900/60 text-amber-200 border border-amber-600"
+              }`}
+            >
+              {activePreset.risk_level} SEVERITY
+            </span>
+          </div>
+          <h4 className="font-bold text-sm text-white truncate">
+            {activePreset.name}
+          </h4>
+          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+            {activePreset.subtext}
+          </p>
+        </div>
+
+        {/* Dynamic Key Metrics Grid for the Active Experience */}
+        {Object.keys(metrics).length > 0 && (
+          <div className="grid grid-cols-2 gap-2">
+            {Object.entries(metrics).map(([key, val]) => (
+              <div
+                key={key}
+                className={`p-2.5 rounded-lg border flex flex-col ${
+                  isDarkGIS ? "bg-slate-900/50 border-slate-800" : "bg-slate-50 border-slate-200"
+                }`}
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 truncate">
+                  {key.replace(/_/g, " ")}
+                </span>
+                <span className="text-base font-black tracking-tight text-white font-mono mt-0.5 truncate">
+                  {typeof val === "number" ? val.toLocaleString() : String(val)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Experience-Specific Visual Telemetry Renderers */}
+        {/* MAP 2: Flood Inundation & Hyetograph */}
+        {experienceMeta.id === "flood-risk-intelligence" && (
+          <div className="space-y-3">
+            <div
+              className={`p-2.5 rounded-lg border ${
+                isDarkGIS ? "bg-slate-900/60 border-slate-800" : "bg-slate-50 border-slate-200"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <TrendingUp className="h-3 w-3 text-cyan-400" />
+                  Observed Rain & ML Projection
+                </span>
+                <span className="text-[9px] text-slate-400 font-mono">19:00 &rarr; 04:00</span>
+              </div>
+              <div className="h-20 w-full flex items-end gap-1.5 pt-2 px-1">
+                {telemetry.hyetograph_history.map((pt, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center h-full justify-end">
+                    <div
+                      style={{ height: `${Math.min(100, Math.round((pt.precipitation_mm / 55) * 100))}%` }}
+                      className="w-full rounded-t bg-cyan-400"
+                    />
+                    <span className="text-[8px] font-mono text-slate-400 mt-1">{pt.timestamp}</span>
+                  </div>
+                ))}
+                <div className="h-full w-px bg-slate-700/80 mx-0.5" />
+                {telemetry.forecast_progression.slice(0, 4).map((pt, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center h-full justify-end">
+                    <div
+                      style={{ height: `${Math.min(100, Math.round((pt.precipitation_mm / 55) * 100))}%` }}
+                      className="w-full rounded-t bg-purple-400 border-dashed border-t border-purple-200"
+                    />
+                    <span className="text-[8px] font-mono text-purple-300 mt-1">{pt.timestamp}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {data.contributing_factors && (
+              <div className="p-2.5 rounded-lg border border-slate-800 bg-slate-900/50">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-slate-300 block mb-1.5">
+                  Contributing Risk Factors
+                </span>
+                <ul className="space-y-1 text-[11px] text-slate-400 list-disc list-inside">
+                  {data.contributing_factors.map((f: string, idx: number) => (
+                    <li key={idx} className="leading-tight">{f}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MAP 11: Route Risk Explanation */}
+        {experienceMeta.id === "safe-navigation-risk-aware" && (
+          <div className="p-2.5 rounded-lg border border-emerald-900/60 bg-emerald-950/40 text-xs">
+            <div className="flex items-center gap-1.5 text-emerald-400 font-bold mb-1">
+              <CheckCircle2 className="h-4 w-4" />
+              <span>Recommended Safe Path Computed</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-snug">
+              Route safely avoids Koramangala 80ft Road Lowland Sump (Culvert 4B backup depth 0.72m). Diverted via Inner Ring Road elevation ridge.
+            </p>
+          </div>
+        )}
+
+        {/* Provenance, Attribution & Data Freshness */}
+        <div
+          className={`p-2.5 rounded-lg border text-[10px] space-y-1.5 ${
+            isDarkGIS ? "bg-slate-900/70 border-slate-800 text-slate-300" : "bg-slate-50 border-slate-200 text-slate-700"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400 font-semibold">Data Provenance</span>
+            <span className="text-cyan-400 font-medium">{experienceMeta.freshness}</span>
+          </div>
+          <p className="text-slate-300 leading-tight">
+            <strong>Source:</strong> {experienceMeta.attribution}
+          </p>
+          {experienceMeta.limitations && (
+            <div className="pt-1.5 border-t border-slate-700/50 text-slate-400 text-[9px] flex items-start gap-1">
+              <Info className="h-3 w-3 text-amber-400 shrink-0 mt-0.5" />
+              <span>{experienceMeta.limitations}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+

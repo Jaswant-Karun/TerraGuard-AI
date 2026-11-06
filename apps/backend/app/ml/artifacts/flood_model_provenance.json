@@ -24,7 +24,7 @@
   "test_rmse": 5.85,
   "test_r2_score": 0.819,
   "is_ml_validated": true,
-  "trained_at": "2026-11-06T16:54:34.977659+00:00",
+  "trained_at": "2026-11-06T17:27:09.988705+00:00",
   "training_data_source": "IMD_BBMP_Calibrated_Urban_Inundation_Benchmarks",
   "provenance_statement": "Model trained on calibrated municipal cloudburst inundation benchmarks using 5-fold cross-validated Gradient Boosting."
 }
