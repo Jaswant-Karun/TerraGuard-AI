@@ -1,20 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   BasemapStyle,
+  ExperienceId,
+  ExperienceViewMeta,
   FloodRiskFeature,
   FloodRiskGeoJSON,
   LayerConfig,
   MapPreset,
+  MapStudioExperienceResponse,
   SectorTelemetry,
   StudioViewMode,
 } from "../types/studio";
 import {
+  DEFAULT_EXPERIENCES_META,
   DEFAULT_LAYERS,
   DEFAULT_PRESETS,
   FALLBACK_FLOOD_ZONES,
   FALLBACK_TELEMETRY,
+  getExperienceDetails,
+  getExperiencesMeta,
   getFloodRiskZones,
   getHotspotPresets,
   getMapStudioLayers,
@@ -30,6 +36,11 @@ export function useMapStudioData() {
   const [activePreset, setActivePreset] = useState<MapPreset>(DEFAULT_PRESETS[0]);
   const [telemetry, setTelemetry] = useState<SectorTelemetry>(FALLBACK_TELEMETRY);
   const [selectedFeature, setSelectedFeature] = useState<FloodRiskFeature | null>(null);
+
+  // 11 Specialized Map Experiences State
+  const [experiences, setExperiences] = useState<ExperienceViewMeta[]>(DEFAULT_EXPERIENCES_META);
+  const [activeExperienceId, setActiveExperienceId] = useState<ExperienceId>("operational-satellite-gis");
+  const [activeExperienceData, setActiveExperienceData] = useState<MapStudioExperienceResponse | null>(null);
 
   // Time scrubber state: -24 to +6 hours (0 = Live)
   const [timeOffsetHours, setTimeOffsetHours] = useState<number>(0);
@@ -48,11 +59,13 @@ export function useMapStudioData() {
     async function loadData() {
       setIsLoading(true);
       try {
-        const [layerData, zonesData, presetsData, telemetryData] = await Promise.all([
+        const [layerData, zonesData, presetsData, telemetryData, expMeta, initialExpData] = await Promise.all([
           getMapStudioLayers(),
           getFloodRiskZones(),
           getHotspotPresets(),
           getSectorTelemetry(),
+          getExperiencesMeta(),
+          getExperienceDetails("operational-satellite-gis"),
         ]);
         if (mounted) {
           setLayers(layerData);
@@ -62,6 +75,8 @@ export function useMapStudioData() {
             setActivePreset(presetsData[0]);
           }
           setTelemetry(telemetryData);
+          setExperiences(expMeta);
+          setActiveExperienceData(initialExpData);
         }
       } catch (err) {
         console.error("Map Studio data fetch error, using resilient fallbacks:", err);
@@ -105,11 +120,29 @@ export function useMapStudioData() {
     }
   };
 
+  // Switch between any of the 11 Specialized Map Experiences
+  const selectExperience = useCallback(async (id: ExperienceId) => {
+    setActiveExperienceId(id);
+    try {
+      const data = await getExperienceDetails(id);
+      setActiveExperienceData(data);
+      if (data.meta && data.meta.default_basemap) {
+        setBasemapStyle(data.meta.default_basemap);
+      }
+    } catch (e) {
+      console.error("Failed to switch experience:", e);
+    }
+  }, []);
+
   return {
     basemapStyle,
     setBasemapStyle,
     viewMode,
     setViewMode: handleViewModeChange,
+    experiences,
+    activeExperienceId,
+    activeExperienceData,
+    selectExperience,
     layers,
     toggleLayer,
     setLayerOpacity,
