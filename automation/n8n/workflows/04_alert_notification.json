@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "=http://backend:8000/api/v1/automation/subscribers?zone={{ $json.body.target_zone }}",
+        "url": "=https://terraguard-ai-xo6s.onrender.com/api/v1/automation/subscribers?zone={{ $json.body.target_zone }}",
         "options": {
           "timeout": 10000
         }
@@ -40,7 +40,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/alert-delivery-callback",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/alert-delivery-callback",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [

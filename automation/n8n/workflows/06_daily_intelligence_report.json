@@ -33,7 +33,7 @@
     },
     {
       "parameters": {
-        "url": "http://backend:8000/api/v1/reports?status=VERIFIED&page_size=50",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/reports?status=VERIFIED&page_size=50",
         "options": {
           "timeout": 15000
         }
@@ -46,7 +46,7 @@
     },
     {
       "parameters": {
-        "url": "http://backend:8000/api/v1/dashboard/summary",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/dashboard/summary",
         "options": {
           "timeout": 15000
         }
@@ -70,7 +70,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/daily-intelligence-callback",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/daily-intelligence-callback",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [

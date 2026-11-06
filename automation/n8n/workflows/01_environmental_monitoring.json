@@ -33,7 +33,7 @@
     },
     {
       "parameters": {
-        "url": "http://backend:8000/api/v1/environment/current?lat=12.9716&lng=77.5946",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/environment/current?lat=12.9716&lng=77.5946",
         "options": {
           "timeout": 10000
         }
@@ -84,7 +84,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/risk/assess",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/risk/assess",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"lat\": {{ $json.location.coordinates[1] }},\n  \"lng\": {{ $json.location.coordinates[0] }},\n  \"rainfall_intensity_mmh\": {{ $json.rainfall_mm || 0 }},\n  \"temperature_c\": {{ $json.temperature_c || 25 }},\n  \"aqi\": {{ $json.air_quality.aqi || 50 }}\n}",
@@ -101,7 +101,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/risk-assessment-callback",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/risk-assessment-callback",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -129,7 +129,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/risk-assessment-callback",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/risk-assessment-callback",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [

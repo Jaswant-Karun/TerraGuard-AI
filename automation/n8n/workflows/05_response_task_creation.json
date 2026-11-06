@@ -55,7 +55,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/task-dispatch-callback",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/task-dispatch-callback",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -83,7 +83,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/task-dispatch-callback",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/task-dispatch-callback",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [

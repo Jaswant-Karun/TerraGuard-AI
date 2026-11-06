@@ -73,7 +73,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/create-alert",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/create-alert",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -101,7 +101,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/log-workflow",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/log-workflow",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -125,7 +125,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/log-workflow",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/log-workflow",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [

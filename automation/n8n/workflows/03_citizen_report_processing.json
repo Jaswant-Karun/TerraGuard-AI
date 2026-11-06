@@ -82,7 +82,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://backend:8000/api/v1/reports/{{ $('Webhook - Ingest Citizen Report').item.json.body.id }}/status",
+        "url": "=https://terraguard-ai-xo6s.onrender.com/api/v1/reports/{{ $('Webhook - Ingest Citizen Report').item.json.body.id }}/status",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -110,7 +110,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/notify-reviewers",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/notify-reviewers",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -134,7 +134,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://backend:8000/api/v1/automation/webhooks/log-workflow",
+        "url": "https://terraguard-ai-xo6s.onrender.com/api/v1/automation/webhooks/log-workflow",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [

@@ -93,16 +93,34 @@ services:
           property: password
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
+      - key: N8N_HOST
+        value: terraguard-n8n.onrender.com
+      - key: N8N_PORT
+        value: "5678"
       - key: N8N_PROTOCOL
         value: https
+      - key: WEBHOOK_URL
+        value: https://terraguard-n8n.onrender.com/
+      - key: N8N_EDITOR_BASE_URL
+        value: https://terraguard-n8n.onrender.com/
+      - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
+        value: "false"
       - key: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
         value: "true"
       - key: EXECUTIONS_DATA_PRUNE
         value: "true"
       - key: EXECUTIONS_DATA_MAX_AGE
         value: "168"
+      - key: EXECUTIONS_DATA_PRUNE_MAX_COUNT
+        value: "50000"
       - key: GENERIC_TIMEZONE
         value: Asia/Kolkata
+      - key: N8N_DEFAULT_BINARY_DATA_MODE
+        value: filesystem
+      - key: TERRAGUARD_BACKEND_URL
+        value: https://terraguard-ai-xo6s.onrender.com/api/v1
+      - key: TERRAGUARD_WEBHOOK_SECRET
+        value: tg_dev_secret_key
 
 # ------------------------------------------------------------------------------
 # 3. Managed PostgreSQL Database (Backing n8n Workflows & Execution Receipts)
