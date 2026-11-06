@@ -8,11 +8,7 @@ import {
   ResponseTaskItem,
 } from "@/types/alerts_admin";
 import { getAccessToken } from "@/services/auth";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:8000/api/v1";
+import { API_BASE_URL } from "./config";
 
 function authHeaders(token?: string | null): Record<string, string> {
   const effectiveToken = token || getAccessToken();

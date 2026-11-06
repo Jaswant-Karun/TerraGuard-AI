@@ -6,11 +6,9 @@
  */
 
 import { getAccessToken } from "./auth";
+import { API_BASE_URL, normalizeApiUrl } from "./config";
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:8000/api/v1";
+export { API_BASE_URL, normalizeApiUrl };
 
 export interface SystemHealthStatus {
   status: "healthy" | "degraded" | "unhealthy";

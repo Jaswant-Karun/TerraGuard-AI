@@ -53,13 +53,26 @@ class Settings(BaseSettings):
             if env == "production" and (not webhook_sec or webhook_sec == "tg_dev_secret_key"):
                 data["N8N_WEBHOOK_SECRET"] = secrets.token_urlsafe(32)
 
-            # 3. Support ALLOWED_ORIGINS alias
+            # 3. Support ALLOWED_ORIGINS alias and merge with safe defaults
             allowed = data.get("ALLOWED_ORIGINS") or os.environ.get("ALLOWED_ORIGINS")
+            origins = [
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "https://terra-guard-ai-chi.vercel.app",
+                "https://terraguard.vercel.app",
+                "https://terraguard-web.vercel.app",
+            ]
             if allowed:
                 if isinstance(allowed, str):
-                    data["CORS_ORIGINS"] = [o.strip() for o in allowed.split(",") if o.strip()]
+                    parsed = [o.strip() for o in allowed.split(",") if o.strip()]
                 elif isinstance(allowed, list):
-                    data["CORS_ORIGINS"] = allowed
+                    parsed = allowed
+                else:
+                    parsed = []
+                for p in parsed:
+                    if p not in origins:
+                        origins.append(p)
+            data["CORS_ORIGINS"] = origins
 
         return data
 
