@@ -136,3 +136,17 @@ async def test_analytics_service_direct_unit():
     assert len(pdf_bytes) > 2000
     assert pdf_bytes[:5] == b"%PDF-"
 
+
+@pytest.mark.asyncio
+async def test_get_analytics_overview_unauthenticated():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Public / guest request without Authorization header
+        res = await client.get("/api/v1/analytics/overview?time_range=30d")
+        assert res.status_code == 200
+        data = res.json()
+        assert "environmental_trends" in data
+        assert len(data["environmental_trends"]) == 30
+        assert "geographic_comparisons" in data
+
+

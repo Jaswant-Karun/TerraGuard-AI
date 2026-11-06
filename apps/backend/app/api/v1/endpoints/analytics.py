@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, Query, Response
 
-from app.api.deps import get_current_user
+from app.api.deps import get_optional_current_user
 from app.schemas.analytics import AnalyticsOverviewResponse
 from app.services.analytics_service import AnalyticsService
 
@@ -23,7 +23,7 @@ async def get_analytics_overview(
     location: str = Query("all", description="Location or zone code filter (e.g. all, Bellandur, Koramangala)"),
     risk_category: str = Query("all", description="Risk category filter (all, FLOOD, HEAT, AIR_QUALITY, INFRASTRUCTURE_HAZARD)"),
     verification_status: str = Query("all", description="Verification filter (all, VERIFIED, UNVERIFIED, REJECTED, IN_REVIEW)"),
-    current_user: dict[str, Any] = Depends(get_current_user),
+    current_user: dict[str, Any] | None = Depends(get_optional_current_user),
 ) -> AnalyticsOverviewResponse:
     service = AnalyticsService()
     return await service.get_analytics_overview(
@@ -50,7 +50,7 @@ async def export_analytics_report(
     location: str = Query("all", description="Location or zone filter"),
     risk_category: str = Query("all", description="Risk category filter"),
     verification_status: str = Query("all", description="Verification status filter"),
-    current_user: dict[str, Any] = Depends(get_current_user),
+    current_user: dict[str, Any] | None = Depends(get_optional_current_user),
 ):
     service = AnalyticsService()
     overview = await service.get_analytics_overview(
