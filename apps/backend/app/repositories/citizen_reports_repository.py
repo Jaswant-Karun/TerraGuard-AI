@@ -199,8 +199,8 @@ class CitizenReportsRepository(BaseRepository):
     @classmethod
     def clear_all_memory(cls) -> None:
         """Utility for test suites."""
-        store = cls._memory_stores.get(cls.collection_name, {})
-        store.clear()
+        if "citizen_reports" in db_manager._collections_data:
+            db_manager._collections_data["citizen_reports"].clear()
         if REPORTS_CACHE_FILE.exists():
             try:
                 REPORTS_CACHE_FILE.unlink()

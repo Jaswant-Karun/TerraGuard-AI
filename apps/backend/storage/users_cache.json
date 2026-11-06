@@ -39,8 +39,8 @@
     "is_active": true,
     "created_at": "2026-01-01T00:00:00+00:00",
     "refresh_token": "REVOKED",
-    "last_login_at": "2026-11-06T16:52:48.519467+00:00",
-    "updated_at": "2026-11-06T16:52:48.533749+00:00"
+    "last_login_at": "2026-11-06T16:53:39.235751+00:00",
+    "updated_at": "2026-11-06T16:53:39.244983+00:00"
   },
   "b42cdab4-d330-4643-9712-c92a446e6551": {
     "email": "citizen_e2e@terraguard.ai",
