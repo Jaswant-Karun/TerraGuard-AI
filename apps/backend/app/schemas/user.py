@@ -1,7 +1,14 @@
 from datetime import datetime
 from enum import Enum
+from typing import Annotated
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field, StringConstraints
+
+try:
+    import email_validator  # noqa: F401
+    from pydantic import EmailStr
+except ImportError:
+    EmailStr = Annotated[str, StringConstraints(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")]  # type: ignore
 
 
 class UserRole(str, Enum):

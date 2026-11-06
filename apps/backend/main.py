@@ -17,6 +17,18 @@ except ImportError:
     _rate_limit_exceeded_handler = None
     SlowAPIMiddleware = None
 
+from app.api.v1.router import api_v1_router
+from app.core.config import settings
+from app.core.database import db_manager
+from app.core.errors import register_exception_handlers
+from app.core.logging import setup_logging
+from app.repositories.user_repository import UserRepository
+from app.services.storage_service import STORAGE_BASE_DIR
+
+# Initialize structured logging
+setup_logging()
+logger = logging.getLogger("terraguard.main")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
