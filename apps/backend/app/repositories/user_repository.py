@@ -88,7 +88,7 @@ class UserRepository:
         # 2. Load disk-cached users if available
         try:
             if USERS_CACHE_FILE.exists():
-                with open(USERS_CACHE_FILE, "r", encoding="utf-8") as f:
+                with open(USERS_CACHE_FILE, encoding="utf-8") as f:
                     cached = json.load(f)
                     if isinstance(cached, dict):
                         cls._in_memory_users.update(cached)
