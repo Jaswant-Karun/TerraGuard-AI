@@ -4,25 +4,18 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
-from slowapi.middleware import SlowAPIMiddleware
-from slowapi.util import get_remote_address
+try:
+    from slowapi import Limiter, _rate_limit_exceeded_handler
+    from slowapi.errors import RateLimitExceeded
+    from slowapi.middleware import SlowAPIMiddleware
+    from slowapi.util import get_remote_address
 
-from app.api.v1.router import api_v1_router
-from app.core.config import settings
-from app.core.database import db_manager
-from app.core.errors import register_exception_handlers
-from app.core.logging import setup_logging
-from app.repositories.user_repository import UserRepository
-from app.services.storage_service import STORAGE_BASE_DIR
-
-# Initialize structured logging
-setup_logging()
-logger = logging.getLogger("terraguard.main")
-
-# Initialize global IP rate limiter
-limiter = Limiter(key_func=get_remote_address, default_limits=["300/minute"])
+    limiter = Limiter(key_func=get_remote_address, default_limits=["300/minute"])
+except ImportError:
+    limiter = None
+    RateLimitExceeded = None
+    _rate_limit_exceeded_handler = None
+    SlowAPIMiddleware = None
 
 
 @asynccontextmanager
@@ -75,9 +68,10 @@ def create_application() -> FastAPI:
         return response
 
     # Global Rate Limiting
-    app.state.limiter = limiter
-    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-    app.add_middleware(SlowAPIMiddleware)
+    if limiter is not None and SlowAPIMiddleware is not None:
+        app.state.limiter = limiter
+        app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+        app.add_middleware(SlowAPIMiddleware)
 
     # Register centralized exception handlers
     register_exception_handlers(app)
