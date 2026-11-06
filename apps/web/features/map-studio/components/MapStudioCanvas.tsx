@@ -406,6 +406,87 @@ export function MapStudioCanvas({
     }
   }, [timeOffsetHours, layers]);
 
+  // Handle Dynamic 11-Experience Features Injection & Camera Transition
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map || !map.isStyleLoaded() || !experienceData) return;
+
+    const sourceId = "studio-experience-features";
+    const geojson = experienceData.geojson || { type: "FeatureCollection", features: [] };
+
+    if (map.getSource(sourceId)) {
+      map.getSource(sourceId).setData(geojson);
+    } else {
+      map.addSource(sourceId, {
+        type: "geojson",
+        data: geojson,
+      });
+
+      // 1. Polygon Fill Layer
+      map.addLayer({
+        id: "exp-polygons-fill",
+        type: "fill",
+        source: sourceId,
+        filter: ["==", "$type", "Polygon"],
+        paint: {
+          "fill-color": ["coalesce", ["get", "color"], "#38bdf8"],
+          "fill-opacity": 0.65,
+        },
+      });
+
+      // 2. Polygon Line Layer
+      map.addLayer({
+        id: "exp-polygons-line",
+        type: "line",
+        source: sourceId,
+        filter: ["==", "$type", "Polygon"],
+        paint: {
+          "line-color": ["coalesce", ["get", "color"], "#38bdf8"],
+          "line-width": 2,
+        },
+      });
+
+      // 3. LineStrings Layer (Routes & Raja Kaluve canals)
+      map.addLayer({
+        id: "exp-lines",
+        type: "line",
+        source: sourceId,
+        filter: ["==", "$type", "LineString"],
+        paint: {
+          "line-color": ["coalesce", ["get", "color"], "#10b981"],
+          "line-width": 4.5,
+          "line-opacity": 0.9,
+        },
+      });
+
+      // 4. Points Layer (Stations, Sensors, Reports, Facilities)
+      map.addLayer({
+        id: "exp-points-circle",
+        type: "circle",
+        source: sourceId,
+        filter: ["==", "$type", "Point"],
+        paint: {
+          "circle-radius": 7.5,
+          "circle-color": ["coalesce", ["get", "color"], "#38bdf8"],
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#ffffff",
+        },
+      });
+    }
+
+    // Camera fly-to for the experience
+    if (experienceData.meta) {
+      map.flyTo({
+        center: experienceData.meta.center,
+        zoom: experienceData.meta.default_zoom,
+        pitch: experienceData.meta.default_pitch,
+        bearing: experienceData.meta.default_bearing,
+        essential: true,
+        duration: 1600,
+      });
+    }
+  }, [experienceData]);
+
   return (
     <div className="relative w-full h-full overflow-hidden bg-slate-950">
       {mapError && (
