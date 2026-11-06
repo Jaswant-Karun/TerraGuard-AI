@@ -242,8 +242,11 @@ function LandingPageContent() {
 
           {/* Desktop Navigation Links (Zero technical jargon / zero architecture meta-text) */}
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-600">
-            <a href="#overview" className="hover:text-brand-blue transition-colors">
-              Overview
+            <a
+              href={user ? "/dashboard" : "#overview"}
+              className="hover:text-brand-blue transition-colors font-semibold text-slate-800"
+            >
+              {user ? "Cockpit Dashboard" : "Overview"}
             </a>
             <a href="#radar" className="hover:text-brand-blue transition-colors flex items-center gap-1.5">
               <span>Live Radar</span>
@@ -301,22 +304,15 @@ function LandingPageContent() {
             >
               Report Hazard
             </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                showToast({
-                  title: "Command Center Terminal",
-                  message: "Connecting to Real-Time Urban Disaster Intelligence Command Center...",
-                  type: "info",
-                });
-                const el = document.getElementById("radar");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
-            >
-              Launch Cockpit
-            </Button>
+            <Link href="/dashboard">
+              <Button
+                variant="secondary"
+                size="sm"
+                rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
+              >
+                Launch Cockpit
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -355,16 +351,14 @@ function LandingPageContent() {
               </p>
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Button
-                  size="lg"
-                  onClick={() => {
-                    const el = document.getElementById("radar");
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  rightIcon={<ArrowRight className="w-4 h-4" />}
-                >
-                  Explore Live Geospatial Radar
-                </Button>
+                <Link href="/dashboard">
+                  <Button
+                    size="lg"
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
+                  >
+                    Enter Live Command Cockpit
+                  </Button>
+                </Link>
                 <Button
                   variant="outline"
                   size="lg"
