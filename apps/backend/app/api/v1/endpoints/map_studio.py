@@ -1,11 +1,13 @@
 """Endpoints for TerraGuard AI 2.0 Additive Map Intelligence Studio."""
 
-from typing import Optional
-from fastapi import APIRouter, Query, status
+from typing import List, Optional
+from fastapi import APIRouter, HTTPException, Path, Query, status
 
 from app.repositories.map_studio_repository import MapStudioRepository
 from app.schemas.map_studio import (
+    ExperienceViewMeta,
     FloodRiskZonesResponse,
+    MapStudioExperienceResponse,
     MapStudioLayersResponse,
     MapStudioPresetsResponse,
     MapStudioTelemetryResponse,
@@ -65,4 +67,32 @@ async def get_sector_telemetry(
 )
 async def get_hotspot_presets() -> MapStudioPresetsResponse:
     return MapStudioRepository.get_hotspot_presets()
+
+
+@router.get(
+    "/experiences",
+    response_model=List[ExperienceViewMeta],
+    status_code=status.HTTP_200_OK,
+    summary="List All 11 Map Studio Experiences",
+    description="Returns metadata, defaults, basemaps, and tags for each of the 11 specialized map views.",
+)
+async def list_experiences() -> List[ExperienceViewMeta]:
+    return MapStudioRepository.get_all_experiences_meta()
+
+
+@router.get(
+    "/experiences/{experience_id}",
+    response_model=MapStudioExperienceResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve Data for a Specific Map Experience",
+    description="Returns the GeoJSON features, domain metrics, legends, and side panel content for one of the 11 map experiences.",
+)
+async def get_experience_details(
+    experience_id: str = Path(..., description="Unique experience slug identifier (e.g., flood-risk-intelligence)")
+) -> MapStudioExperienceResponse:
+    data = MapStudioRepository.get_experience_data(experience_id)
+    if not data or not data.meta:
+        raise HTTPException(status_code=404, detail=f"Experience '{experience_id}' not found.")
+    return data
+
 
