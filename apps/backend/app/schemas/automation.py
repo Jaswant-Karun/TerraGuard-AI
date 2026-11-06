@@ -16,6 +16,10 @@ class WorkflowDefinition(BaseModel):
     last_executed_at: str | None = None
     execution_count: int = 0
     success_rate_pct: float = 100.0
+    success_rate: float = 100.0
+    cadence: str | None = None
+    webhook_slug: str | None = None
+    tags: list[str] = Field(default_factory=list)
 
 
 class WorkflowLogDTO(BaseModel):

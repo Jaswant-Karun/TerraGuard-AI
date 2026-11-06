@@ -94,8 +94,9 @@ export default function AutomationCenterPage() {
     try {
       setLoadingLogs(true);
       const res = await fetchWorkflowLogs(25, 0);
-      setLogs(res.logs || []);
-      setTotalLogs(res.total || 0);
+      const logItems = (res as any)?.logs || (res as any)?.items || [];
+      setLogs(logItems);
+      setTotalLogs((res as any)?.total || logItems.length || 0);
     } catch (err: any) {
       console.error("Failed to load workflow logs:", err);
     } finally {
@@ -356,8 +357,12 @@ export default function AutomationCenterPage() {
               ))
             ) : (
               workflows.map((wf) => {
-                const isSchedule = wf.trigger_type === "SCHEDULE";
+                const isSchedule = wf.trigger_type === "SCHEDULE" || wf.trigger_type === "SCHEDULED";
                 const isTriggering = triggeringWorkflowId === wf.id;
+                const cadenceDisplay = wf.cadence || (isSchedule ? "Every 15 min" : "On Inbound Event");
+                const webhookPath = `/api/v1/automation/webhooks/${wf.webhook_slug || wf.id.toLowerCase().replace(/_/g, "-")}`;
+                const tagsList = wf.tags || ["autonomous", "disaster-mitigation"];
+                const successRateVal = wf.success_rate ?? wf.success_rate_pct ?? 100;
 
                 return (
                   <Card
@@ -396,7 +401,7 @@ export default function AutomationCenterPage() {
                           className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-semibold shrink-0"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" />
-                          {wf.status}
+                          {wf.status || "ACTIVE"}
                         </Badge>
                       </div>
 
@@ -414,13 +419,13 @@ export default function AutomationCenterPage() {
                           {isSchedule ? (
                             <>
                               <Clock className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                              <span>{wf.cadence}</span>
+                              <span>{cadenceDisplay}</span>
                             </>
                           ) : (
                             <>
                               <Terminal className="w-3.5 h-3.5 mr-1 text-slate-400" />
                               <span className="truncate">
-                                /api/v1/automation/webhooks/{wf.webhook_slug}
+                                {webhookPath}
                               </span>
                             </>
                           )}
@@ -429,7 +434,7 @@ export default function AutomationCenterPage() {
 
                       {/* Tags */}
                       <div className="flex flex-wrap gap-1.5 mb-4">
-                        {wf.tags.map((tag) => (
+                        {tagsList.map((tag) => (
                           <span
                             key={tag}
                             className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200/60"
@@ -444,13 +449,13 @@ export default function AutomationCenterPage() {
                         <div>
                           <div className="text-[10px] text-slate-400">Total Runs</div>
                           <div className="font-bold text-slate-800 font-mono">
-                            {wf.execution_count} executions
+                            {wf.execution_count ?? 0} executions
                           </div>
                         </div>
                         <div>
                           <div className="text-[10px] text-slate-400">Success Rate</div>
                           <div className="font-bold text-emerald-600 font-mono">
-                            {wf.success_rate}%
+                            {successRateVal}%
                           </div>
                         </div>
                       </div>
@@ -601,14 +606,16 @@ export default function AutomationCenterPage() {
                           {log.execution_duration_ms} ms
                         </td>
                         <td className="py-3 px-4 text-slate-500 font-mono">
-                          {new Date(log.executed_at).toLocaleString("en-IN", {
-                            timeZone: "Asia/Kolkata",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                          })}
+                          {log.executed_at
+                            ? new Date(log.executed_at).toLocaleString("en-IN", {
+                                timeZone: "Asia/Kolkata",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                              })
+                            : "—"}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <Button

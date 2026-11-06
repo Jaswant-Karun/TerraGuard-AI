@@ -3,16 +3,18 @@ export type WorkflowStatus = "ACTIVE" | "PAUSED" | "ERROR";
 export interface WorkflowDefinition {
   id: string;
   name: string;
-  slug: string;
+  category?: string;
+  slug?: string;
   description: string;
-  cadence: string;
-  trigger_type: "SCHEDULE" | "WEBHOOK";
-  webhook_slug: string | null;
-  status: WorkflowStatus;
-  last_executed_at: string | null;
-  execution_count: number;
-  success_rate: number;
-  tags: string[];
+  cadence?: string;
+  trigger_type: "SCHEDULE" | "SCHEDULED" | "WEBHOOK" | "HYBRID";
+  webhook_slug?: string | null;
+  status: WorkflowStatus | string;
+  last_executed_at?: string | null;
+  execution_count?: number;
+  success_rate?: number;
+  success_rate_pct?: number;
+  tags?: string[];
 }
 
 export interface WorkflowLogDTO {
