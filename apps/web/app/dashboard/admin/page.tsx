@@ -54,6 +54,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { useAuth } from "@/features/auth/AuthContext";
+import { getAccessToken } from "@/services/auth";
 import {
   createAdminTask,
   fetchAdminOverview,
@@ -96,6 +97,7 @@ export default function AdminOperationsPage() {
   const [verifyAction, setVerifyAction] = useState<"VERIFIED" | "REJECTED" | "ESCALATED">("VERIFIED");
   const [escalateToAlert, setEscalateToAlert] = useState<boolean>(false);
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
+  const [triagingReportId, setTriagingReportId] = useState<string | null>(null);
 
   // Tasks Tab State
   const [tasks, setTasks] = useState<ResponseTaskItem[]>([]);
@@ -224,9 +226,70 @@ export default function AdminOperationsPage() {
     }
   };
 
+  const handleOpenTriageModal = (report: any) => {
+    setSelectedReportForVerify(report);
+    setVerifyAction(report.status === "ESCALATED" ? "ESCALATED" : report.status === "REJECTED" ? "REJECTED" : "VERIFIED");
+    setVerifyNotes(
+      report.verification_notes ||
+      `Reviewed and triaged by Municipal Operations Command (${userRole})`
+    );
+    setEscalateToAlert(report.status === "ESCALATED");
+  };
+
+  const handleQuickTriage = async (
+    report: any,
+    action: "VERIFIED" | "ESCALATED" | "REJECTED"
+  ) => {
+    const reportId = report?.id || report?._id;
+    const activeToken = token || getAccessToken();
+    if (!activeToken) {
+      alert("Session expired. Please sign in as Administrator.");
+      return;
+    }
+    if (!reportId) {
+      alert("Invalid selection: Unable to resolve report ID.");
+      return;
+    }
+
+    setTriagingReportId(reportId);
+    try {
+      await verifyCitizenReport(
+        reportId,
+        {
+          status: action,
+          verification_notes:
+            action === "VERIFIED"
+              ? "Verified on-site by Municipal Command response unit"
+              : action === "ESCALATED"
+              ? "Escalated to active emergency siren broadcast"
+              : "Marked as false/unverified report by Command Center",
+          create_official_alert: action === "ESCALATED",
+          alert_severity: "HIGH",
+        },
+        activeToken
+      );
+
+      // Optimistically update report status in the local list
+      setReports((prev) =>
+        prev.map((r) =>
+          (r.id === reportId || r._id === reportId)
+            ? { ...r, status: action }
+            : r
+        )
+      );
+
+      await loadOverviewData();
+    } catch (err: any) {
+      alert("Triage update failed: " + err.message);
+    } finally {
+      setTriagingReportId(null);
+    }
+  };
+
   const handleExecuteVerification = async () => {
     const reportId = selectedReportForVerify?.id || selectedReportForVerify?._id;
-    if (!token) {
+    const activeToken = token || getAccessToken();
+    if (!activeToken) {
       alert("Session expired or missing authorization token. Please sign in again as Administrator.");
       return;
     }
@@ -244,8 +307,18 @@ export default function AdminOperationsPage() {
           create_official_alert: escalateToAlert,
           alert_severity: "HIGH",
         },
-        token
+        activeToken
       );
+
+      // Optimistically update report in local queue
+      setReports((prev) =>
+        prev.map((r) =>
+          (r.id === reportId || r._id === reportId)
+            ? { ...r, status: verifyAction, verification_notes: verifyNotes }
+            : r
+        )
+      );
+
       setSelectedReportForVerify(null);
       setVerifyNotes("");
       setEscalateToAlert(false);
@@ -709,46 +782,120 @@ export default function AdminOperationsPage() {
                   No citizen hazard reports currently in queue.
                 </div>
               ) : (
-                reports.map((rep) => (
-                  <div
-                    key={rep.id || rep._id}
-                    className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 uppercase">
-                          {rep.category}
-                        </span>
-                        <span className="text-xs font-mono text-slate-500">
-                          Severity {rep.severity}/5
-                        </span>
-                        <span className="text-xs font-mono font-bold text-slate-700">
-                          Status: {rep.status}
-                        </span>
-                      </div>
-                      <h4 className="text-sm font-bold text-slate-900">{rep.title}</h4>
-                      <p className="text-xs text-slate-600 max-w-2xl">{rep.description}</p>
-                      {rep.address && (
-                        <div className="text-[11px] text-slate-500 flex items-center">
-                          <MapPin className="w-3 h-3 mr-1 text-slate-400" />
-                          {rep.address}
-                        </div>
-                      )}
-                    </div>
+                reports.map((rep) => {
+                  const repId = rep.id || rep._id;
+                  const isCurrentTriaging = triagingReportId === repId;
+                  const isVerified = rep.status === "VERIFIED";
+                  const isEscalated = rep.status === "ESCALATED";
+                  const isRejected = rep.status === "REJECTED";
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        onClick={() => setSelectedReportForVerify(rep)}
-                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white h-8"
-                      >
-                        <UserCheck className="w-3.5 h-3.5 mr-1" />
-                        Triage / Verify
-                      </Button>
+                  return (
+                    <div
+                      key={repId}
+                      className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4 transition hover:border-slate-300"
+                    >
+                      <div className="space-y-1.5 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 uppercase tracking-wide">
+                            {rep.category}
+                          </span>
+                          <span className="text-xs font-mono text-slate-500">
+                            Severity {rep.severity}/5
+                          </span>
+                          <span
+                            className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${
+                              isVerified
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : isEscalated
+                                ? "bg-rose-50 text-rose-700 border-rose-200"
+                                : isRejected
+                                ? "bg-slate-200 text-slate-700 border-slate-300"
+                                : "bg-amber-50 text-amber-700 border-amber-200"
+                            }`}
+                          >
+                            Status: {rep.status}
+                          </span>
+                          {rep.is_potential_duplicate && (
+                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                              Duplicate Flagged
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-900">{rep.title}</h4>
+                        <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">{rep.description}</p>
+                        {rep.address && (
+                          <div className="text-[11px] text-slate-500 flex items-center pt-0.5">
+                            <MapPin className="w-3 h-3 mr-1 text-slate-400 shrink-0" />
+                            <span>{rep.address}</span>
+                          </div>
+                        )}
+                        {rep.verification_notes && (
+                          <div className="text-[11px] text-emerald-800 bg-emerald-50/70 border border-emerald-200/60 rounded px-2 py-1 mt-1 font-mono">
+                            Notes: {rep.verification_notes}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Buttons: Instant Quick Triage + Detailed Modal */}
+                      <div className="flex flex-wrap items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          disabled={isCurrentTriaging || isVerified}
+                          onClick={() => handleQuickTriage(rep, "VERIFIED")}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition ${
+                            isVerified
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-300 cursor-default opacity-80"
+                              : "bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95"
+                          } disabled:opacity-50`}
+                          title="Quick Verify Incident"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>{isCurrentTriaging ? "Saving..." : isVerified ? "Verified ✓" : "Verify"}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={isCurrentTriaging || isEscalated}
+                          onClick={() => handleQuickTriage(rep, "ESCALATED")}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition ${
+                            isEscalated
+                              ? "bg-rose-100 text-rose-800 border border-rose-300 cursor-default opacity-80"
+                              : "bg-rose-600 hover:bg-rose-700 text-white active:scale-95"
+                          } disabled:opacity-50`}
+                          title="Escalate to Emergency Siren"
+                        >
+                          <Megaphone className="w-3.5 h-3.5" />
+                          <span>Escalate Siren</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={isCurrentTriaging || isRejected}
+                          onClick={() => handleQuickTriage(rep, "REJECTED")}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                            isRejected
+                              ? "bg-slate-200 text-slate-800 border-slate-300"
+                              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100 active:scale-95"
+                          } disabled:opacity-50`}
+                          title="Reject / Mark False"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                          <span>Reject</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenTriageModal(rep)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition active:scale-95"
+                          title="Open Full Triage Review Modal"
+                        >
+                          <UserCheck className="w-3.5 h-3.5" />
+                          <span>Triage / Verify</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -948,36 +1095,47 @@ export default function AdminOperationsPage() {
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setVerifyAction("VERIFIED")}
-                className={`p-2 rounded-lg text-xs font-semibold border ${
+                onClick={() => {
+                  setVerifyAction("VERIFIED");
+                }}
+                className={`p-2.5 rounded-lg text-xs font-bold border flex items-center justify-center gap-1.5 transition ${
                   verifyAction === "VERIFIED"
-                    ? "bg-emerald-50 border-emerald-500 text-emerald-800"
-                    : "bg-white border-slate-200 text-slate-700"
+                    ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
                 }`}
               >
-                Verify Incident
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>Verify Incident</span>
               </button>
               <button
                 type="button"
-                onClick={() => setVerifyAction("ESCALATED")}
-                className={`p-2 rounded-lg text-xs font-semibold border ${
+                onClick={() => {
+                  setVerifyAction("ESCALATED");
+                  setEscalateToAlert(true);
+                }}
+                className={`p-2.5 rounded-lg text-xs font-bold border flex items-center justify-center gap-1.5 transition ${
                   verifyAction === "ESCALATED"
-                    ? "bg-rose-50 border-rose-500 text-rose-800"
-                    : "bg-white border-slate-200 text-slate-700"
+                    ? "bg-rose-600 text-white border-rose-600 shadow-sm"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
                 }`}
               >
-                Escalate
+                <Megaphone className="w-4 h-4 shrink-0" />
+                <span>Escalate Siren</span>
               </button>
               <button
                 type="button"
-                onClick={() => setVerifyAction("REJECTED")}
-                className={`p-2 rounded-lg text-xs font-semibold border ${
+                onClick={() => {
+                  setVerifyAction("REJECTED");
+                  setEscalateToAlert(false);
+                }}
+                className={`p-2.5 rounded-lg text-xs font-bold border flex items-center justify-center gap-1.5 transition ${
                   verifyAction === "REJECTED"
-                    ? "bg-slate-200 border-slate-400 text-slate-800"
-                    : "bg-white border-slate-200 text-slate-700"
+                    ? "bg-slate-800 text-white border-slate-800 shadow-sm"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
                 }`}
               >
-                Reject / False
+                <XCircle className="w-4 h-4 shrink-0" />
+                <span>Reject / False</span>
               </button>
             </div>
           </div>
