@@ -1,46 +1,46 @@
 {
-  "587ec90c-875d-4471-bd91-76f892a641c8": {
+  "843381a2-c6a3-42ae-b917-e2cae6eb3f42": {
     "email": "citizen_e2e@terraguard.ai",
     "hashed_password": "dummy_hashed_password",
     "full_name": "Citizen E2E",
     "role": "CITIZEN",
-    "created_at": "2026-11-06T16:54:19.328977+00:00",
+    "created_at": "2026-11-06T17:26:32.094640+00:00",
     "is_active": true,
     "refresh_token": null,
     "reset_token": null,
-    "id": "587ec90c-875d-4471-bd91-76f892a641c8"
+    "id": "843381a2-c6a3-42ae-b917-e2cae6eb3f42"
   },
-  "07596e3c-b1e9-4981-97b2-748d86c06796": {
+  "73055bc3-19f9-4532-97f5-6664b697742c": {
     "email": "admin_e2e@terraguard.ai",
     "hashed_password": "dummy_hashed_password",
     "full_name": "Admin E2E",
     "role": "ADMIN",
-    "created_at": "2026-11-06T16:54:19.330164+00:00",
+    "created_at": "2026-11-06T17:26:32.097558+00:00",
     "is_active": true,
     "refresh_token": null,
     "reset_token": null,
-    "id": "07596e3c-b1e9-4981-97b2-748d86c06796"
+    "id": "73055bc3-19f9-4532-97f5-6664b697742c"
   },
-  "c2e39bd7-c5ce-4b4f-9ae2-036afcad1e3f": {
+  "0f091b2a-1ab9-4536-9563-707b093c9016": {
     "email": "coord@terraguard.ai",
     "password_hash": "dummy_hash",
     "full_name": "Field Coordinator",
     "role": "COORDINATOR",
     "is_active": true,
-    "created_at": "2026-11-06T16:54:34.927399+00:00",
+    "created_at": "2026-11-06T17:27:09.761198+00:00",
     "refresh_token": null,
     "reset_token": null,
-    "id": "c2e39bd7-c5ce-4b4f-9ae2-036afcad1e3f"
+    "id": "0f091b2a-1ab9-4536-9563-707b093c9016"
   },
-  "336e2b9d-088b-4970-9f7e-3799d723d59f": {
+  "f78c3bfb-0bac-465c-8504-cc8a4d54fae2": {
     "email": "test_validator_sec@terraguard.ai",
-    "hashed_password": "$2b$12$y9QwsXf54FooL2.M4rdiAulbUQ2k53dAXRL2bpFNyft84F0jOLdGW",
+    "hashed_password": "$2b$12$WI62mcNm0lYZf9d0qLp1I.97yqnLwufYauwELk0M1d/QHCdNOMx76",
     "full_name": "Test Validator",
     "role": "CITIZEN",
     "is_active": true,
-    "created_at": "2026-11-06T16:54:44.891380+00:00",
+    "created_at": "2026-11-06T17:27:33.351586+00:00",
     "refresh_token": null,
     "reset_token": null,
-    "id": "336e2b9d-088b-4970-9f7e-3799d723d59f"
+    "id": "f78c3bfb-0bac-465c-8504-cc8a4d54fae2"
   }
 }
