@@ -4,8 +4,9 @@ import React, { useState, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useMapStudioData } from "@/features/map-studio/hooks/useMapStudioData";
 import { MapStudioHeader } from "@/features/map-studio/components/MapStudioHeader";
+import { ExperienceSelectorBar } from "@/features/map-studio/components/ExperienceSelectorBar";
 import { StudioControlPanel } from "@/features/map-studio/components/StudioControlPanel";
-import { FloodIntelligenceDrawer } from "@/features/map-studio/components/FloodIntelligenceDrawer";
+import { ExperienceSidePanel } from "@/features/map-studio/components/ExperienceSidePanel";
 import { TimeForecastScrubber } from "@/features/map-studio/components/TimeForecastScrubber";
 import { MapStudioLegend } from "@/features/map-studio/components/MapStudioLegend";
 import { StudioFloatingControls } from "@/features/map-studio/components/StudioFloatingControls";
@@ -36,6 +37,10 @@ export default function MapStudioPage() {
     setBasemapStyle,
     viewMode,
     setViewMode,
+    experiences,
+    activeExperienceId,
+    activeExperienceData,
+    selectExperience,
     layers,
     toggleLayer,
     setLayerOpacity,
@@ -63,6 +68,8 @@ export default function MapStudioPage() {
   const mapRef = useRef<any>(null);
 
   const isDarkGIS = viewMode === "flood-intelligence";
+  const activeExperienceMeta =
+    experiences.find((e) => e.id === activeExperienceId) || experiences[0];
 
   // Map callbacks
   const handleMapLoaded = useCallback((map: any) => {
@@ -145,8 +152,16 @@ export default function MapStudioPage() {
         onResetView={handleResetView}
       />
 
+      {/* Professional 11-Map View Navigation Strip */}
+      <ExperienceSelectorBar
+        experiences={experiences}
+        activeExperienceId={activeExperienceId}
+        onSelectExperience={selectExperience}
+        isDarkGIS={isDarkGIS}
+      />
+
       {/* Main Full-Scale Map Viewport */}
-      <div className="relative flex-1 w-full h-[calc(100%-3.5rem)] overflow-hidden">
+      <div className="relative flex-1 w-full h-[calc(100%-6.5rem)] overflow-hidden">
         {/* Dynamic WebGL Canvas */}
         <MapStudioCanvas
           basemapStyle={basemapStyle}
@@ -154,6 +169,7 @@ export default function MapStudioPage() {
           floodZones={floodZones}
           activePreset={activePreset}
           timeOffsetHours={timeOffsetHours}
+          experienceData={activeExperienceData}
           onSelectFeature={setSelectedFeature}
           onMapLoaded={handleMapLoaded}
           isDarkGIS={isDarkGIS}
@@ -183,13 +199,15 @@ export default function MapStudioPage() {
           isDarkGIS={isDarkGIS}
         />
 
-        {/* Right Floating Drawer: Flood Risk Intelligence & Hyetograph (Ref Image B) */}
-        <FloodIntelligenceDrawer
+        {/* Right Floating Drawer: Domain-Tailored Intelligence for Active Experience */}
+        <ExperienceSidePanel
           isOpen={rightPanelOpen}
           onClose={() => setRightPanelOpen(false)}
+          experienceMeta={activeExperienceMeta}
+          experienceData={activeExperienceData}
           telemetry={telemetry}
-          floodZones={floodZones}
           activePreset={activePreset}
+          timeOffsetHours={timeOffsetHours}
           isDarkGIS={isDarkGIS}
         />
 
@@ -202,14 +220,16 @@ export default function MapStudioPage() {
           isDarkGIS={isDarkGIS}
         />
 
-        {/* Bottom Left Legend */}
+        {/* Bottom Left Legend for Active Experience */}
         <MapStudioLegend
           isOpen={legendOpen}
           onClose={() => setLegendOpen(false)}
+          legendItems={activeExperienceData?.legend_items}
+          title={`${activeExperienceMeta.name.replace(/^Map \d+ — /, "")} Legend`}
           isDarkGIS={isDarkGIS}
         />
 
-        {/* Inspection Modal when a flood polygon is clicked */}
+        {/* Inspection Modal when a feature is clicked */}
         {selectedFeature && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
             <div className="relative w-full max-w-lg p-5 rounded-2xl border border-slate-700 bg-slate-900 text-white shadow-2xl">
@@ -223,7 +243,7 @@ export default function MapStudioPage() {
               <div className="flex items-center gap-2 mb-3">
                 <AlertOctagon className="h-5 w-5 text-rose-400" />
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Detailed Hydrological Inspection
+                  Detailed Geospatial Inspection
                 </span>
               </div>
 
@@ -276,4 +296,3 @@ export default function MapStudioPage() {
     </div>
   );
 }
-

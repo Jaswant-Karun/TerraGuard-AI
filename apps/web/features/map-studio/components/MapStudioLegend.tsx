@@ -97,38 +97,3 @@ export function MapStudioLegend({
     </div>
   );
 }
-              <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500 border border-emerald-300 shrink-0" />
-              <span className="truncate">Low (&lt;0.15m)</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Markers (Ref Image A) */}
-        <div className="pt-2 border-t border-slate-700/30">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-1">
-            Infrastructure & Markers
-          </span>
-          <div className="space-y-1 text-[11px]">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-cyan-400 shrink-0" />
-              <span className="text-slate-300">Surface Lakes & Retention Sinks</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
-              <span className="text-slate-300">Emergency Shelters & Hospitals</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-amber-400 shrink-0" />
-              <span className="text-slate-300">Citizen Hazard Reports</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-blue-400 shrink-0" />
-              <span className="text-slate-300">IoT River/Rain Telemetry Gauges</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
