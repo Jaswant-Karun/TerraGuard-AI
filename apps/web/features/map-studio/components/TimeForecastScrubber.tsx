@@ -5,7 +5,7 @@ import { Clock, FastForward, Pause, Play, RotateCcw } from "lucide-react";
 
 interface TimeForecastScrubberProps {
   timeOffsetHours: number;
-  onTimeOffsetChange: (offset: number) => void;
+  onTimeOffsetChange: React.Dispatch<React.SetStateAction<number>> | ((offset: any) => void);
   isPlaying: boolean;
   onTogglePlay: () => void;
   isDarkGIS?: boolean;
