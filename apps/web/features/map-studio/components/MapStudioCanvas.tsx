@@ -38,10 +38,10 @@ export function MapStudioCanvas({
   const [mapError, setMapError] = useState<string | null>(null);
 
   // Generate MapLibre Style Specification for given Basemap
-  const getStyleSpec = useCallback((styleKey: BasemapStyle) => {
+  const getStyleSpec = useCallback((styleKey: BasemapStyle): any => {
     const config = BASEMAP_STYLES[styleKey] || BASEMAP_STYLES.satellite;
     return {
-      version: 8 as const,
+      version: 8,
       sources: {
         "basemap-raster-source": {
           type: "raster",
