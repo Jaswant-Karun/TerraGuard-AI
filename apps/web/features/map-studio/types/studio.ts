@@ -86,3 +86,49 @@ export interface MapPreset {
   };
 }
 
+export type ExperienceId =
+  | "operational-satellite-gis"
+  | "flood-risk-intelligence"
+  | "live-rainfall-monitoring"
+  | "elevation-terrain"
+  | "drainage-water-body"
+  | "extreme-heat-risk"
+  | "air-quality-intelligence"
+  | "citizen-hazard-report"
+  | "verified-incident"
+  | "infrastructure-emergency-facility"
+  | "safe-navigation-risk-aware";
+
+export interface ExperienceLegendItem {
+  label: string;
+  color: string;
+  description?: string;
+  shape?: "circle" | "square" | "line" | "polygon";
+}
+
+export interface ExperienceViewMeta {
+  id: ExperienceId;
+  index: number;
+  name: string;
+  subtitle: string;
+  badge: string;
+  category: string;
+  default_basemap: BasemapStyle;
+  default_zoom: number;
+  default_pitch: number;
+  default_bearing: number;
+  center: [number, number];
+  attribution: string;
+  freshness: string;
+  limitations?: string;
+}
+
+export interface MapStudioExperienceResponse {
+  meta: ExperienceViewMeta;
+  geojson: any;
+  metrics: Record<string, any>;
+  legend_items: ExperienceLegendItem[];
+  side_panel_data: Record<string, any>;
+}
+
+
