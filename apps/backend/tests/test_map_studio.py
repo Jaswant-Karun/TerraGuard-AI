@@ -15,8 +15,8 @@ async def test_get_map_studio_layers():
     assert "layers" in data
     assert data["total"] >= 5
     assert "hazards" in data["categories"]
-    assert any(l["id"] == "flood_risk_zones" for l in data["layers"])
-    assert any(l["id"] == "water_bodies" for l in data["layers"])
+    assert any(layer["id"] == "flood_risk_zones" for layer in data["layers"])
+    assert any(layer["id"] == "water_bodies" for layer in data["layers"])
 
 
 @pytest.mark.asyncio

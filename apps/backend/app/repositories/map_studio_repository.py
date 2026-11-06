@@ -1,7 +1,6 @@
 """Repository for TerraGuard AI 2.0 Additive Map Intelligence Studio."""
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List
+from datetime import UTC, datetime
 
 from app.schemas.map_studio import (
     ExperienceLegendItem,
@@ -106,7 +105,7 @@ class MapStudioRepository:
 
     @staticmethod
     def get_flood_risk_zones() -> FloodRiskZonesResponse:
-        now_iso = datetime.now(timezone.utc).isoformat()
+        now_iso = datetime.now(UTC).isoformat()
         
         # High fidelity polygon features around Bengaluru flood-prone urban basins
         features = [
@@ -258,7 +257,7 @@ class MapStudioRepository:
 
     @staticmethod
     def get_sector_telemetry(sector_id: str = "zone-blr-koramangala-01") -> MapStudioTelemetryResponse:
-        now_iso = datetime.now(timezone.utc).isoformat()
+        now_iso = datetime.now(UTC).isoformat()
         
         # 3-hour precipitation history (-3h, -2h, -1h, now)
         history = [
@@ -352,7 +351,7 @@ class MapStudioRepository:
         return MapStudioPresetsResponse(presets=presets, default_centroid=[77.5946, 12.9716])
 
     @staticmethod
-    def get_all_experiences_meta() -> List[ExperienceViewMeta]:
+    def get_all_experiences_meta() -> list[ExperienceViewMeta]:
         return [
             ExperienceViewMeta(
                 id="operational-satellite-gis",
@@ -536,7 +535,6 @@ class MapStudioRepository:
     def get_experience_data(experience_id: str) -> MapStudioExperienceResponse:
         all_meta = {m.id: m for m in MapStudioRepository.get_all_experiences_meta()}
         meta = all_meta.get(experience_id, all_meta["operational-satellite-gis"])
-        now_iso = datetime.now(timezone.utc).isoformat()
 
         # Build domain data matching user specs for each experience
         if experience_id == "operational-satellite-gis":

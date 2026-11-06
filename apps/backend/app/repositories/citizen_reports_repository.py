@@ -1,12 +1,13 @@
 import json
 import logging
-from pathlib import Path
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
-logger = logging.getLogger("terraguard.reports_repo")
-STORAGE_DIR = Path(__file__).resolve().parent.parent.parent / "storage"
-REPORTS_CACHE_FILE = STORAGE_DIR / "reports_cache.json"
+from app.core.database import db_manager
+from app.models.collections import CitizenReportModel
+from app.repositories.base_repository import BaseRepository, serialize_doc
+from app.repositories.geospatial_repository import geospatial_repository
 
 try:
     from bson import ObjectId
@@ -25,10 +26,9 @@ except ImportError:
         def is_valid(val: Any) -> bool:
             return isinstance(val, str) and len(val) == 24
 
-from app.core.database import db_manager
-from app.models.collections import CitizenReportModel
-from app.repositories.base_repository import BaseRepository, serialize_doc
-from app.repositories.geospatial_repository import geospatial_repository
+logger = logging.getLogger("terraguard.reports_repo")
+STORAGE_DIR = Path(__file__).resolve().parent.parent.parent / "storage"
+REPORTS_CACHE_FILE = STORAGE_DIR / "reports_cache.json"
 
 
 class CitizenReportsRepository(BaseRepository):
@@ -61,7 +61,7 @@ class CitizenReportsRepository(BaseRepository):
         """Loads cached reports from disk into memory on startup."""
         try:
             if REPORTS_CACHE_FILE.exists():
-                with open(REPORTS_CACHE_FILE, "r", encoding="utf-8") as f:
+                with open(REPORTS_CACHE_FILE, encoding="utf-8") as f:
                     data = json.load(f)
                     store = self._get_memory_store()
                     store.update(data)

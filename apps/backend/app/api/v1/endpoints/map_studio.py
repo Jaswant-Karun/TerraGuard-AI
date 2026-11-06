@@ -1,6 +1,6 @@
 """Endpoints for TerraGuard AI 2.0 Additive Map Intelligence Studio."""
 
-from typing import List, Optional
+
 from fastapi import APIRouter, HTTPException, Path, Query, status
 
 from app.repositories.map_studio_repository import MapStudioRepository
@@ -35,7 +35,7 @@ async def get_map_studio_layers() -> MapStudioLayersResponse:
     description="Returns high-precision GeoJSON flood risk polygon vectors, depths, and affected population stats.",
 )
 async def get_flood_risk_zones(
-    min_risk_level: Optional[str] = Query(None, description="Optional filter: CRITICAL, HIGH, MODERATE, LOW")
+    min_risk_level: str | None = Query(None, description="Optional filter: CRITICAL, HIGH, MODERATE, LOW")
 ) -> FloodRiskZonesResponse:
     data = MapStudioRepository.get_flood_risk_zones()
     if min_risk_level:
@@ -71,12 +71,12 @@ async def get_hotspot_presets() -> MapStudioPresetsResponse:
 
 @router.get(
     "/experiences",
-    response_model=List[ExperienceViewMeta],
+    response_model=list[ExperienceViewMeta],
     status_code=status.HTTP_200_OK,
     summary="List All 11 Map Studio Experiences",
     description="Returns metadata, defaults, basemaps, and tags for each of the 11 specialized map views.",
 )
-async def list_experiences() -> List[ExperienceViewMeta]:
+async def list_experiences() -> list[ExperienceViewMeta]:
     return MapStudioRepository.get_all_experiences_meta()
 
 

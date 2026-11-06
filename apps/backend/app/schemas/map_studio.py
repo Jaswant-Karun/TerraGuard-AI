@@ -1,6 +1,7 @@
 """Pydantic v2 schemas for TerraGuard AI 2.0 Additive Map Intelligence Studio."""
 
-from typing import Any, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -13,13 +14,13 @@ class LayerMetadata(BaseModel):
     update_frequency: str = Field(..., description="Update cadence (e.g., Real-time, 5 min, Static)")
     visible_by_default: bool = Field(default=True)
     default_opacity: float = Field(default=0.8, ge=0.0, le=1.0)
-    badge: Optional[str] = Field(default=None)
+    badge: str | None = Field(default=None)
 
 
 class MapStudioLayersResponse(BaseModel):
-    layers: List[LayerMetadata]
+    layers: list[LayerMetadata]
     total: int
-    categories: List[str]
+    categories: list[str]
 
 
 class FloodZoneProperties(BaseModel):
@@ -37,7 +38,7 @@ class FloodZoneProperties(BaseModel):
 
 class GeoJSONGeometry(BaseModel):
     type: str = "Polygon"
-    coordinates: List[List[List[float]]]
+    coordinates: list[list[list[float]]]
 
 
 class FloodRiskZoneFeature(BaseModel):
@@ -49,7 +50,7 @@ class FloodRiskZoneFeature(BaseModel):
 
 class FloodRiskZonesResponse(BaseModel):
     type: str = "FeatureCollection"
-    features: List[FloodRiskZoneFeature]
+    features: list[FloodRiskZoneFeature]
     metadata: dict[str, Any]
 
 
@@ -68,15 +69,15 @@ class MapStudioTelemetryResponse(BaseModel):
     drainage_saturation_pct: float
     total_population_at_risk: int
     active_alarms_count: int
-    hyetograph_history: List[PrecipitationPoint]
-    forecast_progression: List[PrecipitationPoint]
+    hyetograph_history: list[PrecipitationPoint]
+    forecast_progression: list[PrecipitationPoint]
 
 
 class MapPresetSector(BaseModel):
     id: str
     name: str
     subtext: str
-    center: List[float] = Field(..., min_length=2, max_length=2)  # [lng, lat]
+    center: list[float] = Field(..., min_length=2, max_length=2)  # [lng, lat]
     zoom: float
     pitch: float = 0.0
     bearing: float = 0.0
@@ -85,14 +86,14 @@ class MapPresetSector(BaseModel):
 
 
 class MapStudioPresetsResponse(BaseModel):
-    presets: List[MapPresetSector]
-    default_centroid: List[float]
+    presets: list[MapPresetSector]
+    default_centroid: list[float]
 
 
 class ExperienceLegendItem(BaseModel):
     label: str
     color: str
-    description: Optional[str] = None
+    description: str | None = None
     shape: str = "circle"  # circle, square, line, polygon
 
 
@@ -107,17 +108,17 @@ class ExperienceViewMeta(BaseModel):
     default_zoom: float
     default_pitch: float
     default_bearing: float
-    center: List[float]
+    center: list[float]
     attribution: str
     freshness: str
-    limitations: Optional[str] = None
+    limitations: str | None = None
 
 
 class MapStudioExperienceResponse(BaseModel):
     meta: ExperienceViewMeta
     geojson: dict[str, Any]
     metrics: dict[str, Any]
-    legend_items: List[ExperienceLegendItem]
+    legend_items: list[ExperienceLegendItem]
     side_panel_data: dict[str, Any]
 
 
