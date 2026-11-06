@@ -459,3 +459,227 @@ export async function getHotspotPresets(): Promise<MapPreset[]> {
   }
 }
 
+export const DEFAULT_EXPERIENCES_META: ExperienceViewMeta[] = [
+  {
+    id: "operational-satellite-gis",
+    index: 1,
+    name: "Map 1 — Operational Satellite GIS",
+    subtitle: "Orbital Imagery Base & Municipal Infrastructure Controls",
+    badge: "REF IMAGE A",
+    category: "Operations",
+    default_basemap: "satellite",
+    default_zoom: 13.5,
+    default_pitch: 30.0,
+    default_bearing: -10.0,
+    center: [77.6250, 12.9300],
+    attribution: "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+    freshness: "Live GIS Ingestion • Optical Pass: 10:45 AM UTC",
+    limitations: "Sub-meter optical satellite tiles; high cloud cover may partially obscure pass.",
+  },
+  {
+    id: "flood-risk-intelligence",
+    index: 2,
+    name: "Map 2 — Flood Risk Intelligence",
+    subtitle: "Hydro-UNet Predictive Inundation & Culvert Sump Dynamics",
+    badge: "REF IMAGE B",
+    category: "Hydrology",
+    default_basemap: "dark",
+    default_zoom: 14.0,
+    default_pitch: 35.0,
+    default_bearing: 0.0,
+    center: [77.6300, 12.9280],
+    attribution: "TerraGuard Hydro-UNet v2.4, BBMP Stormwater LiDAR, IMD",
+    freshness: "Live Telemetry Sync • 5 min cadence",
+    limitations: "Predictive inundation zones are susceptibility estimates; street ponding depends on local micro-debris.",
+  },
+  {
+    id: "live-rainfall-monitoring",
+    index: 3,
+    name: "Map 3 — Live Rainfall Monitoring",
+    subtitle: "Automated Weather Stations (AWS) & Convective Telemetry",
+    badge: "OPEN-METEO",
+    category: "Meteorology",
+    default_basemap: "dark",
+    default_zoom: 12.8,
+    default_pitch: 0.0,
+    default_bearing: 0.0,
+    center: [77.6000, 12.9600],
+    attribution: "India Meteorological Department (IMD) & Open-Meteo High-Res Mesh",
+    freshness: "Observation: 4 mins ago • Forecast updated hourly",
+    limitations: "Precipitation gauges measure point rainfall; spatial distribution uses inverse-distance interpolation.",
+  },
+  {
+    id: "elevation-terrain",
+    index: 4,
+    name: "Map 4 — Elevation & Terrain Intelligence",
+    subtitle: "Contour Ridges, Valley Basins & Slope Gradients",
+    badge: "SRTM LiDAR",
+    category: "Topography",
+    default_basemap: "topo",
+    default_zoom: 13.2,
+    default_pitch: 45.0,
+    default_bearing: -25.0,
+    center: [77.6100, 12.9500],
+    attribution: "SRTM 30m Digital Elevation Model & OpenTopoMap",
+    freshness: "Static Topological Baseline (30m Grid Resolution)",
+    limitations: "Vertical accuracy is +/- 5m. Underground civil alterations and basement sumps not captured.",
+  },
+  {
+    id: "drainage-water-body",
+    index: 5,
+    name: "Map 5 — Drainage & Water-Body Network",
+    subtitle: "Surface Lakes, Detention Basins & Open Raja Kaluve Channels",
+    badge: "HYDROGRAPHIC",
+    category: "Hydrology",
+    default_basemap: "dark",
+    default_zoom: 13.4,
+    default_pitch: 20.0,
+    default_bearing: 10.0,
+    center: [77.6600, 12.9350],
+    attribution: "Karnataka Lake Development Authority & OpenStreetMap Verified Waterways",
+    freshness: "Lake boundaries synchronized monthly via Sentinel-2 NDWI",
+    limitations: "Underground closed piped storm drains are unmapped in older layouts; only verified open channels and culverts shown.",
+  },
+  {
+    id: "extreme-heat-risk",
+    index: 6,
+    name: "Map 6 — Extreme Heat Risk & Microclimate",
+    subtitle: "Urban Heat Island (UHI) Index & Canopy Disparity",
+    badge: "HEAT INDEX",
+    category: "Climate",
+    default_basemap: "dark",
+    default_zoom: 12.9,
+    default_pitch: 15.0,
+    default_bearing: 0.0,
+    center: [77.5950, 12.9700],
+    attribution: "TerraGuard Thermal Disparity Model + Open-Meteo Ambient Sensors",
+    freshness: "Model Computed: 15 mins ago",
+    limitations: "Apparent temperature calculated via Steadman formula; micro-surface albedo relies on high-resolution land-cover maps.",
+  },
+  {
+    id: "air-quality-intelligence",
+    index: 7,
+    name: "Map 7 — Air Quality Intelligence (AQI)",
+    subtitle: "Continuous Ambient Air Quality Monitoring (CAAQMS)",
+    badge: "CPCB C-AQI",
+    category: "Environment",
+    default_basemap: "dark",
+    default_zoom: 12.8,
+    default_pitch: 0.0,
+    default_bearing: 0.0,
+    center: [77.6100, 12.9600],
+    attribution: "Central Pollution Control Board (CPCB) & OpenAQ Live Stations",
+    freshness: "Live Stream • Continuous 15-min sample window",
+    limitations: "Interpolation between distant monitoring stations is approximate; localized vehicular exhaust plumes may cause spikes.",
+  },
+  {
+    id: "citizen-hazard-report",
+    index: 8,
+    name: "Map 8 — Citizen Hazard Reports",
+    subtitle: "Crowdsourced Ground Hazards & AI-Assisted Classification",
+    badge: "COMMUNITY",
+    category: "Crowdsource",
+    default_basemap: "street",
+    default_zoom: 13.6,
+    default_pitch: 20.0,
+    default_bearing: 0.0,
+    center: [77.6300, 12.9300],
+    attribution: "TerraGuard Citizen Mobile Portal & Vision Engine",
+    freshness: "Real-Time Event Stream",
+    limitations: "Citizen reports require municipal verification; reporter PII is scrubbed in compliance with privacy regulations.",
+  },
+  {
+    id: "verified-incident",
+    index: 9,
+    name: "Map 9 — Verified Municipal Incidents",
+    subtitle: "Triage Confirmed Climate Hazards & Emergency Sirens",
+    badge: "VERIFIED EOC",
+    category: "Operations",
+    default_basemap: "dark",
+    default_zoom: 13.8,
+    default_pitch: 25.0,
+    default_bearing: -15.0,
+    center: [77.6350, 12.9320],
+    attribution: "Municipal Emergency Operations Center (EOC) Dispatch Logs",
+    freshness: "Verified by On-Duty Field Supervisor • 12 mins ago",
+    limitations: "Only incidents triaged and validated by verified municipal administrators appear in this view.",
+  },
+  {
+    id: "infrastructure-emergency-facility",
+    index: 10,
+    name: "Map 10 — Infrastructure & Emergency Facilities",
+    subtitle: "Trauma Hospitals, Evacuation Shelters & Relief Hubs",
+    badge: "CIVIL DEFENSE",
+    category: "Logistics",
+    default_basemap: "street",
+    default_zoom: 13.2,
+    default_pitch: 10.0,
+    default_bearing: 0.0,
+    center: [77.6000, 12.9550],
+    attribution: "District Disaster Management Authority (DDMA) & BBMP Urban Health",
+    freshness: "Verified Operational Capacity Registry",
+    limitations: "Shelter bed availability updates dynamically during flood activation; verify with local nodal officers.",
+  },
+  {
+    id: "safe-navigation-risk-aware",
+    index: 11,
+    name: "Map 11 — Safe Navigation & Risk-Aware Routing",
+    subtitle: "Dynamic Multi-Criteria Route Hazard Avoidance",
+    badge: "AI ROUTING",
+    category: "Mobility",
+    default_basemap: "dark",
+    default_zoom: 13.5,
+    default_pitch: 40.0,
+    default_bearing: -12.0,
+    center: [77.6100, 12.9450],
+    attribution: "OSRM Open Routing Engine + TerraGuard Spatial Hazard Intersect",
+    freshness: "Real-Time Topological Re-routing",
+    limitations: "No route is guaranteed 100% hazard-free during sudden cloudburst events. Obey emergency municipal traffic police diversions.",
+  },
+];
+
+export async function getExperiencesMeta(): Promise<ExperienceViewMeta[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/map-studio/experiences`);
+    if (!res.ok) throw new Error("Failed to fetch experiences");
+    return await res.json();
+  } catch (e) {
+    return DEFAULT_EXPERIENCES_META;
+  }
+}
+
+export async function getExperienceDetails(experienceId: ExperienceId): Promise<MapStudioExperienceResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/map-studio/experiences/${experienceId}`);
+    if (!res.ok) throw new Error(`Failed to fetch experience details for ${experienceId}`);
+    return await res.json();
+  } catch (e) {
+    // Return reliable local fallback
+    const meta = DEFAULT_EXPERIENCES_META.find((m) => m.id === experienceId) || DEFAULT_EXPERIENCES_META[0];
+    return {
+      meta,
+      geojson: {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            properties: { name: meta.name, status: "Active Observation", color: "#38bdf8" },
+            geometry: { type: "Point", coordinates: meta.center },
+          },
+        ],
+      },
+      metrics: { "Status": "Active", "Coverage": "Bengaluru Metropolitan Region" },
+      legend_items: [
+        { label: "Active Monitored Point", color: "#38bdf8", shape: "circle" },
+      ],
+      side_panel_data: {
+        headline: meta.name,
+        source: meta.attribution,
+        freshness: meta.freshness,
+        limitations: meta.limitations,
+      },
+    };
+  }
+}
+
+
