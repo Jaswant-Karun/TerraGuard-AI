@@ -1,17 +1,18 @@
-export type BasemapStyle = "satellite" | "dark" | "topo" | "street";
+export type BasemapStyle = "satellite" | "satellite_labels" | "street" | "topo" | "dark";
 
 export type StudioViewMode = "operational-gis" | "flood-intelligence";
 
 export interface LayerConfig {
   id: string;
   name: string;
-  category: "hazards" | "environmental" | "infrastructure" | "reports" | "sensors";
+  category: "environmental" | "infrastructure" | "incidents" | "hazards" | "sensors" | "reports";
   description: string;
   source: string;
   updateFrequency: string;
   visible: boolean;
   opacity: number;
   badge?: string;
+  adminOnly?: boolean;
 }
 
 export interface FloodZoneProperties {

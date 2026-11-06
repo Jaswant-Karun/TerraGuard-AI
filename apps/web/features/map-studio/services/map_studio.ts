@@ -32,6 +32,16 @@ export const BASEMAP_STYLES: Record<
     attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
     maxzoom: 19,
   },
+  satellite_labels: {
+    name: "Satellite with Labels",
+    description: "Orbital optical imagery combined with street and boundary labels (Esri)",
+    thumbnail: "🏷️",
+    tiles: [
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    ],
+    attribution: "Tiles &copy; Esri &mdash; Boundaries & Places &copy; Esri",
+    maxzoom: 19,
+  },
   dark: {
     name: "Dark Intelligence",
     description: "High-contrast tactical dark canvas optimized for risk layers (CartoDB)",
