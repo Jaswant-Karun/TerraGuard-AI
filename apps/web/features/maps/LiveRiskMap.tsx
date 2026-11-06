@@ -59,14 +59,17 @@ const DEFAULT_LAYERS: LayerVisibilityState = {
   heatmapMode: false,
 };
 
+const DEFAULT_CENTER: [number, number] = [77.5946, 12.9716];
+
 export function LiveRiskMap({
   className = "",
-  height = "calc(100vh - 4rem)",
-  initialCenter = [77.5946, 12.9716],
+  height = "100%",
+  initialCenter = DEFAULT_CENTER,
   initialZoom = 12.2,
 }: LiveRiskMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
+  const isInitializing = useRef<boolean>(false);
   const popupRef = useRef<any>(null);
 
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -85,6 +88,10 @@ export function LiveRiskMap({
   const [timeFilter, setTimeFilter] = useState<"24h" | "7d" | "30d" | "all">("all");
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Extract primitive coordinates so re-renders do not break useEffect dependency equality
+  const centerLng = initialCenter?.[0] ?? DEFAULT_CENTER[0];
+  const centerLat = initialCenter?.[1] ?? DEFAULT_CENTER[1];
+
   // 1. Fetch map data layers from FastAPI backend
   const loadLayers = useCallback(async () => {
     try {
@@ -102,9 +109,11 @@ export function LiveRiskMap({
   useEffect(() => {
     let isMounted = true;
     let map: any = null;
+    let resizeObserver: ResizeObserver | null = null;
 
     async function initMap() {
-      if (!mapContainer.current) return;
+      if (!mapContainer.current || mapInstance.current || isInitializing.current) return;
+      isInitializing.current = true;
 
       try {
         const maplibregl = (await import("maplibre-gl")).default;
@@ -112,6 +121,12 @@ export function LiveRiskMap({
         // Verify WebGL availability
         if (typeof window !== "undefined" && (maplibregl as any).supported && !(maplibregl as any).supported()) {
           if (isMounted) setMapError("WebGL is disabled or unsupported on this graphics device.");
+          isInitializing.current = false;
+          return;
+        }
+
+        if (!mapContainer.current || !isMounted) {
+          isInitializing.current = false;
           return;
         }
 
@@ -143,7 +158,7 @@ export function LiveRiskMap({
               },
             ],
           },
-          center: initialCenter,
+          center: [centerLng, centerLat],
           zoom: initialZoom,
           pitch: 20,
           bearing: 0,
@@ -153,14 +168,28 @@ export function LiveRiskMap({
         // Add standard navigation controls
         map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
 
+        // Keep container dimensions tracked without layout jitter
+        if (typeof ResizeObserver !== "undefined" && mapContainer.current) {
+          resizeObserver = new ResizeObserver(() => {
+            if (map && !map._removed) {
+              map.resize();
+            }
+          });
+          resizeObserver.observe(mapContainer.current);
+        }
+
         map.on("load", async () => {
           if (!isMounted) return;
           mapInstance.current = map;
+          isInitializing.current = false;
           setMapLoaded(true);
+
+          // Initial resize to ensure canvas matches DOM
+          map.resize();
 
           // Fetch layer GeoJSON data and attach to MapLibre sources
           const data = await loadLayers();
-          if (data && map) {
+          if (data && map && !map._removed) {
             setupMapLayers(map, data, maplibregl);
           }
         });
@@ -169,6 +198,7 @@ export function LiveRiskMap({
           console.warn("MapLibre tile event:", e);
         });
       } catch (err: any) {
+        isInitializing.current = false;
         if (isMounted) {
           setMapError("Could not initialize map visualizer: " + err.message);
         }
@@ -179,19 +209,48 @@ export function LiveRiskMap({
 
     return () => {
       isMounted = false;
-      if (map) map.remove();
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+      if (map) {
+        mapInstance.current = null;
+        isInitializing.current = false;
+        map.remove();
+      }
     };
-  }, [initialCenter, initialZoom, loadLayers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [centerLng, centerLat, initialZoom, loadLayers]);
 
   // 3. Register sources, cluster rules, and visualization layers
   const setupMapLayers = (map: any, data: MapLayersData, maplibregl: any) => {
+    if (!map || map._removed) return;
+
+    // Helper to safely add or update geojson source without throwing
+    const safeAddSource = (id: string, options: any) => {
+      if (!map.getSource(id)) {
+        map.addSource(id, options);
+      } else {
+        const src = map.getSource(id);
+        if (src && src.setData && options.data) {
+          src.setData(options.data);
+        }
+      }
+    };
+
+    // Helper to safely add layer without duplicate ID collision
+    const safeAddLayer = (layerDef: any) => {
+      if (!map.getLayer(layerDef.id)) {
+        map.addLayer(layerDef);
+      }
+    };
+
     // A. Risk Assessment Zones (Polygons)
-    map.addSource("risk-zones-source", {
+    safeAddSource("risk-zones-source", {
       type: "geojson",
       data: data.risk_zones,
     });
 
-    map.addLayer({
+    safeAddLayer({
       id: "risk-zones-fill",
       type: "fill",
       source: "risk-zones-source",
@@ -208,7 +267,7 @@ export function LiveRiskMap({
       },
     });
 
-    map.addLayer({
+    safeAddLayer({
       id: "risk-zones-outline",
       type: "line",
       source: "risk-zones-source",
@@ -227,12 +286,12 @@ export function LiveRiskMap({
     });
 
     // B. Safe Evacuation Routes (LineString)
-    map.addSource("safe-routes-source", {
+    safeAddSource("safe-routes-source", {
       type: "geojson",
       data: data.safe_routes,
     });
 
-    map.addLayer({
+    safeAddLayer({
       id: "safe-routes-line",
       type: "line",
       source: "safe-routes-source",
@@ -250,7 +309,7 @@ export function LiveRiskMap({
       ...data.verified_incidents.features,
     ];
 
-    map.addSource("hazard-density-source", {
+    safeAddSource("hazard-density-source", {
       type: "geojson",
       data: {
         type: "FeatureCollection",
@@ -258,7 +317,7 @@ export function LiveRiskMap({
       },
     });
 
-    map.addLayer({
+    safeAddLayer({
       id: "hazard-heatmap",
       type: "heatmap",
       source: "hazard-density-source",
@@ -285,7 +344,7 @@ export function LiveRiskMap({
     });
 
     // D. Citizen Reports (Clustered Points)
-    map.addSource("citizen-reports-source", {
+    safeAddSource("citizen-reports-source", {
       type: "geojson",
       data: data.citizen_reports,
       cluster: true,
@@ -294,7 +353,7 @@ export function LiveRiskMap({
     });
 
     // Cluster circles
-    map.addLayer({
+    safeAddLayer({
       id: "citizen-clusters",
       type: "circle",
       source: "citizen-reports-source",
@@ -309,7 +368,7 @@ export function LiveRiskMap({
     });
 
     // Cluster count label
-    map.addLayer({
+    safeAddLayer({
       id: "citizen-cluster-count",
       type: "symbol",
       source: "citizen-reports-source",
@@ -325,7 +384,7 @@ export function LiveRiskMap({
     });
 
     // Unclustered citizen report points
-    map.addLayer({
+    safeAddLayer({
       id: "citizen-unclustered",
       type: "circle",
       source: "citizen-reports-source",
@@ -339,12 +398,12 @@ export function LiveRiskMap({
     });
 
     // E. Verified Municipal Incidents (Points)
-    map.addSource("verified-incidents-source", {
+    safeAddSource("verified-incidents-source", {
       type: "geojson",
       data: data.verified_incidents,
     });
 
-    map.addLayer({
+    safeAddLayer({
       id: "verified-incidents-circle",
       type: "circle",
       source: "verified-incidents-source",
@@ -357,12 +416,12 @@ export function LiveRiskMap({
     });
 
     // F. Safe Facilities & Hospitals (Points)
-    map.addSource("facilities-source", {
+    safeAddSource("facilities-source", {
       type: "geojson",
       data: data.facilities,
     });
 
-    map.addLayer({
+    safeAddLayer({
       id: "facilities-circle",
       type: "circle",
       source: "facilities-source",
@@ -375,12 +434,12 @@ export function LiveRiskMap({
     });
 
     // G. Environmental Sensor Stations (Points)
-    map.addSource("sensors-source", {
+    safeAddSource("sensors-source", {
       type: "geojson",
       data: data.environmental_sensors,
     });
 
-    map.addLayer({
+    safeAddLayer({
       id: "sensors-circle",
       type: "circle",
       source: "sensors-source",
@@ -397,6 +456,8 @@ export function LiveRiskMap({
   };
 
   const setupClickHandlers = (map: any, maplibregl: any) => {
+    if (!map || map._clickHandlersRegistered) return;
+    map._clickHandlersRegistered = true;
     // A. Click on risk polygons
     map.on("click", "risk-zones-fill", (e: any) => {
       if (!e.features || e.features.length === 0) return;
@@ -490,10 +551,12 @@ export function LiveRiskMap({
     // Cursor pointer styling
     ["risk-zones-fill", "verified-incidents-circle", "citizen-unclustered", "facilities-circle", "sensors-circle"].forEach((layerId) => {
       map.on("mouseenter", layerId, () => {
-        map.getCanvas().style.cursor = "pointer";
+        const canvas = map.getCanvas?.();
+        if (canvas) canvas.style.cursor = "pointer";
       });
       map.on("mouseleave", layerId, () => {
-        map.getCanvas().style.cursor = "";
+        const canvas = map.getCanvas?.();
+        if (canvas) canvas.style.cursor = "";
       });
     });
   };

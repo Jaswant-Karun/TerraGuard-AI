@@ -12,11 +12,13 @@ interface CityRiskMapProps {
   zoom?: number;
 }
 
+const DEFAULT_CITY_CENTER: [number, number] = [77.5946, 12.9716];
+
 export function CityRiskMap({
   interactive = true,
   className = "",
   height = "520px",
-  center = [77.5946, 12.9716],
+  center = DEFAULT_CITY_CENTER,
   zoom = 12.5,
 }: CityRiskMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -38,12 +40,15 @@ export function CityRiskMap({
     action: "Deploy high-volume suction pump units and trigger road diversions.",
   });
 
+  const centerLng = center?.[0] ?? DEFAULT_CITY_CENTER[0];
+  const centerLat = center?.[1] ?? DEFAULT_CITY_CENTER[1];
+
   useEffect(() => {
     let isMounted = true;
     let map: any = null;
 
     async function initMap() {
-      if (!mapContainer.current) return;
+      if (!mapContainer.current || mapInstance.current) return;
 
       try {
         const maplibregl = (await import("maplibre-gl")).default;
@@ -277,9 +282,13 @@ export function CityRiskMap({
 
     return () => {
       isMounted = false;
-      if (map) map.remove();
+      if (map) {
+        mapInstance.current = null;
+        map.remove();
+      }
     };
-  }, [center, zoom, interactive]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [centerLng, centerLat, zoom, interactive]);
 
   const toggleLayerFilter = (layer: "all" | "flood" | "air" | "infra") => {
     setActiveLayer(layer);

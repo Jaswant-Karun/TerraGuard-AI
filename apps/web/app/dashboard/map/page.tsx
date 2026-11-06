@@ -10,9 +10,9 @@ export default function MapPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   return (
-    <div className="flex h-full flex-col bg-slate-50">
+    <div className="flex h-full flex-col bg-slate-50 overflow-hidden">
       {/* Top Header Bar */}
-      <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-6 shadow-xs">
+      <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-6 shadow-xs z-10">
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
@@ -69,7 +69,7 @@ export default function MapPage() {
 
       {/* Main Full-Scale Interactive GIS Map */}
       <div className="relative flex-1 w-full overflow-hidden">
-        <LiveRiskMap key={refreshKey} height="calc(100vh - 7rem)" />
+        <LiveRiskMap key={refreshKey} height="100%" />
       </div>
     </div>
   );
