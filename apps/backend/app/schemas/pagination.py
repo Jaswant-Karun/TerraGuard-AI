@@ -1,4 +1,8 @@
+from typing import Generic, TypeVar
+
 from pydantic import BaseModel, Field
+
+T = TypeVar("T")
 
 
 class PaginationParams(BaseModel):
@@ -10,7 +14,7 @@ class PaginationParams(BaseModel):
         return (self.page - 1) * self.page_size
 
 
-class PaginatedResponse[T](BaseModel):
+class PaginatedResponse(BaseModel, Generic[T]):  # noqa: UP046
     items: list[T]
     total: int = Field(description="Total count of matching records")
     page: int = Field(description="Current page number")
