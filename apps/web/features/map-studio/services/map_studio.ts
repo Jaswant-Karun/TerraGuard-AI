@@ -455,3 +455,4 @@ export async function getHotspotPresets(): Promise<MapPreset[]> {
     return DEFAULT_PRESETS;
   }
 }
+

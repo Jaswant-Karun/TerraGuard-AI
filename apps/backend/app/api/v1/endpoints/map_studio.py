@@ -65,3 +65,4 @@ async def get_sector_telemetry(
 )
 async def get_hotspot_presets() -> MapStudioPresetsResponse:
     return MapStudioRepository.get_hotspot_presets()
+

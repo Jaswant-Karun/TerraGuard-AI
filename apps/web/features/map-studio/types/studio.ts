@@ -85,3 +85,4 @@ export interface MapPreset {
     [key: string]: string;
   };
 }
+

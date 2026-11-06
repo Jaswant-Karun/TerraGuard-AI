@@ -87,3 +87,4 @@ class MapPresetSector(BaseModel):
 class MapStudioPresetsResponse(BaseModel):
     presets: List[MapPresetSector]
     default_centroid: List[float]
+

@@ -347,3 +347,4 @@ class MapStudioRepository:
             ),
         ]
         return MapStudioPresetsResponse(presets=presets, default_centroid=[77.5946, 12.9716])
+
