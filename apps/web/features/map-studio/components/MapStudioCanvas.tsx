@@ -8,6 +8,7 @@ import {
   FloodRiskGeoJSON,
   LayerConfig,
   MapPreset,
+  MapStudioExperienceResponse,
 } from "../types/studio";
 import { BASEMAP_STYLES } from "../services/map_studio";
 
@@ -17,6 +18,7 @@ interface MapStudioCanvasProps {
   floodZones: FloodRiskGeoJSON;
   activePreset: MapPreset;
   timeOffsetHours: number;
+  experienceData?: MapStudioExperienceResponse | null;
   onSelectFeature: (feature: FloodRiskFeature | null) => void;
   onMapLoaded?: (mapInstance: any) => void;
   isDarkGIS?: boolean;
@@ -28,6 +30,7 @@ export function MapStudioCanvas({
   floodZones,
   activePreset,
   timeOffsetHours,
+  experienceData,
   onSelectFeature,
   onMapLoaded,
   isDarkGIS = true,
