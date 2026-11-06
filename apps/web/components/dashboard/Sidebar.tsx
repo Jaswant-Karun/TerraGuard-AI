@@ -15,6 +15,7 @@ import {
   Compass,
   History,
   Home,
+  Layers,
   LayoutDashboard,
   MapPin,
   Radio,
@@ -37,6 +38,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { name: "Live Risk Map", href: "/dashboard/map", icon: Radio, badge: "LIVE" },
+  { name: "Map Intelligence Studio", href: "/dashboard/map-studio", icon: Layers, badge: "2.0" },
   { name: "Risk Prediction", href: "/dashboard/prediction", icon: Activity },
   { name: "Report a Hazard", href: "/dashboard/report", icon: AlertTriangle },
   { name: "Safe Navigation", href: "/dashboard/navigation", icon: Compass },
