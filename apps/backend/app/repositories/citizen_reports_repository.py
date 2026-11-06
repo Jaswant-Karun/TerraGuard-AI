@@ -196,5 +196,16 @@ class CitizenReportsRepository(BaseRepository):
         items, _ = await self.find_filtered(status=status, limit=limit)
         return items
 
+    @classmethod
+    def clear_all_memory(cls) -> None:
+        """Utility for test suites."""
+        store = cls._memory_stores.get(cls.collection_name, {})
+        store.clear()
+        if REPORTS_CACHE_FILE.exists():
+            try:
+                REPORTS_CACHE_FILE.unlink()
+            except Exception:
+                pass
+
 
 citizen_reports_repository = CitizenReportsRepository()

@@ -151,13 +151,16 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
             error_code="USER_NOT_FOUND",
         )
 
-    # Validate that the token has not been revoked
-    if user.get("refresh_token") != request.refresh_token:
+    # Validate that the token has not been revoked (only reject if explicitly set to something else or revoked)
+    if user.get("refresh_token") == "REVOKED" or (user.get("refresh_token") and user.get("refresh_token") != request.refresh_token):
         raise AppException(
             message="Refresh token has been revoked or replaced. Please login again.",
             status_code=status.HTTP_401_UNAUTHORIZED,
             error_code="TOKEN_REVOKED",
         )
+
+    # Maintain active token state across restarts
+    await UserRepository.save_refresh_token(user_id, request.refresh_token)
 
     new_access_token = create_access_token(subject=user_id, role=user.get("role", "CITIZEN"))
 

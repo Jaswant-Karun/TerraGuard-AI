@@ -11,6 +11,7 @@ import {
   refresh as apiRefresh,
   fetchMe,
   getAccessToken,
+  getStoredUser,
 } from "@/services/auth";
 
 interface AuthContextType {
@@ -27,25 +28,62 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [token, setToken] = useState<string | null>(getAccessToken());
-  const [isLoading, setIsLoading] = useState(true);
+  // Synchronously initialize from persistent storage (localStorage / sessionStorage)
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    if (typeof window === "undefined") return null;
+    return getStoredUser();
+  });
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return getAccessToken();
+  });
+  // If a valid stored user already exists, start with isLoading = false to prevent UI flash
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    return !getStoredUser();
+  });
+
+  const syncStateFromStorage = useCallback(() => {
+    const storedUser = getStoredUser();
+    const storedToken = getAccessToken();
+    setUser(storedUser);
+    setToken(storedToken);
+    setIsLoading(false);
+  }, []);
 
   const checkAuth = useCallback(async () => {
+    const cachedUser = getStoredUser();
+    const cachedToken = getAccessToken();
+
+    // Ensure immediate hydration from storage
+    if (cachedUser) {
+      setUser(cachedUser);
+      setToken(cachedToken);
+      setIsLoading(false);
+    }
+
     try {
-      // First attempt session restore via refresh token
+      // Background verification / token refresh
       const tokens = await apiRefresh();
       if (tokens) {
         setUser(tokens.user);
         setToken(tokens.access_token);
       } else {
         const currentUser = await fetchMe();
-        setUser(currentUser);
-        setToken(getAccessToken());
+        if (currentUser) {
+          setUser(currentUser);
+          setToken(getAccessToken());
+        } else if (!cachedUser) {
+          setUser(null);
+          setToken(null);
+        }
       }
     } catch {
-      setUser(null);
-      setToken(null);
+      // In case of network errors, do NOT log out the user if cached credentials exist
+      if (!cachedUser) {
+        setUser(null);
+        setToken(null);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +91,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+
+    // Listen to storage events to sync across tabs and windows
+    const handleStorageChange = () => {
+      syncStateFromStorage();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("tg_auth_state_changed", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("tg_auth_state_changed", handleStorageChange);
+    };
+  }, [checkAuth, syncStateFromStorage]);
 
   const login = async (data: LoginPayload) => {
     setIsLoading(true);
@@ -70,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       await apiRegister(data);
-      // Auto-login upon registration
+      // Automatically sign in upon registration to establish session
       const authResult = await apiLogin({
         email: data.email,
         password: data.password,
@@ -118,4 +169,3 @@ export function useAuth() {
   }
   return context;
 }
-

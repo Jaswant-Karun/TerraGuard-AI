@@ -26,7 +26,9 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
-      router.push("/profile");
+      const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+      const redirectUrl = searchParams.get("redirect") || "/dashboard";
+      router.push(redirectUrl);
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to sign in. Please verify your credentials.");
     } finally {

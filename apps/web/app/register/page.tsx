@@ -40,7 +40,9 @@ export default function RegisterPage() {
         role,
         phone: phone || undefined,
       });
-      router.push("/profile");
+      const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+      const redirectUrl = searchParams.get("redirect") || "/dashboard";
+      router.push(redirectUrl);
     } catch (err: any) {
       setErrorMessage(err.message || "Registration failed. Please check your details.");
     } finally {

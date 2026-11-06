@@ -171,5 +171,194 @@
     "updated_at": "2026-11-06T16:23:53.429738+00:00",
     "verification_notes": "Field unit verified on-site.",
     "verified_by_user_id": "e343e865-cb98-4483-a618-ed6453c27e74"
+  },
+  "9e4abb10-fbe1-4c30-b6d2-c111a4e22730": {
+    "title": "Severe Waterlogging near Bellandur Gate",
+    "description": "Standing water 18 inches deep submerging curb and sidewalk.",
+    "category": "WATERLOGGING",
+    "severity": 4,
+    "status": "VERIFIED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.6669,
+        12.9352
+      ]
+    },
+    "address": "Outer Ring Road, Bellandur",
+    "media_urls": [
+      "/uploads/hazard_media/hazard_031a9316203d4956bbba4e4e3cea1278_f3afd141.png"
+    ],
+    "image_hash": "f3afd141c15ab9ec908ee966872aa79e7df5b46b480a2a46093ab2360f768765",
+    "reported_by_user_id": "b42cdab4-d330-4643-9712-c92a446e6551",
+    "ai_analysis": {
+      "predicted_category": "WATERLOGGING",
+      "short_description": "Localized water stagnation and sidewalk waterlogging observed.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Standing rainwater pool",
+        "Stormwater drain backup"
+      ],
+      "confidence_estimate": 0.84,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Reduce vehicle speed to prevent hydroplaning",
+        "Watch for obscured potholes beneath water"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": false,
+    "duplicate_metadata": {},
+    "created_at": "2026-11-06T16:50:47.868876+00:00",
+    "id": "9e4abb10-fbe1-4c30-b6d2-c111a4e22730",
+    "verification_notes": "Ground-truthed by BBMP Patrol Squad 3",
+    "verified_by_user_id": "997822b4-44dc-4f5e-8f29-44e06da8ab02",
+    "updated_at": "2026-11-06T16:50:49.544449+00:00"
+  },
+  "67b7420e-41b8-4df3-b65f-c05910fb89f1": {
+    "title": "Severe Waterlogging on 80 Feet Road",
+    "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
+    "category": "WATERLOGGING",
+    "severity": 3,
+    "status": "REPORTED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.6245,
+        12.9352
+      ]
+    },
+    "address": "80 Feet Rd, 4th Block, Koramangala",
+    "media_urls": [
+      "/uploads/hazard_media/hazard_8735958cf2614cf493d30df86aa2365f_7cfcfdc7.jpg"
+    ],
+    "image_hash": "7cfcfdc7cf3db91dad0e70bd7cb7ddee53044d59558c4cd558ea6f1a45d783ae",
+    "ai_analysis": {
+      "predicted_category": "WATERLOGGING",
+      "short_description": "Localized water stagnation and sidewalk waterlogging observed.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Standing rainwater pool",
+        "Stormwater drain backup"
+      ],
+      "confidence_estimate": 0.84,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Reduce vehicle speed to prevent hydroplaning",
+        "Watch for obscured potholes beneath water"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": true,
+    "duplicate_of_report_id": "f9d7fa9f-a048-4b82-b29d-2c764f371a65",
+    "duplicate_metadata": {
+      "matched_report_id": "f9d7fa9f-a048-4b82-b29d-2c764f371a65",
+      "similarity_score": 1.0,
+      "reason": "Identical image hash detected. Matches report #f9d7fa9f (0m away).",
+      "distance_meters": 0.0
+    },
+    "created_at": "2026-11-06T16:51:03.338007+00:00",
+    "id": "67b7420e-41b8-4df3-b65f-c05910fb89f1"
+  },
+  "c92e8743-3e21-4ad0-9794-b90420c99d6c": {
+    "title": "Choked Storm Culvert",
+    "description": "Plastic bottles and debris blocking storm drain outlet.",
+    "category": "WASTE_ACCUMULATION",
+    "severity": 2,
+    "status": "REPORTED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.5946,
+        12.9716
+      ]
+    },
+    "media_urls": [
+      "/uploads/hazard_media/hazard_6c05dacff8df4ad48203c6fa116e5607_49b3268c.jpg"
+    ],
+    "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
+    "ai_analysis": {
+      "predicted_category": "WASTE_ACCUMULATION",
+      "short_description": "Uncollected municipal solid waste accumulation blocking drainage corridor.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Citizen notes mention refuse accumulation or choked drains",
+        "Debris obstruction in storm culvert",
+        "Public health vector risk"
+      ],
+      "confidence_estimate": 0.83,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Do not burn unsegregated waste",
+        "Notify solid waste management division for expedited clearing"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": true,
+    "duplicate_of_report_id": "a701f289-ce6a-4a57-89d8-64c39604ec54",
+    "duplicate_metadata": {
+      "matched_report_id": "a701f289-ce6a-4a57-89d8-64c39604ec54",
+      "similarity_score": 1.0,
+      "reason": "Identical image hash detected. Matches report #a701f289 (0m away).",
+      "distance_meters": 0.0
+    },
+    "created_at": "2026-11-06T16:51:03.386619+00:00",
+    "id": "c92e8743-3e21-4ad0-9794-b90420c99d6c"
+  },
+  "fbc0f3f8-599f-4f32-8648-87b33a840290": {
+    "title": "Deep Pothole on Outer Ring Road",
+    "description": "Asphalt depression 15cm deep posing hazard to motorists.",
+    "category": "DAMAGED_ROAD",
+    "severity": 2,
+    "status": "VERIFIED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.68,
+        12.925
+      ]
+    },
+    "media_urls": [
+      "/uploads/hazard_media/hazard_72bcfa5dc8f34b248e87b9b38d3724fc_49b3268c.jpg"
+    ],
+    "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
+    "ai_analysis": {
+      "predicted_category": "DAMAGED_ROAD",
+      "short_description": "Asphalt depression, deep pothole, or pavement erosion identified.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Citizen text reports structural road defect or pothole",
+        "Pavement structural fracture",
+        "Uneven road surface hazard"
+      ],
+      "confidence_estimate": 0.86,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Slow down to avoid suspension damage or two-wheeler tipping",
+        "Report to municipal ward engineering team"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": true,
+    "duplicate_of_report_id": "3095339c-6df8-4c1e-a771-9ce0758c5e6c",
+    "duplicate_metadata": {
+      "matched_report_id": "3095339c-6df8-4c1e-a771-9ce0758c5e6c",
+      "similarity_score": 1.0,
+      "reason": "Identical image hash detected. Matches report #3095339c (0m away).",
+      "distance_meters": 0.0
+    },
+    "created_at": "2026-11-06T16:51:03.419736+00:00",
+    "id": "fbc0f3f8-599f-4f32-8648-87b33a840290",
+    "updated_at": "2026-11-06T16:51:03.431497+00:00",
+    "verification_notes": "Field unit verified on-site.",
+    "verified_by_user_id": "7539772d-9b62-499b-856b-e1592797ca4d"
   }
 }

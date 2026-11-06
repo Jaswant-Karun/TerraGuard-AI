@@ -278,7 +278,7 @@ class UserRepository:
 
     @classmethod
     async def revoke_refresh_token(cls, user_id: str) -> None:
-        await cls.update(user_id, {"refresh_token": None})
+        await cls.update(user_id, {"refresh_token": "REVOKED"})
 
     @classmethod
     def clear_all_memory(cls) -> None:

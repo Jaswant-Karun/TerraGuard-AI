@@ -94,6 +94,9 @@ async def test_duplicate_detection_logic():
 # ---------------------------------------------------------
 @pytest.mark.asyncio
 async def test_create_report_with_image_upload():
+    from app.repositories.citizen_reports_repository import CitizenReportsRepository
+    CitizenReportsRepository.clear_all_memory()
+
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         img_bytes = create_dummy_image_bytes(color=(50, 100, 220))

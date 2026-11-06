@@ -55,14 +55,24 @@ function ProfileContent() {
             <span>Return to Command Radar</span>
           </Link>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleLogout}
-            leftIcon={<LogOut className="w-3.5 h-3.5 text-rose-600" />}
-          >
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2.5">
+            <Link href="/dashboard">
+              <Button
+                variant="primary"
+                size="sm"
+              >
+                Go to Dashboard
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              leftIcon={<LogOut className="w-3.5 h-3.5 text-rose-600" />}
+            >
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         {/* Profile Card Header */}
