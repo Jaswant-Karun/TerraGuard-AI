@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShieldAlert, LogIn, KeyRound, AlertCircle, ArrowLeft } from "lucide-react";
+import { ShieldAlert, LogIn, KeyRound, AlertCircle, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -103,11 +104,26 @@ export default function LoginPage() {
                   </Link>
                 </div>
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-slate-400 hover:text-slate-600 focus:outline-none transition p-1"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4 text-slate-500 hover:text-slate-800" />
+                      ) : (
+                        <Eye className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+                      )}
+                    </button>
+                  }
                 />
               </div>
 
@@ -131,18 +147,34 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setDemoCredentials("analyst@city.gov", "AnalystPassword2026!")}
-                  className="p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 text-left transition"
+                  className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:bg-cyan-50/50 hover:border-cyan-300 text-left transition group"
                 >
-                  <span className="font-bold block text-[11px]">Analyst</span>
+                  <span className="font-bold block text-[11px] text-navy-950 group-hover:text-cyan-700">Analyst</span>
                   <span className="text-[10px] text-slate-500">Environmental Team</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setDemoCredentials("commander@city.gov", "CommanderPassword2026!")}
-                  className="p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 text-left transition"
+                  className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:bg-cyan-50/50 hover:border-cyan-300 text-left transition group"
                 >
-                  <span className="font-bold block text-[11px]">Coordinator</span>
+                  <span className="font-bold block text-[11px] text-navy-950 group-hover:text-cyan-700">Coordinator</span>
                   <span className="text-[10px] text-slate-500">Emergency Dispatch</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDemoCredentials("admin@city.gov", "AdminPassword2026!")}
+                  className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:bg-cyan-50/50 hover:border-cyan-300 text-left transition group"
+                >
+                  <span className="font-bold block text-[11px] text-navy-950 group-hover:text-cyan-700">Administrator</span>
+                  <span className="text-[10px] text-slate-500">Full City Management</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDemoCredentials("citizen@city.gov", "CitizenPassword2026!")}
+                  className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:bg-cyan-50/50 hover:border-cyan-300 text-left transition group"
+                >
+                  <span className="font-bold block text-[11px] text-navy-950 group-hover:text-cyan-700">Citizen</span>
+                  <span className="text-[10px] text-slate-500">Hazard Sentinel</span>
                 </button>
               </div>
             </div>

@@ -2,7 +2,11 @@ import logging
 import math
 from typing import Any
 
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+try:
+    from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+except ImportError:
+    AsyncIOMotorClient = None  # type: ignore
+    AsyncIOMotorDatabase = None  # type: ignore
 
 from app.core.config import settings
 
@@ -26,8 +30,8 @@ def haversine_distance_meters(lon1: float, lat1: float, lon2: float, lat2: float
 
 
 class DatabaseManager:
-    client: AsyncIOMotorClient | None = None
-    db: AsyncIOMotorDatabase | None = None
+    client: Any = None
+    db: Any = None
     _use_fallback: bool = False
     _collections_data: dict[str, dict[str, dict[str, Any]]] = {}
 
@@ -53,6 +57,11 @@ class DatabaseManager:
         for col in cls.COLLECTIONS:
             if col not in cls._collections_data:
                 cls._collections_data[col] = {}
+
+        if AsyncIOMotorClient is None:
+            logger.warning("Motor is not installed. Initializing async resilient in-memory storage.")
+            cls._use_fallback = True
+            return
 
         try:
             logger.info("Initializing MongoDB Atlas connection pool for [%s]...", settings.DATABASE_NAME)
@@ -145,7 +154,7 @@ class DatabaseManager:
             logger.info("MongoDB Atlas connection pool closed.")
 
     @classmethod
-    def get_database(cls) -> AsyncIOMotorDatabase | None:
+    def get_database(cls) -> Any:
         return cls.db
 
     @classmethod

@@ -1,0 +1,42 @@
+{
+  "demo-analyst-uuid-0001": {
+    "id": "demo-analyst-uuid-0001",
+    "email": "analyst@city.gov",
+    "hashed_password": "$2b$12$sMJS2FpUDG6JGC//kzlktuAy1HiCsRVRlecThiNybUaOA9gwyFpIC",
+    "full_name": "Analyst - Environmental Team",
+    "role": "ANALYST",
+    "phone": "+91 98765 43210",
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00+00:00"
+  },
+  "demo-coordinator-uuid-0002": {
+    "id": "demo-coordinator-uuid-0002",
+    "email": "commander@city.gov",
+    "hashed_password": "$2b$12$B3OBPTHKWo1UKaJEDdWLhOJaqya2L6CsJ31SZCfLgp2KnJ/NnafHq",
+    "full_name": "Commander - Emergency Dispatch",
+    "role": "COORDINATOR",
+    "phone": "+91 98765 43211",
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00+00:00"
+  },
+  "demo-admin-uuid-0003": {
+    "id": "demo-admin-uuid-0003",
+    "email": "admin@city.gov",
+    "hashed_password": "$2b$12$4p2O1wLsT/phtI4/l3Au.uJmkp9UgdKq2MVI0Y6zpkHh/ejpJIaOK",
+    "full_name": "City System Administrator",
+    "role": "ADMIN",
+    "phone": "+91 98765 43212",
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00+00:00"
+  },
+  "demo-citizen-uuid-0004": {
+    "id": "demo-citizen-uuid-0004",
+    "email": "citizen@city.gov",
+    "hashed_password": "$2b$12$sWGPtmM4zj0fcpI8KmKeGeTHH3H4bOWDe7ov.B8tnAxeAU37dnEsa",
+    "full_name": "Citizen Sentinel",
+    "role": "CITIZEN",
+    "phone": "+91 98765 43213",
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00+00:00"
+  }
+}

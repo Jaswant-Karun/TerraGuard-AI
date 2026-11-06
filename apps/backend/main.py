@@ -14,6 +14,7 @@ from app.core.config import settings
 from app.core.database import db_manager
 from app.core.errors import register_exception_handlers
 from app.core.logging import setup_logging
+from app.repositories.user_repository import UserRepository
 from app.services.storage_service import STORAGE_BASE_DIR
 
 # Initialize structured logging
@@ -29,6 +30,7 @@ async def lifespan(app: FastAPI):
     """Lifecycle hook for startup and shutdown procedures."""
     logger.info(f"Starting {settings.PROJECT_NAME} in [{settings.ENVIRONMENT}] mode")
     await db_manager.connect()
+    await UserRepository.seed_demo_users_to_db()
     yield
     await db_manager.disconnect()
     logger.info(f"Shutting down {settings.PROJECT_NAME}")

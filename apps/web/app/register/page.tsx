@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShieldAlert, UserPlus, ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ShieldAlert, UserPlus, ArrowLeft, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { UserRole } from "@/services/auth";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState<UserRole>("CITIZEN");
   const [isLoading, setIsLoading] = useState(false);
@@ -178,15 +179,30 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Password with Strength Meter */}
+              {/* Password with Strength Meter and Visibility Toggle */}
               <div className="space-y-1.5">
                 <Input
                   label="Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Minimum 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-slate-400 hover:text-slate-600 focus:outline-none transition p-1"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4 text-slate-500 hover:text-slate-800" />
+                      ) : (
+                        <Eye className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+                      )}
+                    </button>
+                  }
                 />
                 {password && (
                   <div className="space-y-1 pt-1">

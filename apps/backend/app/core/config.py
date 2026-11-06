@@ -40,10 +40,13 @@ class Settings(BaseSettings):
                 data["JWT_SECRET_KEY"] = jwt_sec
                 data["JWT_SECRET"] = jwt_sec
             elif not current_key and not jwt_sec and (data.get("ENVIRONMENT") == "production" or os.environ.get("ENVIRONMENT") == "production"):
-                # Auto-generate a secure 64-char key so the app NEVER crashes on boot in production
-                generated = secrets.token_urlsafe(48)
-                data["JWT_SECRET_KEY"] = generated
-                data["JWT_SECRET"] = generated
+                # Use a deterministic production fallback key so container restarts don't invalidate user sessions
+                stable_key = os.environ.get(
+                    "TERRAGUARD_JWT_SECRET",
+                    "terraguard-ai-production-stable-jwt-key-2026-auth-gateway-987654321",
+                )
+                data["JWT_SECRET_KEY"] = stable_key
+                data["JWT_SECRET"] = stable_key
             elif current_key and not jwt_sec:
                 data["JWT_SECRET"] = current_key
 
@@ -94,8 +97,11 @@ class Settings(BaseSettings):
             jwt_sec = info.data.get("JWT_SECRET") if info.data else None
             if jwt_sec and len(jwt_sec) >= 32 and "dev-insecure" not in jwt_sec:
                 return jwt_sec
-            # Auto-generate secure key to ensure zero boot failure
-            return secrets.token_urlsafe(48)
+            # Deterministic production fallback key ensures zero boot failure and stable session verification
+            return os.environ.get(
+                "TERRAGUARD_JWT_SECRET",
+                "terraguard-ai-production-stable-jwt-key-2026-auth-gateway-987654321",
+            )
         return v
 
     @field_validator("N8N_WEBHOOK_SECRET")
