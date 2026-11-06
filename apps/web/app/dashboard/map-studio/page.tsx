@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { useAuth } from "@/features/auth/AuthContext";
 import { useMapStudioData } from "@/features/map-studio/hooks/useMapStudioData";
 import { MapStudioHeader } from "@/features/map-studio/components/MapStudioHeader";
 import { ExperienceSelectorBar } from "@/features/map-studio/components/ExperienceSelectorBar";
@@ -10,7 +11,7 @@ import { ExperienceSidePanel } from "@/features/map-studio/components/Experience
 import { TimeForecastScrubber } from "@/features/map-studio/components/TimeForecastScrubber";
 import { MapStudioLegend } from "@/features/map-studio/components/MapStudioLegend";
 import { StudioFloatingControls } from "@/features/map-studio/components/StudioFloatingControls";
-import { AlertOctagon, X, Droplets, Users, ShieldAlert } from "lucide-react";
+import { AlertOctagon, X, Droplets, Users, ShieldAlert, Crosshair, Info } from "lucide-react";
 
 // Dynamically import MapStudioCanvas to ensure zero SSR WebGL issues
 const MapStudioCanvas = dynamic(
@@ -32,6 +33,7 @@ const MapStudioCanvas = dynamic(
 );
 
 export default function MapStudioPage() {
+  const { user } = useAuth();
   const {
     basemapStyle,
     setBasemapStyle,
@@ -44,6 +46,8 @@ export default function MapStudioPage() {
     layers,
     toggleLayer,
     setLayerOpacity,
+    showAllLayers,
+    hideAllLayers,
     floodZones,
     presets,
     activePreset,
@@ -65,6 +69,7 @@ export default function MapStudioPage() {
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [is3DActive, setIs3DActive] = useState(false);
+  const [geoNotification, setGeoNotification] = useState<string | null>(null);
   const mapRef = useRef<any>(null);
 
   const isDarkGIS = viewMode === "flood-intelligence";
@@ -119,6 +124,38 @@ export default function MapStudioPage() {
       }
       setIsFullscreen(false);
     }
+  };
+
+  const handleLocateMe = () => {
+    if (!navigator.geolocation) {
+      setGeoNotification("Geolocation is unsupported on this browser. Centered at Bengaluru HQ.");
+      setTimeout(() => setGeoNotification(null), 4000);
+      handleResetView();
+      return;
+    }
+
+    setGeoNotification("Acquiring high-accuracy GPS coordinates...");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        if (mapRef.current) {
+          mapRef.current.flyTo({
+            center: [pos.coords.longitude, pos.coords.latitude],
+            zoom: 15.0,
+            essential: true,
+            duration: 1800,
+          });
+        }
+        setGeoNotification("Centered at your current physical location.");
+        setTimeout(() => setGeoNotification(null), 3000);
+      },
+      () => {
+        // Polite non-blocking notification instead of a window.alert
+        setGeoNotification("Location access unavailable or timed out. Defaulting to Central Command.");
+        setTimeout(() => setGeoNotification(null), 4000);
+        handleResetView();
+      },
+      { timeout: 6000, enableHighAccuracy: true }
+    );
   };
 
   const handleSearchSelect = (query: string) => {
@@ -187,15 +224,27 @@ export default function MapStudioPage() {
           isDarkGIS={isDarkGIS}
         />
 
-        {/* Left Floating Control Panel: Basemaps & Layers (Ref Image A) */}
+        {/* Left Floating Advanced Map Control Panel (Inspired by Ref Image A) */}
         <StudioControlPanel
           isOpen={leftPanelOpen}
           onClose={() => setLeftPanelOpen(false)}
+          onOpen={() => setLeftPanelOpen(true)}
           basemapStyle={basemapStyle}
           onSelectBasemapStyle={setBasemapStyle}
           layers={layers}
           onToggleLayer={toggleLayer}
           onSetLayerOpacity={setLayerOpacity}
+          onShowAllLayers={showAllLayers}
+          onHideAllLayers={hideAllLayers}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onResetOrientation={handleResetView}
+          onLocateMe={handleLocateMe}
+          onToggleFullscreen={handleToggleFullscreen}
+          onToggleLegend={() => setLegendOpen(!legendOpen)}
+          isFullscreen={isFullscreen}
+          legendOpen={legendOpen}
+          userRole={user?.role}
           isDarkGIS={isDarkGIS}
         />
 
@@ -228,6 +277,14 @@ export default function MapStudioPage() {
           title={`${activeExperienceMeta.name.replace(/^Map \d+ — /, "")} Legend`}
           isDarkGIS={isDarkGIS}
         />
+
+        {/* Polite Non-Blocking Location Toast Notification */}
+        {geoNotification && (
+          <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/95 border border-cyan-500/60 text-cyan-300 text-xs shadow-2xl backdrop-blur-md animate-fade-in">
+            <Info className="h-4 w-4 text-cyan-400 shrink-0" />
+            <span>{geoNotification}</span>
+          </div>
+        )}
 
         {/* Inspection Modal when a feature is clicked */}
         {selectedFeature && (
