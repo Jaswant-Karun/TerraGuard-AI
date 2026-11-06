@@ -1,5 +1,12 @@
+import json
+import logging
+from pathlib import Path
 from datetime import UTC, datetime
 from typing import Any
+
+logger = logging.getLogger("terraguard.reports_repo")
+STORAGE_DIR = Path(__file__).resolve().parent.parent.parent / "storage"
+REPORTS_CACHE_FILE = STORAGE_DIR / "reports_cache.json"
 
 try:
     from bson import ObjectId
@@ -14,6 +21,10 @@ except ImportError:
         def __repr__(self) -> str:
             return f"ObjectId('{self.val}')"
 
+        @staticmethod
+        def is_valid(val: Any) -> bool:
+            return isinstance(val, str) and len(val) == 24
+
 from app.core.database import db_manager
 from app.models.collections import CitizenReportModel
 from app.repositories.base_repository import BaseRepository, serialize_doc
@@ -25,10 +36,49 @@ class CitizenReportsRepository(BaseRepository):
 
     def __init__(self) -> None:
         super().__init__("citizen_reports")
+        self._load_cache()
+
+    def _save_cache(self) -> None:
+        """Persists current in-memory reports to disk cache so they survive container restarts."""
+        try:
+            STORAGE_DIR.mkdir(parents=True, exist_ok=True)
+            store = self._get_memory_store()
+            serializable: dict[str, Any] = {}
+            for k, doc in store.items():
+                copy = dict(doc)
+                for prop, val in copy.items():
+                    if isinstance(val, datetime):
+                        copy[prop] = val.isoformat()
+                    elif isinstance(val, ObjectId):
+                        copy[prop] = str(val)
+                serializable[k] = copy
+            with open(REPORTS_CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(serializable, f, indent=2)
+        except Exception as e:
+            logger.warning("Failed to save citizen reports disk cache: %s", e)
+
+    def _load_cache(self) -> None:
+        """Loads cached reports from disk into memory on startup."""
+        try:
+            if REPORTS_CACHE_FILE.exists():
+                with open(REPORTS_CACHE_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    store = self._get_memory_store()
+                    store.update(data)
+                    logger.info("Loaded %d citizen reports from persistent disk cache.", len(data))
+        except Exception as e:
+            logger.warning("Failed to load citizen reports disk cache: %s", e)
 
     async def create_report(self, model: CitizenReportModel) -> dict[str, Any]:
         data = model.model_dump(exclude_none=True)
-        return await self.create(data)
+        res = await self.create(data)
+        # Always mirror in memory store and persist to disk cache
+        store = self._get_memory_store()
+        doc_id = res.get("id") or str(res.get("_id", ""))
+        if doc_id:
+            store[doc_id] = dict(res)
+            self._save_cache()
+        return res
 
     async def find_near(
         self,
@@ -83,8 +133,17 @@ class CitizenReportsRepository(BaseRepository):
         store = self._get_memory_store()
         if report_id in store:
             store[report_id].update(update_data)
+            self._save_cache()
             return serialize_doc(store[report_id])
         return None
+
+    async def update(self, doc_id: str, updates: dict[str, Any]) -> dict[str, Any] | None:
+        res = await super().update(doc_id, updates)
+        if res and "id" in res:
+            store = self._get_memory_store()
+            store[res["id"]] = dict(res)
+            self._save_cache()
+        return res
 
     async def find_filtered(
         self,

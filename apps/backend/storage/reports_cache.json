@@ -1,0 +1,175 @@
+{
+  "f9d7fa9f-a048-4b82-b29d-2c764f371a65": {
+    "title": "Severe Waterlogging on 80 Feet Road",
+    "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
+    "category": "WATERLOGGING",
+    "severity": 3,
+    "status": "REPORTED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.6245,
+        12.9352
+      ]
+    },
+    "address": "80 Feet Rd, 4th Block, Koramangala",
+    "media_urls": [
+      "/uploads/hazard_media/hazard_5cd7221ad9cc4c6c943031e51ee2626f_7cfcfdc7.jpg"
+    ],
+    "image_hash": "7cfcfdc7cf3db91dad0e70bd7cb7ddee53044d59558c4cd558ea6f1a45d783ae",
+    "ai_analysis": {
+      "predicted_category": "WATERLOGGING",
+      "short_description": "Localized water stagnation and sidewalk waterlogging observed.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Standing rainwater pool",
+        "Stormwater drain backup"
+      ],
+      "confidence_estimate": 0.84,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Reduce vehicle speed to prevent hydroplaning",
+        "Watch for obscured potholes beneath water"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": false,
+    "duplicate_metadata": {},
+    "created_at": "2026-11-06T16:23:52.862127+00:00",
+    "id": "f9d7fa9f-a048-4b82-b29d-2c764f371a65"
+  },
+  "ae083c8c-6c29-4daa-9923-a67ab7ebb97c": {
+    "title": "Severe Waterlogging on 80 Feet Road",
+    "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
+    "category": "WATERLOGGING",
+    "severity": 3,
+    "status": "REPORTED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.6245,
+        12.9352
+      ]
+    },
+    "address": "80 Feet Rd, 4th Block, Koramangala",
+    "media_urls": [
+      "/uploads/hazard_media/hazard_de2fe3706bbf47d2a411347bd8437519_7cfcfdc7.jpg"
+    ],
+    "image_hash": "7cfcfdc7cf3db91dad0e70bd7cb7ddee53044d59558c4cd558ea6f1a45d783ae",
+    "ai_analysis": {
+      "predicted_category": "WATERLOGGING",
+      "short_description": "Localized water stagnation and sidewalk waterlogging observed.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Standing rainwater pool",
+        "Stormwater drain backup"
+      ],
+      "confidence_estimate": 0.84,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Reduce vehicle speed to prevent hydroplaning",
+        "Watch for obscured potholes beneath water"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": true,
+    "duplicate_of_report_id": "f9d7fa9f-a048-4b82-b29d-2c764f371a65",
+    "duplicate_metadata": {
+      "matched_report_id": "f9d7fa9f-a048-4b82-b29d-2c764f371a65",
+      "similarity_score": 1.0,
+      "reason": "Identical image hash detected. Matches report #f9d7fa9f (0m away).",
+      "distance_meters": 0.0
+    },
+    "created_at": "2026-11-06T16:23:52.953675+00:00",
+    "id": "ae083c8c-6c29-4daa-9923-a67ab7ebb97c"
+  },
+  "a701f289-ce6a-4a57-89d8-64c39604ec54": {
+    "title": "Choked Storm Culvert",
+    "description": "Plastic bottles and debris blocking storm drain outlet.",
+    "category": "WASTE_ACCUMULATION",
+    "severity": 2,
+    "status": "REPORTED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.5946,
+        12.9716
+      ]
+    },
+    "media_urls": [
+      "/uploads/hazard_media/hazard_bbb5c49a921d44b7aad4d7eeaaa3febd_49b3268c.jpg"
+    ],
+    "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
+    "ai_analysis": {
+      "predicted_category": "WASTE_ACCUMULATION",
+      "short_description": "Uncollected municipal solid waste accumulation blocking drainage corridor.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Citizen notes mention refuse accumulation or choked drains",
+        "Debris obstruction in storm culvert",
+        "Public health vector risk"
+      ],
+      "confidence_estimate": 0.83,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Do not burn unsegregated waste",
+        "Notify solid waste management division for expedited clearing"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": false,
+    "duplicate_metadata": {},
+    "created_at": "2026-11-06T16:23:53.106105+00:00",
+    "id": "a701f289-ce6a-4a57-89d8-64c39604ec54"
+  },
+  "3095339c-6df8-4c1e-a771-9ce0758c5e6c": {
+    "title": "Deep Pothole on Outer Ring Road",
+    "description": "Asphalt depression 15cm deep posing hazard to motorists.",
+    "category": "DAMAGED_ROAD",
+    "severity": 2,
+    "status": "VERIFIED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.68,
+        12.925
+      ]
+    },
+    "media_urls": [
+      "/uploads/hazard_media/hazard_8ba23fd4633b4e5e87003e3928d3086d_49b3268c.jpg"
+    ],
+    "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
+    "ai_analysis": {
+      "predicted_category": "DAMAGED_ROAD",
+      "short_description": "Asphalt depression, deep pothole, or pavement erosion identified.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Citizen text reports structural road defect or pothole",
+        "Pavement structural fracture",
+        "Uneven road surface hazard"
+      ],
+      "confidence_estimate": 0.86,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Slow down to avoid suspension damage or two-wheeler tipping",
+        "Report to municipal ward engineering team"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": false,
+    "duplicate_metadata": {},
+    "created_at": "2026-11-06T16:23:53.386942+00:00",
+    "id": "3095339c-6df8-4c1e-a771-9ce0758c5e6c",
+    "updated_at": "2026-11-06T16:23:53.429738+00:00",
+    "verification_notes": "Field unit verified on-site.",
+    "verified_by_user_id": "e343e865-cb98-4483-a618-ed6453c27e74"
+  }
+}

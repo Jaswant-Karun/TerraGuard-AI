@@ -95,6 +95,7 @@ export default function AdminOperationsPage() {
   const [verifyNotes, setVerifyNotes] = useState<string>("");
   const [verifyAction, setVerifyAction] = useState<"VERIFIED" | "REJECTED" | "ESCALATED">("VERIFIED");
   const [escalateToAlert, setEscalateToAlert] = useState<boolean>(false);
+  const [isVerifying, setIsVerifying] = useState<boolean>(false);
 
   // Tasks Tab State
   const [tasks, setTasks] = useState<ResponseTaskItem[]>([]);
@@ -224,13 +225,22 @@ export default function AdminOperationsPage() {
   };
 
   const handleExecuteVerification = async () => {
-    if (!token || !selectedReportForVerify) return;
+    const reportId = selectedReportForVerify?.id || selectedReportForVerify?._id;
+    if (!token) {
+      alert("Session expired or missing authorization token. Please sign in again as Administrator.");
+      return;
+    }
+    if (!reportId) {
+      alert("Invalid selection: Unable to resolve report ID.");
+      return;
+    }
+    setIsVerifying(true);
     try {
       await verifyCitizenReport(
-        selectedReportForVerify.id,
+        reportId,
         {
           status: verifyAction,
-          verification_notes: verifyNotes || "Reviewed by Municipal Operations Command",
+          verification_notes: verifyNotes?.trim() || "Reviewed and triaged by Municipal Operations Command",
           create_official_alert: escalateToAlert,
           alert_severity: "HIGH",
         },
@@ -243,6 +253,8 @@ export default function AdminOperationsPage() {
       await loadOverviewData();
     } catch (err: any) {
       alert("Verification failed: " + err.message);
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -699,7 +711,7 @@ export default function AdminOperationsPage() {
               ) : (
                 reports.map((rep) => (
                   <div
-                    key={rep.id}
+                    key={rep.id || rep._id}
                     className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4"
                   >
                     <div className="space-y-1">
@@ -1004,10 +1016,18 @@ export default function AdminOperationsPage() {
             <Button
               size="sm"
               variant="primary"
+              disabled={isVerifying}
               onClick={handleExecuteVerification}
-              className="text-xs bg-blue-600 hover:bg-blue-700 text-white"
+              className="text-xs bg-blue-600 hover:bg-blue-700 text-white min-w-[130px] flex items-center justify-center gap-1.5"
             >
-              Submit Verification
+              {isVerifying ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Submitting...</span>
+                </>
+              ) : (
+                <span>Submit Verification</span>
+              )}
             </Button>
           </div>
         </div>

@@ -22,6 +22,29 @@ function authHeaders(token?: string | null): Record<string, string> {
   return headers;
 }
 
+async function parseApiError(res: Response, fallback: string): Promise<string> {
+  if (res.status === 401) {
+    return "Session expired or unauthorized. Please log out and sign in again.";
+  }
+  if (res.status === 403) {
+    return "Forbidden: Administrative role (ADMIN or COORDINATOR) required.";
+  }
+  if (res.status === 404) {
+    return "Report not found or already verified.";
+  }
+  try {
+    const data = await res.json();
+    if (data.message) return data.message;
+    if (data.detail) {
+      if (typeof data.detail === "string") return data.detail;
+      return JSON.stringify(data.detail);
+    }
+  } catch {
+    // ignore json parse error
+  }
+  return `${fallback} (HTTP ${res.status})`;
+}
+
 // --- Alerts & Notifications ---
 
 export async function fetchAlerts(params?: {
@@ -176,7 +199,7 @@ export async function fetchAdminReports(
     headers: authHeaders(token),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error("Failed to fetch reports");
+  if (!res.ok) throw new Error(await parseApiError(res, "Failed to fetch reports"));
   return res.json();
 }
 
@@ -195,7 +218,7 @@ export async function verifyCitizenReport(
     headers: authHeaders(token),
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error("Failed to verify report");
+  if (!res.ok) throw new Error(await parseApiError(res, "Failed to verify report"));
   return res.json();
 }
 

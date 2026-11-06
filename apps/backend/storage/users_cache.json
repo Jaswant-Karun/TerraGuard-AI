@@ -38,5 +38,83 @@
     "phone": "+91 98765 43213",
     "is_active": true,
     "created_at": "2026-01-01T00:00:00+00:00"
+  },
+  "d3a96918-c884-4f9c-9a44-f52721f7813c": {
+    "email": "citizen_ack@terraguard.ai",
+    "hashed_password": "dummy_hashed_password",
+    "full_name": "Citizen Ack",
+    "role": "CITIZEN",
+    "created_at": "2026-11-06T16:23:51.063756+00:00",
+    "is_active": true,
+    "refresh_token": null,
+    "reset_token": null,
+    "id": "d3a96918-c884-4f9c-9a44-f52721f7813c"
+  },
+  "efc65a13-bbd4-4aee-a1ef-d8c804fa1db0": {
+    "email": "citizen_siren@terraguard.ai",
+    "hashed_password": "dummy_hashed_password",
+    "full_name": "Citizen Siren",
+    "role": "CITIZEN",
+    "created_at": "2026-11-06T16:23:51.117812+00:00",
+    "is_active": true,
+    "refresh_token": null,
+    "reset_token": null,
+    "id": "efc65a13-bbd4-4aee-a1ef-d8c804fa1db0"
+  },
+  "caf0a5b1-6fde-4578-bdcb-74c16278a757": {
+    "email": "coord_siren@terraguard.ai",
+    "hashed_password": "dummy_hashed_password",
+    "full_name": "Coordinator Siren",
+    "role": "COORDINATOR",
+    "created_at": "2026-11-06T16:23:51.120749+00:00",
+    "is_active": true,
+    "refresh_token": null,
+    "reset_token": null,
+    "id": "caf0a5b1-6fde-4578-bdcb-74c16278a757"
+  },
+  "e898ca0e-806b-42a5-9c7e-c610cec6b915": {
+    "email": "citizen_feed@terraguard.ai",
+    "hashed_password": "dummy_hashed_password",
+    "full_name": "Citizen Feed",
+    "role": "CITIZEN",
+    "created_at": "2026-11-06T16:23:51.159756+00:00",
+    "is_active": true,
+    "refresh_token": null,
+    "reset_token": null,
+    "id": "e898ca0e-806b-42a5-9c7e-c610cec6b915"
+  },
+  "5cd7ff3d-9367-4c9c-9914-1cc7c6c44cf4": {
+    "email": "admin_cmd@terraguard.ai",
+    "hashed_password": "dummy_hashed_password",
+    "full_name": "Admin Cmd",
+    "role": "ADMIN",
+    "created_at": "2026-11-06T16:23:51.187750+00:00",
+    "is_active": true,
+    "refresh_token": null,
+    "reset_token": null,
+    "id": "5cd7ff3d-9367-4c9c-9914-1cc7c6c44cf4"
+  },
+  "595cc161-fb43-4eed-9579-6e03dd27e841": {
+    "email": "citizen_target@terraguard.ai",
+    "hashed_password": "dummy_hashed_password",
+    "full_name": "Target Citizen",
+    "role": "ANALYST",
+    "created_at": "2026-11-06T16:23:51.190346+00:00",
+    "is_active": true,
+    "refresh_token": null,
+    "reset_token": null,
+    "id": "595cc161-fb43-4eed-9579-6e03dd27e841",
+    "updated_at": "2026-11-06T16:23:51.207216+00:00"
+  },
+  "e343e865-cb98-4483-a618-ed6453c27e74": {
+    "email": "coord@terraguard.ai",
+    "password_hash": "dummy_hash",
+    "full_name": "Field Coordinator",
+    "role": "COORDINATOR",
+    "is_active": true,
+    "created_at": "2026-11-06T16:23:53.408777+00:00",
+    "refresh_token": null,
+    "reset_token": null,
+    "id": "e343e865-cb98-4483-a618-ed6453c27e74"
   }
 }

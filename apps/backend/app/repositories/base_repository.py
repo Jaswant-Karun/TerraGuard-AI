@@ -67,10 +67,14 @@ class BaseRepository:
     async def find_by_id(self, doc_id: str) -> dict[str, Any] | None:
         """Finds a single document by string ID or ObjectId."""
         if not db_manager.is_fallback() and db_manager.db is not None:
+            doc = None
             try:
-                oid = ObjectId(doc_id)
-                doc = await db_manager.db[self.collection_name].find_one({"_id": oid})
+                if ObjectId.is_valid(doc_id):
+                    doc = await db_manager.db[self.collection_name].find_one({"_id": ObjectId(doc_id)})
             except Exception:
+                pass
+
+            if not doc:
                 doc = await db_manager.db[self.collection_name].find_one({"id": doc_id})
 
             if doc:
@@ -80,6 +84,12 @@ class BaseRepository:
         # In-memory storage
         store = self._get_memory_store()
         doc = store.get(doc_id)
+        if not doc:
+            # Check by internal ObjectId/string match
+            for item in store.values():
+                if item.get("id") == doc_id or item.get("_id") == doc_id:
+                    doc = item
+                    break
         return serialize_doc(doc) if doc else None
 
     async def update(self, doc_id: str, updates: dict[str, Any]) -> dict[str, Any] | None:
@@ -88,22 +98,34 @@ class BaseRepository:
         upd["updated_at"] = datetime.now(UTC)
 
         if not db_manager.is_fallback() and db_manager.db is not None:
+            filter_q: dict[str, Any] = {"id": doc_id}
             try:
-                oid = ObjectId(doc_id)
-                filter_q = {"_id": oid}
+                if ObjectId.is_valid(doc_id):
+                    existing = await db_manager.db[self.collection_name].find_one({"_id": ObjectId(doc_id)})
+                    if existing:
+                        filter_q = {"_id": ObjectId(doc_id)}
             except Exception:
-                filter_q = {"id": doc_id}
+                pass
 
             res = await db_manager.db[self.collection_name].update_one(filter_q, {"$set": upd})
+            if res.matched_count == 0:
+                res = await db_manager.db[self.collection_name].update_one({"id": doc_id}, {"$set": upd})
             if res.matched_count == 0:
                 return None
             return await self.find_by_id(doc_id)
 
         # In-memory storage
         store = self._get_memory_store()
-        if doc_id in store:
-            store[doc_id].update(upd)
-            return serialize_doc(store[doc_id])
+        target_id = doc_id
+        if target_id not in store:
+            for k, item in store.items():
+                if item.get("id") == doc_id or item.get("_id") == doc_id:
+                    target_id = k
+                    break
+
+        if target_id in store:
+            store[target_id].update(upd)
+            return serialize_doc(store[target_id])
         return None
 
     async def delete(self, doc_id: str) -> bool:
