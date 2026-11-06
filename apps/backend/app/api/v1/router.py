@@ -13,6 +13,7 @@ from app.api.v1.endpoints import (
     geospatial,
     health,
     locations,
+    map_studio,
     navigation,
     reports,
     risk,
@@ -64,3 +65,6 @@ api_v1_router.include_router(geospatial.router, prefix="/geospatial", tags=["Geo
 
 # Mount advanced analytics and report generation
 api_v1_router.include_router(analytics.router)
+
+# Mount TerraGuard AI 2.0 Additive Map Intelligence Studio
+api_v1_router.include_router(map_studio.router)
