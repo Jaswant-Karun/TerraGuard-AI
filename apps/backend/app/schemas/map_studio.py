@@ -88,3 +88,36 @@ class MapStudioPresetsResponse(BaseModel):
     presets: List[MapPresetSector]
     default_centroid: List[float]
 
+
+class ExperienceLegendItem(BaseModel):
+    label: str
+    color: str
+    description: Optional[str] = None
+    shape: str = "circle"  # circle, square, line, polygon
+
+
+class ExperienceViewMeta(BaseModel):
+    id: str
+    index: int
+    name: str
+    subtitle: str
+    badge: str
+    category: str
+    default_basemap: str
+    default_zoom: float
+    default_pitch: float
+    default_bearing: float
+    center: List[float]
+    attribution: str
+    freshness: str
+    limitations: Optional[str] = None
+
+
+class MapStudioExperienceResponse(BaseModel):
+    meta: ExperienceViewMeta
+    geojson: dict[str, Any]
+    metrics: dict[str, Any]
+    legend_items: List[ExperienceLegendItem]
+    side_panel_data: dict[str, Any]
+
+

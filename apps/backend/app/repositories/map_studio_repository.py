@@ -4,12 +4,15 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List
 
 from app.schemas.map_studio import (
+    ExperienceLegendItem,
+    ExperienceViewMeta,
     FloodRiskZoneFeature,
     FloodRiskZonesResponse,
     FloodZoneProperties,
     GeoJSONGeometry,
     LayerMetadata,
     MapPresetSector,
+    MapStudioExperienceResponse,
     MapStudioLayersResponse,
     MapStudioPresetsResponse,
     MapStudioTelemetryResponse,
