@@ -1,7 +1,18 @@
 from datetime import UTC, datetime
 from typing import Any
 
-from bson import ObjectId
+try:
+    from bson import ObjectId
+except ImportError:
+    class ObjectId:  # type: ignore
+        def __init__(self, val: Any = None) -> None:
+            self.val = str(val) if val else ""
+
+        def __str__(self) -> str:
+            return self.val
+
+        def __repr__(self) -> str:
+            return f"ObjectId('{self.val}')"
 
 from app.core.database import db_manager
 from app.models.collections import CitizenReportModel
