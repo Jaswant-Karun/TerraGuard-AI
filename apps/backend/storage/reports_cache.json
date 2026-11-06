@@ -1,5 +1,5 @@
 {
-  "fe2997ad-52ff-4bf8-a127-b1c7e2a75dad": {
+  "e52c2f0a-35b1-4534-a50f-e03160942ff0": {
     "title": "Severe Waterlogging on 80 Feet Road",
     "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
     "category": "WATERLOGGING",
@@ -14,7 +14,7 @@
     },
     "address": "80 Feet Rd, 4th Block, Koramangala",
     "media_urls": [
-      "/uploads/hazard_media/hazard_d6d25b7b6a7a46f59fa0b50287a076b0_7cfcfdc7.jpg"
+      "/uploads/hazard_media/hazard_051b04ca954f4abe997cf7014b9b5ab7_7cfcfdc7.jpg"
     ],
     "image_hash": "7cfcfdc7cf3db91dad0e70bd7cb7ddee53044d59558c4cd558ea6f1a45d783ae",
     "ai_analysis": {
@@ -37,10 +37,10 @@
     },
     "is_potential_duplicate": false,
     "duplicate_metadata": {},
-    "created_at": "2026-11-06T16:53:39.302615+00:00",
-    "id": "fe2997ad-52ff-4bf8-a127-b1c7e2a75dad"
+    "created_at": "2026-11-06T16:54:34.834252+00:00",
+    "id": "e52c2f0a-35b1-4534-a50f-e03160942ff0"
   },
-  "c6d81b4a-4f7b-4222-955b-66494062187a": {
+  "69bbacaa-9069-4366-ac1d-447a8725ba28": {
     "title": "Severe Waterlogging on 80 Feet Road",
     "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
     "category": "WATERLOGGING",
@@ -55,7 +55,7 @@
     },
     "address": "80 Feet Rd, 4th Block, Koramangala",
     "media_urls": [
-      "/uploads/hazard_media/hazard_06723e8e982d46b89432ba17816b4eb4_7cfcfdc7.jpg"
+      "/uploads/hazard_media/hazard_8087dc5ef01040bdbdd9ac15c392926d_7cfcfdc7.jpg"
     ],
     "image_hash": "7cfcfdc7cf3db91dad0e70bd7cb7ddee53044d59558c4cd558ea6f1a45d783ae",
     "ai_analysis": {
@@ -77,14 +77,99 @@
       "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
     },
     "is_potential_duplicate": true,
-    "duplicate_of_report_id": "fe2997ad-52ff-4bf8-a127-b1c7e2a75dad",
+    "duplicate_of_report_id": "e52c2f0a-35b1-4534-a50f-e03160942ff0",
     "duplicate_metadata": {
-      "matched_report_id": "fe2997ad-52ff-4bf8-a127-b1c7e2a75dad",
+      "matched_report_id": "e52c2f0a-35b1-4534-a50f-e03160942ff0",
       "similarity_score": 1.0,
-      "reason": "Identical image hash detected. Matches report #fe2997ad (0m away).",
+      "reason": "Identical image hash detected. Matches report #e52c2f0a (0m away).",
       "distance_meters": 0.0
     },
-    "created_at": "2026-11-06T16:53:39.354217+00:00",
-    "id": "c6d81b4a-4f7b-4222-955b-66494062187a"
+    "created_at": "2026-11-06T16:54:34.858054+00:00",
+    "id": "69bbacaa-9069-4366-ac1d-447a8725ba28"
+  },
+  "f7b34ee6-db53-4a4a-ae00-b18e1bd74d8b": {
+    "title": "Choked Storm Culvert",
+    "description": "Plastic bottles and debris blocking storm drain outlet.",
+    "category": "WASTE_ACCUMULATION",
+    "severity": 2,
+    "status": "REPORTED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.5946,
+        12.9716
+      ]
+    },
+    "media_urls": [
+      "/uploads/hazard_media/hazard_afd372f6fa4a4db2b0217e8641d6d1e0_49b3268c.jpg"
+    ],
+    "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
+    "ai_analysis": {
+      "predicted_category": "WASTE_ACCUMULATION",
+      "short_description": "Uncollected municipal solid waste accumulation blocking drainage corridor.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Citizen notes mention refuse accumulation or choked drains",
+        "Debris obstruction in storm culvert",
+        "Public health vector risk"
+      ],
+      "confidence_estimate": 0.83,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Do not burn unsegregated waste",
+        "Notify solid waste management division for expedited clearing"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": false,
+    "duplicate_metadata": {},
+    "created_at": "2026-11-06T16:54:34.896459+00:00",
+    "id": "f7b34ee6-db53-4a4a-ae00-b18e1bd74d8b"
+  },
+  "1555b7cb-9b7c-404c-b196-938ddac17ed9": {
+    "title": "Deep Pothole on Outer Ring Road",
+    "description": "Asphalt depression 15cm deep posing hazard to motorists.",
+    "category": "DAMAGED_ROAD",
+    "severity": 2,
+    "status": "VERIFIED",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.68,
+        12.925
+      ]
+    },
+    "media_urls": [
+      "/uploads/hazard_media/hazard_30885f539f494d7c8fded530c7952aff_49b3268c.jpg"
+    ],
+    "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
+    "ai_analysis": {
+      "predicted_category": "DAMAGED_ROAD",
+      "short_description": "Asphalt depression, deep pothole, or pavement erosion identified.",
+      "visible_evidence": [
+        "Reflective surface with blue/gray color saturation consistent with standing water",
+        "Citizen text reports structural road defect or pothole",
+        "Pavement structural fracture",
+        "Uneven road surface hazard"
+      ],
+      "confidence_estimate": 0.86,
+      "suggested_verification_status": "PENDING_FIELD_CHECK",
+      "safety_precautions": [
+        "Slow down to avoid suspension damage or two-wheeler tipping",
+        "Report to municipal ward engineering team"
+      ],
+      "model_name": "terraguard-vision-heuristic-v1",
+      "is_live_gemini": false,
+      "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
+    },
+    "is_potential_duplicate": false,
+    "duplicate_metadata": {},
+    "created_at": "2026-11-06T16:54:34.921661+00:00",
+    "id": "1555b7cb-9b7c-404c-b196-938ddac17ed9",
+    "updated_at": "2026-11-06T16:54:34.931158+00:00",
+    "verification_notes": "Field unit verified on-site.",
+    "verified_by_user_id": "c2e39bd7-c5ce-4b4f-9ae2-036afcad1e3f"
   }
 }
