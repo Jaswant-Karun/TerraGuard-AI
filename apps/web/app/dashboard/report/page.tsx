@@ -179,27 +179,43 @@ export default function ReportHazardPage() {
     }
   };
 
-  // GPS Geolocation
+  // GPS Geolocation with Multi-Tier Fallback
   const handleUseCurrentGps = () => {
     if (!navigator.geolocation) {
       setErrorMessage("Geolocation is not supported by your current browser.");
       return;
     }
     setGpsLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLat(pos.coords.latitude.toFixed(6));
-        setLng(pos.coords.longitude.toFixed(6));
-        setGpsLoading(false);
-      },
-      (err) => {
-        setErrorMessage(
-          `Could not acquire GPS: ${err.message}. Using default coordinates.`
-        );
-        setGpsLoading(false);
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
+
+    const tryAcquire = (highAccuracy: boolean) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLat(pos.coords.latitude.toFixed(6));
+          setLng(pos.coords.longitude.toFixed(6));
+          setGpsLoading(false);
+          setErrorMessage(null);
+        },
+        (err) => {
+          if (highAccuracy) {
+            tryAcquire(false);
+          } else {
+            setLat("12.9716");
+            setLng("77.5946");
+            setGpsLoading(false);
+            setErrorMessage(
+              `GPS timed out (${err.message}). Defaulted to urban sector coordinates [12.9716, 77.5946].`
+            );
+          }
+        },
+        {
+          timeout: highAccuracy ? 5000 : 8000,
+          enableHighAccuracy: highAccuracy,
+          maximumAge: 120000,
+        }
+      );
+    };
+
+    tryAcquire(true);
   };
 
   // Form Submission

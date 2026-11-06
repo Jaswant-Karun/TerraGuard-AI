@@ -624,32 +624,55 @@ export function LiveRiskMap({
     setSearchQuery("");
   };
 
-  // 6. User Geolocation Handler
+  // 6. User Geolocation Handler with Multi-Tier Fallback
   const handleLocateUser = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser.");
       return;
     }
     setUserLocationLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocationLocating(false);
-        const { longitude, latitude } = pos.coords;
-        if (mapInstance.current) {
-          mapInstance.current.flyTo({
-            center: [longitude, latitude],
-            zoom: 15,
-            pitch: 25,
-            essential: true,
-          });
+
+    const tryAcquirePosition = (highAccuracy: boolean) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserLocationLocating(false);
+          const { longitude, latitude } = pos.coords;
+          if (mapInstance.current) {
+            mapInstance.current.flyTo({
+              center: [longitude, latitude],
+              zoom: 15,
+              pitch: 25,
+              essential: true,
+            });
+          }
+        },
+        (err) => {
+          if (highAccuracy) {
+            // First tier failed or timed out: fall back to low accuracy / network IP triangulation
+            tryAcquirePosition(false);
+          } else {
+            setUserLocationLocating(false);
+            // Non-blocking fallback: smoothly center map on municipal command center
+            if (mapInstance.current) {
+              mapInstance.current.flyTo({
+                center: [centerLng, centerLat],
+                zoom: 14,
+                pitch: 20,
+                essential: true,
+              });
+            }
+            console.warn("Geolocation fallback applied:", err.message);
+          }
+        },
+        {
+          timeout: highAccuracy ? 5000 : 8000,
+          enableHighAccuracy: highAccuracy,
+          maximumAge: 120000,
         }
-      },
-      (err) => {
-        setUserLocationLocating(false);
-        alert("Location access denied or timed out: " + err.message);
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
+      );
+    };
+
+    tryAcquirePosition(true);
   };
 
   // 7. Reset Compass Bearing

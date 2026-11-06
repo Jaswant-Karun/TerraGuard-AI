@@ -143,20 +143,39 @@ export default function SafeNavigationPage() {
       alert("Geolocation is not supported by your browser.");
       return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords: [number, number] = [
-          Number(pos.coords.longitude.toFixed(6)),
-          Number(pos.coords.latitude.toFixed(6)),
-        ];
-        setOrigin(coords);
-        setOriginLabel("My Current GPS Location");
-        executeRouteCalculation(coords, destination, routeMode);
-      },
-      (err) => {
-        alert("Unable to retrieve location: " + err.message);
-      }
-    );
+
+    const tryAcquirePosition = (highAccuracy: boolean) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords: [number, number] = [
+            Number(pos.coords.longitude.toFixed(6)),
+            Number(pos.coords.latitude.toFixed(6)),
+          ];
+          setOrigin(coords);
+          setOriginLabel("My Current Location (GPS)");
+          executeRouteCalculation(coords, destination, routeMode);
+        },
+        (err) => {
+          if (highAccuracy) {
+            tryAcquirePosition(false);
+          } else {
+            // Smoothly fall back to default municipal sector coordinates
+            const defaultCoords: [number, number] = [77.5946, 12.9716];
+            setOrigin(defaultCoords);
+            setOriginLabel("Central Urban Command (Sector Default)");
+            executeRouteCalculation(defaultCoords, destination, routeMode);
+            console.warn("GPS acquire timed out, defaulted to command sector:", err.message);
+          }
+        },
+        {
+          timeout: highAccuracy ? 5000 : 8000,
+          enableHighAccuracy: highAccuracy,
+          maximumAge: 120000,
+        }
+      );
+    };
+
+    tryAcquirePosition(true);
   };
 
   const handleRouteToFacility = (fac: Facility) => {
