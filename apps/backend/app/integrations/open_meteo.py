@@ -65,8 +65,8 @@ class OpenMeteoClient:
                     resp = await client.get(url, params=params)
                     if resp.status_code == 200:
                         return resp.json()
-                    elif resp.status_code == 429:
-                        logger.warning("Open-Meteo rate limit encountered. Waiting %s seconds.", backoff)
+                    elif resp.status_code in (429, 500, 502, 503, 504):
+                        logger.warning("Open-Meteo transient status %s. Retrying in %ss...", resp.status_code, backoff)
                         await asyncio.sleep(backoff)
                         backoff *= 2
                     else:
