@@ -28,6 +28,8 @@ services:
         sync: false
       - key: DATABASE_NAME
         value: terraguard
+      - key: JWT_SECRET_KEY
+        generateValue: true
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_ALGORITHM
