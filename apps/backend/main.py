@@ -99,8 +99,9 @@ def create_application() -> FastAPI:
             "health_check": f"{settings.API_V1_STR}/health",
         }
 
+    @app.get("/health", tags=["Root"])
     @app.get("/healthz", tags=["Root"])
-    async def healthz():
+    async def health():
         return {"status": "ok", "app": settings.PROJECT_NAME}
 
     return app

@@ -29,6 +29,19 @@ async def test_health_check_endpoint():
 
 
 @pytest.mark.asyncio
+async def test_root_health_endpoints():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        res_health = await ac.get("/health")
+        assert res_health.status_code == 200
+        assert res_health.json()["status"] == "ok"
+
+        res_healthz = await ac.get("/healthz")
+        assert res_healthz.status_code == 200
+        assert res_healthz.json()["status"] == "ok"
+
+
+@pytest.mark.asyncio
 async def test_readiness_probe():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
