@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class ChatMessage(BaseModel):
@@ -30,7 +30,7 @@ class ActionPlanItem(BaseModel):
 
 
 class AgentChatRequest(BaseModel):
-    message: str = Field(..., min_length=2, max_length=1000)
+    message: str = Field(default="Provide an operational risk assessment for this area.", max_length=2000)
     lat: float = Field(default=12.9716, ge=-90.0, le=90.0)
     lng: float = Field(default=77.5946, ge=-180.0, le=180.0)
     location_name: str | None = Field(default="Bengaluru Central")
@@ -39,6 +39,39 @@ class AgentChatRequest(BaseModel):
         default=None,
         description="Optional manual agent selector (e.g. 'FLOOD_RISK_AGENT')",
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_fields_and_aliases(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            # Resolve message from common synonyms: prompt, query, text, question, input, content
+            resolved_msg = (
+                data.get("message")
+                or data.get("prompt")
+                or data.get("query")
+                or data.get("text")
+                or data.get("question")
+                or data.get("input")
+                or data.get("content")
+            )
+            if resolved_msg:
+                data["message"] = str(resolved_msg).strip()
+            elif "message" not in data or not data["message"]:
+                data["message"] = "Provide an operational risk assessment and emergency response recommendation for this area."
+
+            # Cast coordinates if passed as string
+            if "lat" in data and data["lat"] is not None:
+                try:
+                    data["lat"] = float(data["lat"])
+                except (ValueError, TypeError):
+                    data["lat"] = 12.9716
+            if "lng" in data and data["lng"] is not None:
+                try:
+                    data["lng"] = float(data["lng"])
+                except (ValueError, TypeError):
+                    data["lng"] = 77.5946
+
+        return data
 
 
 class AgentChatResponse(BaseModel):
