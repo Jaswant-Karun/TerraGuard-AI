@@ -42,6 +42,16 @@ async def test_root_health_endpoints():
 
 
 @pytest.mark.asyncio
+async def test_api_v1_root():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        response = await ac.get("/api/v1")
+    assert response.status_code == 200
+    assert response.json()["status"] == "operational"
+    assert "/api/v1/docs" in response.json()["docs"]
+
+
+@pytest.mark.asyncio
 async def test_readiness_probe():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:

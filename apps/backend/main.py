@@ -104,6 +104,17 @@ def create_application() -> FastAPI:
     async def health():
         return {"status": "ok", "app": settings.PROJECT_NAME}
 
+    @app.get(f"{settings.API_V1_STR}", tags=["Root"])
+    @app.get(f"{settings.API_V1_STR}/", tags=["Root"])
+    async def api_v1_root():
+        return {
+            "name": f"{settings.PROJECT_NAME} API v1",
+            "status": "operational",
+            "version": "1.0.0",
+            "docs": f"{settings.API_V1_STR}/docs",
+            "health": f"{settings.API_V1_STR}/health",
+        }
+
     return app
 
 
