@@ -68,7 +68,22 @@ export function useMapStudioData() {
           getExperienceDetails("operational-satellite-gis"),
         ]);
         if (mounted) {
-          setLayers(layerData);
+          let effectiveLayers = layerData;
+          try {
+            const cachedLayers = sessionStorage.getItem("terraguard_studio_layers");
+            if (cachedLayers) {
+              const parsed = JSON.parse(cachedLayers);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                effectiveLayers = parsed;
+              }
+            }
+            const cachedBasemap = sessionStorage.getItem("terraguard_studio_basemap") as BasemapStyle;
+            if (cachedBasemap) {
+              setBasemapStyle(cachedBasemap);
+            }
+          } catch (e) {}
+
+          setLayers(effectiveLayers);
           setFloodZones(zonesData);
           setPresets(presetsData);
           if (presetsData.length > 0) {
@@ -91,18 +106,56 @@ export function useMapStudioData() {
     };
   }, []);
 
-  // Layer toggle
+  // Layer toggle with sessionStorage persistence
   const toggleLayer = (layerId: string) => {
-    setLayers((prev) =>
-      prev.map((l) => (l.id === layerId ? { ...l, visible: !l.visible } : l))
-    );
+    setLayers((prev) => {
+      const updated = prev.map((l) => (l.id === layerId ? { ...l, visible: !l.visible } : l));
+      try {
+        sessionStorage.setItem("terraguard_studio_layers", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
   };
 
-  // Layer opacity update
+  // Layer opacity update with sessionStorage persistence
   const setLayerOpacity = (layerId: string, opacity: number) => {
-    setLayers((prev) =>
-      prev.map((l) => (l.id === layerId ? { ...l, opacity } : l))
-    );
+    setLayers((prev) => {
+      const updated = prev.map((l) => (l.id === layerId ? { ...l, opacity } : l));
+      try {
+        sessionStorage.setItem("terraguard_studio_layers", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  // Quick Action: Show All Layers
+  const showAllLayers = () => {
+    setLayers((prev) => {
+      const updated = prev.map((l) => ({ ...l, visible: true }));
+      try {
+        sessionStorage.setItem("terraguard_studio_layers", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  // Quick Action: Hide All Layers
+  const hideAllLayers = () => {
+    setLayers((prev) => {
+      const updated = prev.map((l) => ({ ...l, visible: false }));
+      try {
+        sessionStorage.setItem("terraguard_studio_layers", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  // Change basemap style with session persistence
+  const handleBasemapStyleChange = (style: BasemapStyle) => {
+    setBasemapStyle(style);
+    try {
+      sessionStorage.setItem("terraguard_studio_basemap", style);
+    } catch (e) {}
   };
 
   // Switch preset
@@ -136,7 +189,7 @@ export function useMapStudioData() {
 
   return {
     basemapStyle,
-    setBasemapStyle,
+    setBasemapStyle: handleBasemapStyleChange,
     viewMode,
     setViewMode: handleViewModeChange,
     experiences,
@@ -146,6 +199,8 @@ export function useMapStudioData() {
     layers,
     toggleLayer,
     setLayerOpacity,
+    showAllLayers,
+    hideAllLayers,
     floodZones,
     presets,
     activePreset,
