@@ -137,10 +137,17 @@ export function MapStudioCanvas({
           data: floodZones,
         });
 
+        const isFloodExp =
+          activeExpRef.current === "operational-satellite-gis" ||
+          activeExpRef.current === "flood-risk-intelligence";
+
         map.addLayer({
           id: "studio-flood-zones-fill",
           type: "fill",
           source: "studio-flood-zones",
+          layout: {
+            visibility: isFloodExp ? "visible" : "none",
+          },
           paint: {
             "fill-color": [
               "match",
@@ -163,6 +170,9 @@ export function MapStudioCanvas({
           id: "studio-flood-zones-line",
           type: "line",
           source: "studio-flood-zones",
+          layout: {
+            visibility: isFloodExp ? "visible" : "none",
+          },
           paint: {
             "line-color": [
               "match",
@@ -503,11 +513,18 @@ export function MapStudioCanvas({
             ],
           },
         });
+        const isHeatmapExp =
+          activeExpRef.current === "flood-risk-intelligence" ||
+          activeExpRef.current === "citizen-hazard-report";
+
         map.addLayer({
           id: "studio-waterlogging-heatmap-layer",
           type: "heatmap",
           source: "studio-waterlogging-heatmap-src",
           maxzoom: 17,
+          layout: {
+            visibility: isHeatmapExp ? "visible" : "none",
+          },
           paint: {
             "heatmap-weight": ["interpolate", ["linear"], ["get", "weight"], 0, 0, 1, 1],
             "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 2.5],
