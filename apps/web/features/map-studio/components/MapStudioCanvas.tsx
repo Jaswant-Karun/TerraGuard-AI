@@ -62,15 +62,13 @@ export function MapStudioCanvas({
       },
     ];
 
-    // If Satellite with Labels is selected, layer the official high-resolution reference boundary labels
-    if (styleKey === "satellite_labels") {
+    // If basemap includes boundary/place labels (e.g., satellite with labels or dark gray reference)
+    if (config.labels && config.labels.length > 0) {
       sources["basemap-labels-source"] = {
         type: "raster",
-        tiles: [
-          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-        ],
+        tiles: config.labels,
         tileSize: 256,
-        maxzoom: 19,
+        maxzoom: config.maxzoom || 19,
       };
       layers.push({
         id: "basemap-labels-layer",
@@ -449,7 +447,78 @@ export function MapStudioCanvas({
         });
       }
     },
-    [floodZones, onSelectFeature]
+    [floodZones]
+  );
+
+  // Add Dynamic 11-Experience Features (Polygons, Lines, Stations, Facilities)
+  const injectExperienceFeatures = useCallback(
+    (map: any, data?: MapStudioExperienceResponse | null) => {
+      if (!map || !map.isStyleLoaded() || !data) return;
+
+      const sourceId = "studio-experience-features";
+      const geojson = data.geojson || { type: "FeatureCollection", features: [] };
+
+      if (map.getSource(sourceId)) {
+        map.getSource(sourceId).setData(geojson);
+      } else {
+        map.addSource(sourceId, {
+          type: "geojson",
+          data: geojson,
+        });
+
+        // 1. Polygon Fill Layer
+        map.addLayer({
+          id: "exp-polygons-fill",
+          type: "fill",
+          source: sourceId,
+          filter: ["==", "$type", "Polygon"],
+          paint: {
+            "fill-color": ["coalesce", ["get", "color"], "#38bdf8"],
+            "fill-opacity": 0.65,
+          },
+        });
+
+        // 2. Polygon Line Layer
+        map.addLayer({
+          id: "exp-polygons-line",
+          type: "line",
+          source: sourceId,
+          filter: ["==", "$type", "Polygon"],
+          paint: {
+            "line-color": ["coalesce", ["get", "color"], "#38bdf8"],
+            "line-width": 2,
+          },
+        });
+
+        // 3. LineStrings Layer (Routes & Raja Kaluve canals)
+        map.addLayer({
+          id: "exp-lines",
+          type: "line",
+          source: sourceId,
+          filter: ["==", "$type", "LineString"],
+          paint: {
+            "line-color": ["coalesce", ["get", "color"], "#10b981"],
+            "line-width": 4.5,
+            "line-opacity": 0.9,
+          },
+        });
+
+        // 4. Points Layer (Stations, Sensors, Reports, Facilities)
+        map.addLayer({
+          id: "exp-points-circle",
+          type: "circle",
+          source: sourceId,
+          filter: ["==", "$type", "Point"],
+          paint: {
+            "circle-radius": 7.5,
+            "circle-color": ["coalesce", ["get", "color"], "#38bdf8"],
+            "circle-stroke-width": 2,
+            "circle-stroke-color": "#ffffff",
+          },
+        });
+      }
+    },
+    []
   );
 
   // Initialize MapLibre
@@ -490,6 +559,9 @@ export function MapStudioCanvas({
           mapInstance.current = map;
           isInitializing.current = false;
           injectStudioLayers(map);
+          if (experienceData) {
+            injectExperienceFeatures(map, experienceData);
+          }
           if (onMapLoaded) onMapLoaded(map);
         });
       } catch (err: any) {
@@ -513,7 +585,7 @@ export function MapStudioCanvas({
       }
       isInitializing.current = false;
     };
-  }, [basemapStyle, getStyleSpec, injectStudioLayers, onMapLoaded]);
+  }, [basemapStyle, getStyleSpec, injectStudioLayers, injectExperienceFeatures, experienceData, onMapLoaded]);
 
   // Handle Basemap Style Changes Dynamically
   useEffect(() => {
@@ -524,11 +596,14 @@ export function MapStudioCanvas({
       map.setStyle(getStyleSpec(basemapStyle));
       map.once("style.load", () => {
         injectStudioLayers(map);
+        if (experienceData) {
+          injectExperienceFeatures(map, experienceData);
+        }
       });
     } catch (e) {
       console.error("Error updating basemap style:", e);
     }
-  }, [basemapStyle, getStyleSpec, injectStudioLayers]);
+  }, [basemapStyle, getStyleSpec, injectStudioLayers, experienceData, injectExperienceFeatures]);
 
   // Handle Dynamic Layer Visibility & Opacity across all 14 Environmental, Infrastructure & Incident Layers
   useEffect(() => {
@@ -605,68 +680,7 @@ export function MapStudioCanvas({
     const map = mapInstance.current;
     if (!map || !map.isStyleLoaded() || !experienceData) return;
 
-    const sourceId = "studio-experience-features";
-    const geojson = experienceData.geojson || { type: "FeatureCollection", features: [] };
-
-    if (map.getSource(sourceId)) {
-      map.getSource(sourceId).setData(geojson);
-    } else {
-      map.addSource(sourceId, {
-        type: "geojson",
-        data: geojson,
-      });
-
-      // 1. Polygon Fill Layer
-      map.addLayer({
-        id: "exp-polygons-fill",
-        type: "fill",
-        source: sourceId,
-        filter: ["==", "$type", "Polygon"],
-        paint: {
-          "fill-color": ["coalesce", ["get", "color"], "#38bdf8"],
-          "fill-opacity": 0.65,
-        },
-      });
-
-      // 2. Polygon Line Layer
-      map.addLayer({
-        id: "exp-polygons-line",
-        type: "line",
-        source: sourceId,
-        filter: ["==", "$type", "Polygon"],
-        paint: {
-          "line-color": ["coalesce", ["get", "color"], "#38bdf8"],
-          "line-width": 2,
-        },
-      });
-
-      // 3. LineStrings Layer (Routes & Raja Kaluve canals)
-      map.addLayer({
-        id: "exp-lines",
-        type: "line",
-        source: sourceId,
-        filter: ["==", "$type", "LineString"],
-        paint: {
-          "line-color": ["coalesce", ["get", "color"], "#10b981"],
-          "line-width": 4.5,
-          "line-opacity": 0.9,
-        },
-      });
-
-      // 4. Points Layer (Stations, Sensors, Reports, Facilities)
-      map.addLayer({
-        id: "exp-points-circle",
-        type: "circle",
-        source: sourceId,
-        filter: ["==", "$type", "Point"],
-        paint: {
-          "circle-radius": 7.5,
-          "circle-color": ["coalesce", ["get", "color"], "#38bdf8"],
-          "circle-stroke-width": 2,
-          "circle-stroke-color": "#ffffff",
-        },
-      });
-    }
+    injectExperienceFeatures(map, experienceData);
 
     // Camera fly-to for the experience
     if (experienceData.meta) {
@@ -679,7 +693,7 @@ export function MapStudioCanvas({
         duration: 1600,
       });
     }
-  }, [experienceData]);
+  }, [experienceData, injectExperienceFeatures]);
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-slate-950">

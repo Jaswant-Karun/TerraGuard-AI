@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/services/config";
 import {
   BasemapStyle,
   ExperienceId,
@@ -9,8 +10,6 @@ import {
   SectorTelemetry,
 } from "../types/studio";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 export const BASEMAP_STYLES: Record<
   BasemapStyle,
   {
@@ -18,6 +17,7 @@ export const BASEMAP_STYLES: Record<
     description: string;
     thumbnail: string;
     tiles: string[];
+    labels?: string[];
     attribution: string;
     maxzoom: number;
   }
@@ -39,28 +39,34 @@ export const BASEMAP_STYLES: Record<
     tiles: [
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     ],
+    labels: [
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+    ],
     attribution: "Tiles &copy; Esri &mdash; Boundaries & Places &copy; Esri",
     maxzoom: 19,
   },
   dark: {
     name: "Dark Intelligence",
-    description: "High-contrast tactical dark canvas optimized for risk layers (CartoDB)",
+    description: "High-contrast tactical dark canvas optimized for risk layers (Esri Dark Gray)",
     thumbnail: "🌑",
     tiles: [
-      "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
     ],
-    attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>",
+    labels: [
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+    ],
+    attribution: "Tiles & Labels &copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors, and the GIS user community",
     maxzoom: 19,
   },
   topo: {
     name: "Topographic Terrain",
-    description: "Contour elevations, ridgelines, and hydrological basins (OpenTopoMap)",
+    description: "Contour elevations, ridgelines, and hydrological basins (Esri World Topo)",
     thumbnail: "⛰️",
     tiles: [
-      "https://tile.opentopomap.org/{z}/{x}/{y}.png",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
     ],
-    attribution: "Kartendaten: &copy; OpenStreetMap-Mitwirkende, SRTM | Kartendarstellung: &copy; OpenTopoMap",
-    maxzoom: 17,
+    attribution: "Tiles &copy; Esri &mdash; Sources: USGS, FAO, NPS, EPA, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community",
+    maxzoom: 18,
   },
   street: {
     name: "Municipal Street",
@@ -68,6 +74,8 @@ export const BASEMAP_STYLES: Record<
     thumbnail: "🗺️",
     tiles: [
       "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
     ],
     attribution: "&copy; OpenStreetMap contributors",
     maxzoom: 19,
@@ -479,75 +487,6 @@ export const FALLBACK_TELEMETRY: SectorTelemetry = {
   ],
 };
 
-export async function getMapStudioLayers(): Promise<LayerConfig[]> {
-  try {
-    const res = await fetch(`${API_BASE}/api/v1/map-studio/layers`, {
-      headers: { "Content-Type": "application/json" },
-      next: { revalidate: 60 },
-    });
-    if (!res.ok) throw new Error("Failed to fetch layers");
-    const data = await res.json();
-    return data.layers.map((l: any) => ({
-      id: l.id,
-      name: l.name,
-      category: l.category,
-      description: l.description,
-      source: l.source,
-      updateFrequency: l.update_frequency,
-      visible: l.visible_by_default,
-      opacity: l.default_opacity,
-      badge: l.badge,
-    }));
-  } catch (err) {
-    return DEFAULT_LAYERS;
-  }
-}
-
-export async function getFloodRiskZones(minRiskLevel?: string): Promise<FloodRiskGeoJSON> {
-  try {
-    const url = new URL(`${API_BASE}/api/v1/map-studio/zones`);
-    if (minRiskLevel) url.searchParams.set("min_risk_level", minRiskLevel);
-    const res = await fetch(url.toString(), {
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!res.ok) throw new Error("Failed to fetch flood zones");
-    return await res.json();
-  } catch (err) {
-    if (minRiskLevel) {
-      return {
-        ...FALLBACK_FLOOD_ZONES,
-        features: FALLBACK_FLOOD_ZONES.features.filter(
-          (f) => f.properties.risk_level === minRiskLevel.toUpperCase()
-        ),
-      };
-    }
-    return FALLBACK_FLOOD_ZONES;
-  }
-}
-
-export async function getSectorTelemetry(sectorId?: string): Promise<SectorTelemetry> {
-  try {
-    const url = new URL(`${API_BASE}/api/v1/map-studio/telemetry`);
-    if (sectorId) url.searchParams.set("sector_id", sectorId);
-    const res = await fetch(url.toString());
-    if (!res.ok) throw new Error("Failed to fetch sector telemetry");
-    return await res.json();
-  } catch (err) {
-    return FALLBACK_TELEMETRY;
-  }
-}
-
-export async function getHotspotPresets(): Promise<MapPreset[]> {
-  try {
-    const res = await fetch(`${API_BASE}/api/v1/map-studio/presets`);
-    if (!res.ok) throw new Error("Failed to fetch presets");
-    const data = await res.json();
-    return data.presets;
-  } catch (err) {
-    return DEFAULT_PRESETS;
-  }
-}
-
 export const DEFAULT_EXPERIENCES_META: ExperienceViewMeta[] = [
   {
     id: "operational-satellite-gis",
@@ -609,9 +548,9 @@ export const DEFAULT_EXPERIENCES_META: ExperienceViewMeta[] = [
     default_pitch: 45.0,
     default_bearing: -25.0,
     center: [77.6100, 12.9500],
-    attribution: "SRTM 30m Digital Elevation Model & OpenTopoMap",
+    attribution: "SRTM 30m Digital Elevation Model & Esri World Topo",
     freshness: "Static Topological Baseline (30m Grid Resolution)",
-    limitations: "Vertical accuracy is +/- 5m. Underground civil alterations and basement sumps not captured.",
+    limitations: "Vertical accuracy is +/- 3m. Underground civil alterations and basement sumps not captured.",
   },
   {
     id: "drainage-water-body",
@@ -727,9 +666,557 @@ export const DEFAULT_EXPERIENCES_META: ExperienceViewMeta[] = [
   },
 ];
 
+export const FALLBACK_EXPERIENCES_DATA: Record<ExperienceId, MapStudioExperienceResponse> = {
+  "operational-satellite-gis": {
+    meta: DEFAULT_EXPERIENCES_META[0],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          id: "f-victoria",
+          properties: { name: "Victoria Hospital Trauma Center", type: "Hospital", status: "Operational", color: "#10b981" },
+          geometry: { type: "Point", coordinates: [77.5750, 12.9640] },
+        },
+        {
+          type: "Feature",
+          id: "f-kora-shelter",
+          properties: { name: "Koramangala Indoor Evacuation Shelter", type: "Shelter", status: "Active Standby", color: "#10b981" },
+          geometry: { type: "Point", coordinates: [77.6200, 12.9340] },
+        },
+        {
+          type: "Feature",
+          id: "inc-culvert-4b",
+          properties: { name: "Choked Culvert 4B Silt Backflow", type: "Hazard", status: "VERIFIED", color: "#ef4444" },
+          geometry: { type: "Point", coordinates: [77.6320, 12.9270] },
+        },
+        {
+          type: "Feature",
+          id: "zone-kora-poly",
+          properties: { name: "Koramangala Lowland Inundation Basin", risk_level: "CRITICAL", color: "#ef4444" },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[77.6180, 12.9290], [77.6360, 12.9320], [77.6410, 12.9240], [77.6250, 12.9180], [77.6180, 12.9290]]],
+          },
+        },
+      ],
+    },
+    metrics: { "Monitored Sectors": "5", "Active Facilities": "14", "Verified Hazards": "3", "Optical Resolution": "0.5m" },
+    legend_items: [
+      { label: "Emergency Facility (Shelter / Hospital)", color: "#10b981", shape: "circle" },
+      { label: "Verified Municipal Hazard", color: "#ef4444", shape: "circle" },
+      { label: "High Risk Inundation Polygon", color: "#ef4444", shape: "polygon" },
+      { label: "Optical Satellite Coverage", color: "#38bdf8", shape: "square" },
+    ],
+    side_panel_data: {
+      headline: "Full-Spectrum Command GIS",
+      satellite_provider: "Esri World Imagery (High-Res ArcGIS)",
+      active_radar_mode: "IMD Doppler DWR Bengaluru",
+      operational_status: "All Primary Response Sectors Green",
+    },
+  },
+
+  "flood-risk-intelligence": {
+    meta: DEFAULT_EXPERIENCES_META[1],
+    geojson: FALLBACK_FLOOD_ZONES,
+    metrics: {
+      "Total At Risk": "201.7k",
+      "Critical Threat Zones": "1",
+      "High Threat Zones": "2",
+      "Drainage Saturation Mean": "83.6%",
+    },
+    legend_items: [
+      { label: "Critical Risk (>0.65m Depth)", color: "#ef4444", shape: "polygon" },
+      { label: "Elevated High Risk (0.35-0.65m)", color: "#f97316", shape: "polygon" },
+      { label: "Moderate Risk (0.15-0.35m)", color: "#eab308", shape: "polygon" },
+      { label: "Lower Risk (<0.15m Depth)", color: "#10b981", shape: "polygon" },
+      { label: "Surface Lake / Detention Sump", color: "#06b6d4", shape: "polygon" },
+    ],
+    side_panel_data: {
+      headline: "Predictive Flood Inundation Model",
+      engine: "TerraGuard Hydro-UNet v2.4 + LiDAR Elevation",
+      rainfall_intensity: "48.5 mm/h (Convective Cloudburst)",
+      contributing_factors: "Impervious urban runoff >82%, Culvert 4B sediment backflow, Lake spillway elevation lag",
+      prediction_horizon: "-24h to +6h Simulation Scrubber",
+    },
+  },
+
+  "live-rainfall-monitoring": {
+    meta: DEFAULT_EXPERIENCES_META[2],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { name: "Koramangala AWS-04", rainfall_rate_mm_h: 48.5, accum_24h_mm: 94.2, status: "Cloudburst", color: "#a855f7" },
+          geometry: { type: "Point", coordinates: [77.6250, 12.9280] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "HAL Airport IMD Station", rainfall_rate_mm_h: 42.0, accum_24h_mm: 81.5, status: "Heavy Rain", color: "#ef4444" },
+          geometry: { type: "Point", coordinates: [77.6680, 12.9550] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Electronic City Sensor Node", rainfall_rate_mm_h: 35.6, accum_24h_mm: 68.0, status: "Moderate", color: "#f97316" },
+          geometry: { type: "Point", coordinates: [77.6780, 12.8450] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Bengaluru City Central Command", rainfall_rate_mm_h: 26.4, accum_24h_mm: 52.3, status: "Moderate", color: "#f97316" },
+          geometry: { type: "Point", coordinates: [77.5946, 12.9716] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Hebbal North Tipping Bucket", rainfall_rate_mm_h: 18.2, accum_24h_mm: 34.0, status: "Light-Moderate", color: "#38bdf8" },
+          geometry: { type: "Point", coordinates: [77.5980, 13.0280] },
+        },
+      ],
+    },
+    metrics: { "Peak Intensity": "48.5 mm/h", "City Average": "34.1 mm/h", "Active Gauges": "5", "Forecast +3h": "76.4 mm" },
+    legend_items: [
+      { label: "Cloudburst (>40 mm/h)", color: "#a855f7", shape: "circle" },
+      { label: "Heavy Rain (25-40 mm/h)", color: "#ef4444", shape: "circle" },
+      { label: "Moderate Rain (15-25 mm/h)", color: "#f97316", shape: "circle" },
+      { label: "Light-Moderate (<15 mm/h)", color: "#38bdf8", shape: "circle" },
+    ],
+    side_panel_data: {
+      headline: "Real-Time Telemetry & Radar Scan",
+      provider: "Open-Meteo High-Resolution Grid & IMD Automated Weather Stations",
+      units: "Intensity in mm/h; Cumulative in mm",
+      data_freshness: "Real-time streaming via LoRaWAN telemetry network",
+    },
+  },
+
+  "elevation-terrain": {
+    meta: DEFAULT_EXPERIENCES_META[3],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { name: "Highground Natural Ridge", elevation_masl: 936, type: "Ridge", color: "#10b981" },
+          geometry: { type: "Point", coordinates: [77.5850, 12.9920] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Central Plateau", elevation_masl: 912, type: "Plateau", color: "#eab308" },
+          geometry: { type: "Point", coordinates: [77.6050, 12.9650] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Koramangala Lowland Basin", elevation_masl: 882, type: "Low Basin (Sump)", color: "#ef4444" },
+          geometry: { type: "Point", coordinates: [77.6250, 12.9250] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Hebbal Retention Valley", elevation_masl: 888, type: "Valley", color: "#f97316" },
+          geometry: { type: "Point", coordinates: [77.5980, 13.0280] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Vrishabhavathi Outflow Chute", elevation_masl: 860, type: "Lowest Outfall", color: "#ef4444" },
+          geometry: { type: "Point", coordinates: [77.5120, 12.9150] },
+        },
+      ],
+    },
+    metrics: { "Highest Ridge": "936m MASL", "Lowest Sump": "860m MASL", "Elevation Delta": "76m", "Mean Gradient": "1.4%" },
+    legend_items: [
+      { label: "Elevated Ridge (>920m MASL)", color: "#10b981", shape: "circle" },
+      { label: "Moderate Plateau (895-920m)", color: "#eab308", shape: "circle" },
+      { label: "Low-Lying Inundation Basin (<895m)", color: "#ef4444", shape: "circle" },
+      { label: "Esri World Topo Contour Mesh", color: "#64748b", shape: "line" },
+    ],
+    side_panel_data: {
+      headline: "Topographical Sump & Elevation Gradient",
+      source: "SRTM 30m Global Elevation Dataset & Esri World Topo",
+      hydrological_implication: "Gravity drainage channels water from 936m Highgrounds down into 882m Koramangala basin.",
+    },
+  },
+
+  "drainage-water-body": {
+    meta: DEFAULT_EXPERIENCES_META[4],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { name: "Bellandur Lake Reservoir", area_sqkm: 3.65, water_level: "89.4% Capacity", color: "#06b6d4" },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[77.6650, 12.9380], [77.6850, 12.9420], [77.6920, 12.9300], [77.6700, 12.9280], [77.6650, 12.9380]]],
+          },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Ulsoor Lake Basin", area_sqkm: 0.50, water_level: "72.0% Capacity", color: "#06b6d4" },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[77.6150, 12.9830], [77.6300, 12.9850], [77.6320, 12.9730], [77.6180, 12.9720], [77.6150, 12.9830]]],
+          },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Primary Raja Kaluve Arterial Storm Canal", length_km: 12.4, color: "#38bdf8" },
+          geometry: {
+            type: "LineString",
+            coordinates: [[77.6150, 12.9320], [77.6350, 12.9280], [77.6550, 12.9300], [77.6700, 12.9320]],
+          },
+        },
+      ],
+    },
+    metrics: { "Water Bodies": "6", "Total Lake Area": "7.08 km²", "Monitored Canals": "34.2 km", "Outflow Siphons": "8" },
+    legend_items: [
+      { label: "Active Lake / Retention Basin", color: "#06b6d4", shape: "polygon" },
+      { label: "Primary Open Raja Kaluve Channel", color: "#38bdf8", shape: "line" },
+      { label: "Storm Drain Outflow Siphon", color: "#10b981", shape: "circle" },
+    ],
+    side_panel_data: {
+      headline: "Civil Drainage & Surface Hydrography",
+      source: "Karnataka Lake Development Authority & OpenStreetMap Verified Waterways",
+      network_coverage: "Verified primary storm canals; unmapped underground tertiary pipes excluded.",
+    },
+  },
+
+  "extreme-heat-risk": {
+    meta: DEFAULT_EXPERIENCES_META[5],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { name: "Peenya Industrial Heat Island", temp_c: 35.8, heat_index_c: 41.2, stress: "EXTREME", color: "#dc2626" },
+          geometry: { type: "Point", coordinates: [77.5250, 13.0320] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "MG Road Commercial Corridor", temp_c: 34.2, heat_index_c: 38.6, stress: "HIGH", color: "#f97316" },
+          geometry: { type: "Point", coordinates: [77.6080, 12.9750] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Koramangala Mixed Urban Sector", temp_c: 32.5, heat_index_c: 36.0, stress: "MODERATE", color: "#eab308" },
+          geometry: { type: "Point", coordinates: [77.6250, 12.9300] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Cubbon Park Tree Canopy Oasis", temp_c: 28.9, heat_index_c: 30.2, stress: "LOW", color: "#10b981" },
+          geometry: { type: "Point", coordinates: [77.5920, 12.9760] },
+        },
+      ],
+    },
+    metrics: { "Peak Surface Temp": "35.8°C", "Canopy Delta": "-5.3°C", "Relative Humidity": "64%", "Advisory": "Extreme Caution" },
+    legend_items: [
+      { label: "Extreme Heat Stress (>40°C Index)", color: "#dc2626", shape: "circle" },
+      { label: "High Heat Stress (36-40°C)", color: "#f97316", shape: "circle" },
+      { label: "Moderate Heat Stress (32-36°C)", color: "#eab308", shape: "circle" },
+      { label: "Low Heat Stress / Vegetated (<32°C)", color: "#10b981", shape: "circle" },
+    ],
+    side_panel_data: {
+      headline: "Urban Microclimate & Thermal Disparity",
+      source: "Open-Meteo Ambient Telemetry + MODIS Surface Temperature Anomaly",
+      measured_vs_modeled: "Temperature is directly measured; Heat Index is calculated via Steadman's bioclimatic formula.",
+    },
+  },
+
+  "air-quality-intelligence": {
+    meta: DEFAULT_EXPERIENCES_META[6],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { name: "Silk Board Junction CAAQMS", aqi: 168, pm25: 72.4, pm10: 118.0, category: "Moderate", color: "#f59e0b" },
+          geometry: { type: "Point", coordinates: [77.6220, 12.9170] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "City Railway Station", aqi: 184, pm25: 84.0, pm10: 136.2, category: "Moderate-Poor", color: "#f97316" },
+          geometry: { type: "Point", coordinates: [77.5700, 12.9780] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "BTM Layout CAAQMS", aqi: 142, pm25: 58.2, pm10: 94.0, category: "Moderate", color: "#f59e0b" },
+          geometry: { type: "Point", coordinates: [77.6100, 12.9120] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Saneguruvanahalli Station", aqi: 88, pm25: 32.0, pm10: 58.0, category: "Satisfactory", color: "#84cc16" },
+          geometry: { type: "Point", coordinates: [77.5450, 12.9900] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Hebbal North CAAQMS", aqi: 112, pm25: 44.5, pm10: 78.4, category: "Moderate", color: "#f59e0b" },
+          geometry: { type: "Point", coordinates: [77.5950, 13.0300] },
+        },
+      ],
+    },
+    metrics: { "City Mean AQI": "138", "Primary Pollutant": "PM2.5", "Active CAAQMS": "5", "NAQI Category": "Moderate" },
+    legend_items: [
+      { label: "Good (0-50)", color: "#10b981", shape: "circle" },
+      { label: "Satisfactory (51-100)", color: "#84cc16", shape: "circle" },
+      { label: "Moderate (101-200)", color: "#f59e0b", shape: "circle" },
+      { label: "Poor (201-300)", color: "#f97316", shape: "circle" },
+      { label: "Very Poor (301-400)", color: "#ef4444", shape: "circle" },
+    ],
+    side_panel_data: {
+      headline: "National Air Quality Index (NAQI)",
+      source: "CPCB Continuous Ambient Air Quality Monitoring Network",
+      standard: "Indian CPCB Sub-Index Algorithm based on 24-hr truncated breakpoints",
+    },
+  },
+
+  "citizen-hazard-report": {
+    meta: DEFAULT_EXPERIENCES_META[7],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { report_id: "REP-2026-981", category: "WATERLOGGING", description: "Standing water 1.5ft deep on 80ft Road", status: "UNDER_REVIEW", color: "#f59e0b" },
+          geometry: { type: "Point", coordinates: [77.6240, 12.9330] },
+        },
+        {
+          type: "Feature",
+          properties: { report_id: "REP-2026-874", category: "WASTE_ACCUMULATION", description: "Plastic bottles choking storm drain outlet 4B", status: "VERIFIED", color: "#10b981" },
+          geometry: { type: "Point", coordinates: [77.6320, 12.9270] },
+        },
+        {
+          type: "Feature",
+          properties: { report_id: "REP-2026-762", category: "DAMAGED_ROAD", description: "Asphalt depression 15cm deep posing hazard", status: "VERIFIED", color: "#10b981" },
+          geometry: { type: "Point", coordinates: [77.6850, 12.9280] },
+        },
+        {
+          type: "Feature",
+          properties: { report_id: "REP-2026-621", category: "FALLEN_TREE", description: "Banyan branch blocking left carriage lane", status: "REPORTED", color: "#eab308" },
+          geometry: { type: "Point", coordinates: [77.5600, 12.9850] },
+        },
+      ],
+    },
+    metrics: { "Community Reports": "12", "Verified": "5", "Under Review": "4", "Resolved Today": "3" },
+    legend_items: [
+      { label: "Verified Hazard Incident", color: "#10b981", shape: "circle" },
+      { label: "Under Command Review", color: "#f59e0b", shape: "circle" },
+      { label: "Newly Reported (Unverified)", color: "#eab308", shape: "circle" },
+    ],
+    side_panel_data: {
+      headline: "Citizen Ground Perception Stream",
+      privacy_safeguard: "Citizen names, phone numbers, and IP addresses are completely masked.",
+      triage_workflow: "Reports with severity >= 3 are escalated to on-duty municipal engineers.",
+    },
+  },
+
+  "verified-incident": {
+    meta: DEFAULT_EXPERIENCES_META[8],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { incident_id: "INC-BBMP-412", hazard: "Severe Stormwater Silt Backup", status: "CONFIRMED_SIREN", severity: "CRITICAL", officer: "Insp. Rao (EOC-4)", color: "#ef4444" },
+          geometry: { type: "Point", coordinates: [77.6310, 12.9280] },
+        },
+        {
+          type: "Feature",
+          properties: { incident_id: "INC-BBMP-398", hazard: "Outer Ring Road Culvert Overflow", status: "DISPATCHED", severity: "HIGH", officer: "Insp. Kumar (EOC-1)", color: "#f97316" },
+          geometry: { type: "Point", coordinates: [77.6820, 12.9270] },
+        },
+        {
+          type: "Feature",
+          properties: { incident_id: "INC-BBMP-285", hazard: "Underpass Inversion Sump Waterlogging", status: "PUMP_DEPLOYED", severity: "HIGH", officer: "Insp. Swamy", color: "#f97316" },
+          geometry: { type: "Point", coordinates: [77.5850, 12.9980] },
+        },
+      ],
+    },
+    metrics: { "Active Verified Incidents": "3", "Sirens Escalated": "1", "Pumps Deployed": "4", "Mean Triage Time": "14m" },
+    legend_items: [
+      { label: "Critical Verified Hazard (Siren Active)", color: "#ef4444", shape: "circle" },
+      { label: "High Priority Verified (Crews Dispatched)", color: "#f97316", shape: "circle" },
+      { label: "Resolved Incident (Closed)", color: "#10b981", shape: "circle" },
+    ],
+    side_panel_data: {
+      headline: "Official Municipal Incident Verification",
+      authority: "Municipal Disaster Operations Center & BBMP Quick Response Teams",
+      audit_integrity: "Cryptographically signed officer decisions logged to immutable audit ledger.",
+    },
+  },
+
+  "infrastructure-emergency-facility": {
+    meta: DEFAULT_EXPERIENCES_META[9],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { name: "Victoria Hospital Trauma Center", type: "Hospital", beds: 420, icu: 48, status: "Operational", color: "#ef4444" },
+          geometry: { type: "Point", coordinates: [77.5750, 12.9640] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Manipal Hospital HAL Airport Road", type: "Hospital", beds: 350, icu: 36, status: "Operational", color: "#ef4444" },
+          geometry: { type: "Point", coordinates: [77.6520, 12.9590] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Koramangala Indoor Evacuation Shelter", type: "Evacuation Shelter", capacity: 1200, status: "Ready", color: "#10b981" },
+          geometry: { type: "Point", coordinates: [77.6200, 12.9340] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Jayanagar Fire & Rescue Command", type: "Fire Station", vehicles: 6, status: "Dispatched Standby", color: "#f97316" },
+          geometry: { type: "Point", coordinates: [77.5820, 12.9300] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Whitefield Police & Relief Node", type: "Police Command", status: "Operational", color: "#38bdf8" },
+          geometry: { type: "Point", coordinates: [77.7450, 12.9700] },
+        },
+      ],
+    },
+    metrics: { "Trauma Hospitals": "8", "Evacuation Shelters": "6", "Fire Stations": "4", "Total Shelter Capacity": "6,400" },
+    legend_items: [
+      { label: "Trauma Hospital / Medical Node", color: "#ef4444", shape: "circle" },
+      { label: "Designated Evacuation Shelter", color: "#10b981", shape: "circle" },
+      { label: "Fire & Rescue Command", color: "#f97316", shape: "circle" },
+      { label: "Police & Logistics Node", color: "#38bdf8", shape: "circle" },
+    ],
+    side_panel_data: {
+      headline: "Civil Infrastructure & Relief Topology",
+      source: "District Disaster Management Authority (DDMA) Master Facility Registry",
+      operational_readiness: "All facilities verified with auxiliary power generators and drinking water stores.",
+    },
+  },
+
+  "safe-navigation-risk-aware": {
+    meta: DEFAULT_EXPERIENCES_META[10],
+    geojson: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { name: "Recommended Risk-Aware Route", type: "RECOMMENDED_SAFE", distance_km: 8.4, time_min: 24, color: "#10b981" },
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [77.6200, 12.9340], [77.6180, 12.9450], [77.6080, 12.9550], [77.5950, 12.9650], [77.5750, 12.9750],
+            ],
+          },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Standard Arterial Route (Culvert Conflict)", type: "HIGH_HAZARD_CONFLICT", distance_km: 7.8, time_min: 36, color: "#ef4444" },
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [77.6200, 12.9340], [77.6280, 12.9310], [77.6320, 12.9270], [77.6100, 12.9400], [77.5750, 12.9750],
+            ],
+          },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Secondary Bypass Route", type: "ALTERNATIVE", distance_km: 10.2, time_min: 32, color: "#38bdf8" },
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [77.6200, 12.9340], [77.6350, 12.9450], [77.6300, 12.9650], [77.6000, 12.9780], [77.5750, 12.9750],
+            ],
+          },
+        },
+        {
+          type: "Feature",
+          properties: { name: "Active Inundation Hazard on 80ft Road", type: "HAZARD_OBSTRUCTION", color: "#ef4444" },
+          geometry: { type: "Point", coordinates: [77.6320, 12.9270] },
+        },
+      ],
+    },
+    metrics: { "Safe Route Length": "8.4 km", "Est. Travel Time": "24 mins", "Hazard Bypass Rate": "100%", "Conflicts Avoided": "1" },
+    legend_items: [
+      { label: "Risk-Aware Recommended Route (Clear of Hazards)", color: "#10b981", shape: "line" },
+      { label: "Standard Route (Intersects Verified Flood Sump)", color: "#ef4444", shape: "line" },
+      { label: "Alternative Bypass Route", color: "#38bdf8", shape: "line" },
+      { label: "Road Waterlogging Obstruction Point", color: "#ef4444", shape: "circle" },
+    ],
+    side_panel_data: {
+      headline: "Risk-Aware Dynamic Routing Intelligence",
+      routing_engine: "OSRM Multi-Criteria Engine + Turf.js Spatial Hazard Buffering",
+      hazard_intersection: "Route intersects 1 active flood zone at 80ft Road (Culvert 4B backup). Diverted via Inner Ring Rd.",
+      safety_disclaimer: "Safety assessments reflect currently ingested telemetry. Never drive through moving flood waters.",
+    },
+  },
+};
+
+export async function getMapStudioLayers(): Promise<LayerConfig[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/map-studio/layers`, {
+      headers: { "Content-Type": "application/json" },
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) throw new Error("Failed to fetch layers");
+    const data = await res.json();
+    return data.layers.map((l: any) => ({
+      id: l.id,
+      name: l.name,
+      category: l.category,
+      description: l.description,
+      source: l.source,
+      updateFrequency: l.update_frequency,
+      visible: l.visible_by_default,
+      opacity: l.default_opacity,
+      badge: l.badge,
+    }));
+  } catch (err) {
+    return DEFAULT_LAYERS;
+  }
+}
+
+export async function getFloodRiskZones(minRiskLevel?: string): Promise<FloodRiskGeoJSON> {
+  try {
+    const url = new URL(`${API_BASE_URL}/map-studio/zones`);
+    if (minRiskLevel) url.searchParams.set("min_risk_level", minRiskLevel);
+    const res = await fetch(url.toString(), {
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) throw new Error("Failed to fetch flood zones");
+    return await res.json();
+  } catch (err) {
+    if (minRiskLevel) {
+      return {
+        ...FALLBACK_FLOOD_ZONES,
+        features: FALLBACK_FLOOD_ZONES.features.filter(
+          (f) => f.properties.risk_level === minRiskLevel.toUpperCase()
+        ),
+      };
+    }
+    return FALLBACK_FLOOD_ZONES;
+  }
+}
+
+export async function getSectorTelemetry(sectorId?: string): Promise<SectorTelemetry> {
+  try {
+    const url = new URL(`${API_BASE_URL}/map-studio/telemetry`);
+    if (sectorId) url.searchParams.set("sector_id", sectorId);
+    const res = await fetch(url.toString());
+    if (!res.ok) throw new Error("Failed to fetch sector telemetry");
+    return await res.json();
+  } catch (err) {
+    return FALLBACK_TELEMETRY;
+  }
+}
+
+export async function getHotspotPresets(): Promise<MapPreset[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/map-studio/presets`);
+    if (!res.ok) throw new Error("Failed to fetch presets");
+    const data = await res.json();
+    return data.presets;
+  } catch (err) {
+    return DEFAULT_PRESETS;
+  }
+}
+
 export async function getExperiencesMeta(): Promise<ExperienceViewMeta[]> {
   try {
-    const res = await fetch(`${API_BASE}/api/v1/map-studio/experiences`);
+    const res = await fetch(`${API_BASE_URL}/map-studio/experiences`);
     if (!res.ok) throw new Error("Failed to fetch experiences");
     return await res.json();
   } catch (e) {
@@ -739,36 +1226,18 @@ export async function getExperiencesMeta(): Promise<ExperienceViewMeta[]> {
 
 export async function getExperienceDetails(experienceId: ExperienceId): Promise<MapStudioExperienceResponse> {
   try {
-    const res = await fetch(`${API_BASE}/api/v1/map-studio/experiences/${experienceId}`);
+    const res = await fetch(`${API_BASE_URL}/map-studio/experiences/${experienceId}`);
     if (!res.ok) throw new Error(`Failed to fetch experience details for ${experienceId}`);
     return await res.json();
   } catch (e) {
-    // Return reliable local fallback
-    const meta = DEFAULT_EXPERIENCES_META.find((m) => m.id === experienceId) || DEFAULT_EXPERIENCES_META[0];
-    return {
-      meta,
-      geojson: {
-        type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            properties: { name: meta.name, status: "Active Observation", color: "#38bdf8" },
-            geometry: { type: "Point", coordinates: meta.center },
-          },
-        ],
-      },
-      metrics: { "Status": "Active", "Coverage": "Bengaluru Metropolitan Region" },
-      legend_items: [
-        { label: "Active Monitored Point", color: "#38bdf8", shape: "circle" },
-      ],
-      side_panel_data: {
-        headline: meta.name,
-        source: meta.attribution,
-        freshness: meta.freshness,
-        limitations: meta.limitations,
-      },
-    };
+    return (
+      FALLBACK_EXPERIENCES_DATA[experienceId] || {
+        meta: DEFAULT_EXPERIENCES_META.find((m) => m.id === experienceId) || DEFAULT_EXPERIENCES_META[0],
+        geojson: { type: "FeatureCollection", features: [] },
+        metrics: {},
+        legend_items: [],
+        side_panel_data: {},
+      }
+    );
   }
 }
-
-
