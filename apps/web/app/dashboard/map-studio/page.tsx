@@ -258,13 +258,15 @@ export default function MapStudioPage() {
         onViewModeChange={setViewMode}
         presets={presets}
         activePreset={activePreset}
-        onSelectPreset={selectPreset}
+        onSelectPreset={handleSelectPreset}
         leftPanelOpen={leftPanelOpen}
         onToggleLeftPanel={() => setLeftPanelOpen(!leftPanelOpen)}
         rightPanelOpen={rightPanelOpen}
         onToggleRightPanel={() => setRightPanelOpen(!rightPanelOpen)}
         legendOpen={legendOpen}
         onToggleLegend={() => setLegendOpen(!legendOpen)}
+        isAreaAnalyticsOpen={isAreaAnalyticsOpen}
+        onToggleAreaAnalytics={() => setIsAreaAnalyticsOpen(!isAreaAnalyticsOpen)}
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
         onResetView={handleResetView}
@@ -293,6 +295,7 @@ export default function MapStudioPage() {
           onMapLoaded={handleMapLoaded}
           isDarkGIS={isDarkGIS}
           onOpenZoneExplanation={handleOpenZoneExplanation}
+          onSelectLocation={handleSelectLocation}
         />
 
         {/* Floating Top Search & Right Zoom Controls */}
@@ -460,6 +463,34 @@ export default function MapStudioPage() {
             sector_name: f.properties.sector_name,
             risk_category: f.properties.risk_category,
           }))}
+        />
+
+        {/* Contextual Area Analytics & Multi-Hazard Information Panel (Prompt 7) */}
+        <AreaAnalyticsDrawer
+          isOpen={isAreaAnalyticsOpen}
+          onClose={() => setIsAreaAnalyticsOpen(false)}
+          analyticsData={areaAnalyticsData}
+          isLoading={isAreaAnalyticsLoading}
+          onRefresh={() => {
+            if (areaAnalyticsData) {
+              handleSelectLocation(
+                [areaAnalyticsData.coordinates.lng, areaAnalyticsData.coordinates.lat],
+                areaAnalyticsData.area_name
+              );
+            }
+          }}
+          onDateRangeChange={handleDateRangeChange}
+          isDarkGIS={isDarkGIS}
+          onSelectIncident={(coords) => {
+            if (mapRef.current) {
+              mapRef.current.flyTo({ center: coords, zoom: 16, essential: true });
+            }
+          }}
+          onSelectFacility={(coords) => {
+            if (mapRef.current) {
+              mapRef.current.flyTo({ center: coords, zoom: 16, essential: true });
+            }
+          }}
         />
       </div>
     </div>
