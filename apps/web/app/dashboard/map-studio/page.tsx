@@ -351,6 +351,8 @@ export default function MapStudioPage() {
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
         onResetView={handleResetView}
+        onOpenAutomationModal={() => setIsAutomationModalOpen(true)}
+        automationActiveCount={automationStatus?.active_workflows_count ?? 6}
       />
 
       {/* Professional 11-Map View Navigation Strip */}
@@ -594,6 +596,15 @@ export default function MapStudioPage() {
               mapRef.current.flyTo({ center: coords, zoom: 16, essential: true });
             }
           }}
+        />
+
+        {/* n8n Event-Driven Automation Status Modal (Prompt 9) */}
+        <MapAutomationModal
+          isOpen={isAutomationModalOpen}
+          onClose={() => setIsAutomationModalOpen(false)}
+          status={automationStatus}
+          isLoading={isAutomationLoading}
+          onRefresh={loadAutomationStatus}
         />
       </div>
     </div>
