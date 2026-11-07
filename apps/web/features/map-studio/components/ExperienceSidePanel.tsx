@@ -5,6 +5,7 @@ import {
   Activity,
   AlertOctagon,
   AlertTriangle,
+  ArrowRight,
   Building2,
   CheckCircle2,
   Clock,
@@ -44,6 +45,7 @@ interface ExperienceSidePanelProps {
   activePreset: MapPreset;
   timeOffsetHours: number;
   isDarkGIS?: boolean;
+  onOpenExplanation?: () => void;
 }
 
 export function ExperienceSidePanel({
@@ -55,6 +57,7 @@ export function ExperienceSidePanel({
   activePreset,
   timeOffsetHours,
   isDarkGIS = true,
+  onOpenExplanation,
 }: ExperienceSidePanelProps) {
   if (!isOpen) return null;
 
@@ -153,6 +156,26 @@ export function ExperienceSidePanel({
         {/* MAP 2: Flood Inundation & Hyetograph */}
         {experienceMeta.id === "flood-risk-intelligence" && (
           <div className="space-y-3">
+            {onOpenExplanation && (
+              <button
+                onClick={onOpenExplanation}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-cyan-950/80 via-slate-900 to-blue-950/80 border border-cyan-500/50 text-cyan-200 hover:text-white hover:border-cyan-400 transition-all shadow-lg group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-lg bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30">
+                    <Waves className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <span>Explain Risk Rationale</span>
+                      <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">AI RATIONALE</span>
+                    </div>
+                    <div className="text-[10px] text-cyan-400/80">Why is this area High / Mod / Low risk?</div>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            )}
             <div
               className={`p-2.5 rounded-lg border ${
                 isDarkGIS ? "bg-slate-900/60 border-slate-800" : "bg-slate-50 border-slate-200"

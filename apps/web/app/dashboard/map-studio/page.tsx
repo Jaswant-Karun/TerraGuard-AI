@@ -12,6 +12,12 @@ import { TimeForecastScrubber } from "@/features/map-studio/components/TimeForec
 import { MapStudioLegend } from "@/features/map-studio/components/MapStudioLegend";
 import { StudioFloatingControls } from "@/features/map-studio/components/StudioFloatingControls";
 import { AlertOctagon, X, Droplets, Users, ShieldAlert, Crosshair, Info } from "lucide-react";
+import { FloodRiskExplanationPanel } from "@/features/flood-engine/components/FloodRiskExplanationPanel";
+import {
+  fetchFloodZoneExplanation,
+  FloodZoneExplanationData,
+  FALLBACK_FLOOD_LAYERS_DATA,
+} from "@/features/flood-engine/services/flood_visualization";
 
 // Dynamically import MapStudioCanvas to ensure zero SSR WebGL issues
 const MapStudioCanvas = dynamic(
@@ -70,7 +76,27 @@ export default function MapStudioPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [is3DActive, setIs3DActive] = useState(false);
   const [geoNotification, setGeoNotification] = useState<string | null>(null);
+  const [explanationData, setExplanationData] = useState<FloodZoneExplanationData | null>(null);
+  const [isExplanationOpen, setIsExplanationOpen] = useState(false);
   const mapRef = useRef<any>(null);
+
+  const handleOpenZoneExplanation = useCallback(async (zoneId: string) => {
+    let targetId = zoneId;
+    if (!targetId.startsWith("ZONE-BLR-")) {
+      if (targetId.includes("koramangala") || targetId.includes("KOR")) targetId = "ZONE-BLR-KOR-01";
+      else if (targetId.includes("bellandur") || targetId.includes("BEL")) targetId = "ZONE-BLR-BEL-02";
+      else if (targetId.includes("mahadevapura") || targetId.includes("hsr") || targetId.includes("HSR")) targetId = "ZONE-BLR-HSR-03";
+      else if (targetId.includes("hebbal") || targetId.includes("HEB")) targetId = "ZONE-BLR-HEB-04";
+      else if (targetId.includes("ulsoor") || targetId.includes("CEN")) targetId = "ZONE-BLR-CEN-05";
+      else targetId = "ZONE-BLR-KOR-01";
+    }
+
+    const data = await fetchFloodZoneExplanation(targetId);
+    if (data) {
+      setExplanationData(data);
+      setIsExplanationOpen(true);
+    }
+  }, []);
 
   const isDarkGIS = viewMode === "flood-intelligence";
   const activeExperienceMeta =
@@ -211,6 +237,7 @@ export default function MapStudioPage() {
           onSelectFeature={setSelectedFeature}
           onMapLoaded={handleMapLoaded}
           isDarkGIS={isDarkGIS}
+          onOpenZoneExplanation={handleOpenZoneExplanation}
         />
 
         {/* Floating Top Search & Right Zoom Controls */}

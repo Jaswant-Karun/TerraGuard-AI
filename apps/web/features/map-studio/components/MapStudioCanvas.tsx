@@ -24,6 +24,7 @@ interface MapStudioCanvasProps {
   onSelectFeature: (feature: FloodRiskFeature | null) => void;
   onMapLoaded?: (mapInstance: any) => void;
   isDarkGIS?: boolean;
+  onOpenZoneExplanation?: (zoneId: string) => void;
 }
 
 export function MapStudioCanvas({
@@ -37,12 +38,29 @@ export function MapStudioCanvas({
   onSelectFeature,
   onMapLoaded,
   isDarkGIS = true,
+  onOpenZoneExplanation,
 }: MapStudioCanvasProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const isInitializing = useRef(false);
   const popupRef = useRef<any>(null);
   const [mapError, setMapError] = useState<string | null>(null);
+
+  // Register global callback for popup explanation trigger
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__openFloodExplanation = (zoneId: string) => {
+        if (onOpenZoneExplanation) {
+          onOpenZoneExplanation(zoneId);
+        }
+      };
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        delete (window as any).__openFloodExplanation;
+      }
+    };
+  }, [onOpenZoneExplanation]);
 
   // Generate MapLibre Style Specification for given Basemap
   const getStyleSpec = useCallback((styleKey: BasemapStyle): any => {
@@ -450,6 +468,48 @@ export function MapStudioCanvas({
           paint: { "circle-radius": 5, "circle-color": "#64748b", "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" },
         });
       }
+
+      // 14. Waterlogging Density Heatmap (Prompt 4 requirement: MapLibre Heatmap layer)
+      if (!map.getSource("studio-waterlogging-heatmap-src")) {
+        map.addSource("studio-waterlogging-heatmap-src", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: [
+              { type: "Feature", properties: { weight: 0.95 }, geometry: { type: "Point", coordinates: [77.6230, 12.9270] } },
+              { type: "Feature", properties: { weight: 0.90 }, geometry: { type: "Point", coordinates: [77.6250, 12.9290] } },
+              { type: "Feature", properties: { weight: 0.85 }, geometry: { type: "Point", coordinates: [77.6210, 12.9260] } },
+              { type: "Feature", properties: { weight: 0.88 }, geometry: { type: "Point", coordinates: [77.6850, 12.9270] } },
+              { type: "Feature", properties: { weight: 0.80 }, geometry: { type: "Point", coordinates: [77.6880, 12.9290] } },
+              { type: "Feature", properties: { weight: 0.78 }, geometry: { type: "Point", coordinates: [77.6350, 12.9110] } },
+              { type: "Feature", properties: { weight: 0.65 }, geometry: { type: "Point", coordinates: [77.5960, 13.0370] } },
+            ],
+          },
+        });
+        map.addLayer({
+          id: "studio-waterlogging-heatmap-layer",
+          type: "heatmap",
+          source: "studio-waterlogging-heatmap-src",
+          maxzoom: 17,
+          paint: {
+            "heatmap-weight": ["interpolate", ["linear"], ["get", "weight"], 0, 0, 1, 1],
+            "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 2.5],
+            "heatmap-color": [
+              "interpolate",
+              ["linear"],
+              ["heatmap-density"],
+              0, "rgba(33,102,172,0)",
+              0.2, "rgba(103,169,207,0.5)",
+              0.4, "rgba(209,229,240,0.7)",
+              0.6, "rgba(253,219,199,0.8)",
+              0.8, "rgba(239,138,98,0.9)",
+              1, "rgba(178,24,43,0.95)"
+            ],
+            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 10, 12, 16, 28],
+            "heatmap-opacity": 0.7,
+          },
+        });
+      }
     },
     [floodZones]
   );
@@ -504,6 +564,12 @@ export function MapStudioCanvas({
           }
         });
       });
+
+      // Strict visibility for waterlogging heatmap
+      if (map.getLayer("studio-waterlogging-heatmap-layer")) {
+        const isHeatmapExp = currentExpId === "flood-risk-intelligence" || currentExpId === "citizen-hazard-report";
+        map.setLayoutProperty("studio-waterlogging-heatmap-layer", "visibility", isHeatmapExp ? "visible" : "none");
+      }
     },
     []
   );
@@ -629,6 +695,20 @@ export function MapStudioCanvas({
             props.description || (props.water_level ? `Level: <b>${props.water_level}</b>` : "");
 
           const coordinates = e.lngLat;
+          const zoneId = props.zone_id;
+          const hasExplanation = Boolean(
+            zoneId && (zoneId.includes("KOR") || zoneId.includes("BEL") || zoneId.includes("HSR") || zoneId.includes("HEB") || zoneId.includes("CEN") || props.risk_level)
+          );
+          const explanationBtn = hasExplanation
+            ? `
+              <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0;">
+                <button onclick="window.__openFloodExplanation && window.__openFloodExplanation('${zoneId}')" style="width: 100%; padding: 6px 10px; background: #0284c7; color: #ffffff; border: none; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; display: block; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                  Why is this area ${status || 'risk'}? Rationale &rarr;
+                </button>
+              </div>
+            `
+            : "";
+
           import("maplibre-gl").then((mod) => {
             const maplibregl = mod.default;
             popupRef.current = new maplibregl.Popup({
@@ -643,6 +723,10 @@ export function MapStudioCanvas({
                   <div style="font-size: 13px; font-weight: 700; margin-bottom: 3px;">${title}</div>
                   ${status ? `<div style="display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; background: #e0f2fe; color: #0369a1;">${status}</div>` : ""}
                   ${metric ? `<div style="font-size: 11px; color: #334155; line-height: 1.4;">${metric}</div>` : ""}
+                  ${props.data_source ? `<div style="font-size: 9px; color: #64748b; margin-top: 4px; border-top: 1px dashed #cbd5e1; padding-top: 3px;"><b>Source:</b> ${props.data_source}</div>` : ""}
+                  ${props.model_version ? `<div style="font-size: 9px; color: #64748b;"><b>Model:</b> ${props.model_version}</div>` : ""}
+                  ${props.uncertainty_range ? `<div style="font-size: 9px; color: #0284c7;"><b>Uncertainty:</b> ${props.uncertainty_range}</div>` : ""}
+                  ${explanationBtn}
                 </div>
               `)
               .addTo(map);
