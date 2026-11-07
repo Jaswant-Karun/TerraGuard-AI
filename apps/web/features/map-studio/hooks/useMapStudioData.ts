@@ -17,6 +17,7 @@ import {
   DEFAULT_EXPERIENCES_META,
   DEFAULT_LAYERS,
   DEFAULT_PRESETS,
+  EXPERIENCE_DEFAULT_LAYERS,
   FALLBACK_FLOOD_ZONES,
   FALLBACK_TELEMETRY,
   getExperienceDetails,
@@ -68,20 +69,11 @@ export function useMapStudioData() {
           getExperienceDetails("operational-satellite-gis"),
         ]);
         if (mounted) {
-          let effectiveLayers = layerData;
-          try {
-            const cachedLayers = sessionStorage.getItem("terraguard_studio_layers");
-            if (cachedLayers) {
-              const parsed = JSON.parse(cachedLayers);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                effectiveLayers = parsed;
-              }
-            }
-            const cachedBasemap = sessionStorage.getItem("terraguard_studio_basemap") as BasemapStyle;
-            if (cachedBasemap) {
-              setBasemapStyle(cachedBasemap);
-            }
-          } catch (e) {}
+          const activeLayerIds = EXPERIENCE_DEFAULT_LAYERS["operational-satellite-gis"] || [];
+          const effectiveLayers = layerData.map((l) => ({
+            ...l,
+            visible: activeLayerIds.includes(l.id),
+          }));
 
           setLayers(effectiveLayers);
           setFloodZones(zonesData);
@@ -163,16 +155,6 @@ export function useMapStudioData() {
     setActivePreset(preset);
   };
 
-  // Switch view mode (auto adjust basemap style)
-  const handleViewModeChange = (mode: StudioViewMode) => {
-    setViewMode(mode);
-    if (mode === "operational-gis") {
-      setBasemapStyle("satellite");
-    } else {
-      setBasemapStyle("dark");
-    }
-  };
-
   // Switch between any of the 11 Specialized Map Experiences
   const selectExperience = useCallback(async (id: ExperienceId) => {
     setActiveExperienceId(id);
@@ -182,10 +164,34 @@ export function useMapStudioData() {
       if (data.meta && data.meta.default_basemap) {
         setBasemapStyle(data.meta.default_basemap);
       }
+      if (id === "operational-satellite-gis") {
+        setViewMode("operational-gis");
+      } else {
+        setViewMode("flood-intelligence");
+      }
+
+      // Configure dedicated domain layers for this experience
+      const targetLayerIds = EXPERIENCE_DEFAULT_LAYERS[id] || [];
+      setLayers((prev) =>
+        prev.map((l) => ({
+          ...l,
+          visible: targetLayerIds.includes(l.id),
+        }))
+      );
     } catch (e) {
       console.error("Failed to switch experience:", e);
     }
   }, []);
+
+  // Switch view mode (auto adjust basemap style & experience)
+  const handleViewModeChange = (mode: StudioViewMode) => {
+    setViewMode(mode);
+    if (mode === "operational-gis") {
+      selectExperience("operational-satellite-gis");
+    } else {
+      selectExperience("flood-risk-intelligence");
+    }
+  };
 
   return {
     basemapStyle,

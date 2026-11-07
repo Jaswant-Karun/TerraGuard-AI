@@ -206,6 +206,7 @@ export default function MapStudioPage() {
           floodZones={floodZones}
           activePreset={activePreset}
           timeOffsetHours={timeOffsetHours}
+          activeExperienceId={activeExperienceId}
           experienceData={activeExperienceData}
           onSelectFeature={setSelectedFeature}
           onMapLoaded={handleMapLoaded}

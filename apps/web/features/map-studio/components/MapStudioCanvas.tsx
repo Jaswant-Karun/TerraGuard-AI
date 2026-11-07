@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
   BasemapStyle,
+  ExperienceId,
   FloodRiskFeature,
   FloodRiskGeoJSON,
   LayerConfig,
@@ -18,6 +19,7 @@ interface MapStudioCanvasProps {
   floodZones: FloodRiskGeoJSON;
   activePreset: MapPreset;
   timeOffsetHours: number;
+  activeExperienceId?: ExperienceId;
   experienceData?: MapStudioExperienceResponse | null;
   onSelectFeature: (feature: FloodRiskFeature | null) => void;
   onMapLoaded?: (mapInstance: any) => void;
@@ -30,6 +32,7 @@ export function MapStudioCanvas({
   floodZones,
   activePreset,
   timeOffsetHours,
+  activeExperienceId = "operational-satellite-gis",
   experienceData,
   onSelectFeature,
   onMapLoaded,
@@ -38,6 +41,7 @@ export function MapStudioCanvas({
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const isInitializing = useRef(false);
+  const popupRef = useRef<any>(null);
   const [mapError, setMapError] = useState<string | null>(null);
 
   // Generate MapLibre Style Specification for given Basemap
@@ -450,7 +454,61 @@ export function MapStudioCanvas({
     [floodZones]
   );
 
-  // Add Dynamic 11-Experience Features (Polygons, Lines, Stations, Facilities)
+  // Dynamically apply layer visibility with strict isolation for dedicated experiences
+  const applyLayerVisibility = useCallback(
+    (map: any, currentLayers: LayerConfig[], currentExpId: ExperienceId) => {
+      if (!map || !map.isStyleLoaded()) return;
+
+      const LAYER_MAP: Record<string, string[]> = {
+        flood_risk: ["studio-flood-zones-fill", "studio-flood-zones-line"],
+        flood_risk_zones: ["studio-flood-zones-fill", "studio-flood-zones-line"],
+        rainfall: ["studio-rainfall-circle"],
+        temperature: ["studio-temperature-circle"],
+        heat_risk: ["studio-heat-risk-circle"],
+        air_quality: ["studio-air-quality-circle"],
+        roads: ["studio-roads-line"],
+        water_bodies: ["studio-water-bodies-fill", "studio-water-bodies-line"],
+        drainage: ["studio-drainage-channels-line"],
+        hospitals: ["studio-hospitals-circle"],
+        emergency_facilities: ["studio-emergency-circle"],
+        shelters: ["studio-shelters-circle"],
+        citizen_reports: ["studio-citizen-reports-circle"],
+        verified_incidents: ["studio-verified-incidents-circle"],
+        historical_incidents: ["studio-historical-incidents-circle"],
+      };
+
+      currentLayers.forEach((layer) => {
+        const targetLayerIds = LAYER_MAP[layer.id] || [];
+        targetLayerIds.forEach((layerId) => {
+          if (map.getLayer(layerId)) {
+            let isVisible = layer.visible;
+            // Strict isolation: Never bleed static flood zones into non-flood dedicated experiences
+            if (
+              (layerId === "studio-flood-zones-fill" || layerId === "studio-flood-zones-line") &&
+              currentExpId !== "operational-satellite-gis" &&
+              currentExpId !== "flood-risk-intelligence"
+            ) {
+              isVisible = false;
+            }
+
+            map.setLayoutProperty(layerId, "visibility", isVisible ? "visible" : "none");
+            if (isVisible) {
+              if (layerId.includes("-fill")) {
+                map.setPaintProperty(layerId, "fill-opacity", layer.opacity);
+              } else if (layerId.includes("-line")) {
+                map.setPaintProperty(layerId, "line-opacity", layer.opacity);
+              } else if (layerId.includes("-circle")) {
+                map.setPaintProperty(layerId, "circle-opacity", layer.opacity);
+              }
+            }
+          }
+        });
+      });
+    },
+    []
+  );
+
+  // Add Dynamic 11-Experience Features (Polygons, Lines, Stations, Facilities) with interactive popups
   const injectExperienceFeatures = useCallback(
     (map: any, data?: MapStudioExperienceResponse | null) => {
       if (!map || !map.isStyleLoaded() || !data) return;
@@ -473,7 +531,23 @@ export function MapStudioCanvas({
           source: sourceId,
           filter: ["==", "$type", "Polygon"],
           paint: {
-            "fill-color": ["coalesce", ["get", "color"], "#38bdf8"],
+            "fill-color": [
+              "coalesce",
+              ["get", "color"],
+              [
+                "match",
+                ["get", "risk_level"],
+                "CRITICAL",
+                "#ef4444",
+                "HIGH",
+                "#f97316",
+                "MODERATE",
+                "#eab308",
+                "LOW",
+                "#10b981",
+                "#06b6d4",
+              ],
+            ],
             "fill-opacity": 0.65,
           },
         });
@@ -485,8 +559,24 @@ export function MapStudioCanvas({
           source: sourceId,
           filter: ["==", "$type", "Polygon"],
           paint: {
-            "line-color": ["coalesce", ["get", "color"], "#38bdf8"],
-            "line-width": 2,
+            "line-color": [
+              "coalesce",
+              ["get", "color"],
+              [
+                "match",
+                ["get", "risk_level"],
+                "CRITICAL",
+                "#fca5a5",
+                "HIGH",
+                "#fdba74",
+                "MODERATE",
+                "#fef08a",
+                "LOW",
+                "#86efac",
+                "#67e8f9",
+              ],
+            ],
+            "line-width": 2.5,
           },
         });
 
@@ -510,11 +600,63 @@ export function MapStudioCanvas({
           source: sourceId,
           filter: ["==", "$type", "Point"],
           paint: {
-            "circle-radius": 7.5,
+            "circle-radius": 8.5,
             "circle-color": ["coalesce", ["get", "color"], "#38bdf8"],
-            "circle-stroke-width": 2,
+            "circle-stroke-width": 2.5,
             "circle-stroke-color": "#ffffff",
           },
+        });
+
+        // Click popup handler for interactive experience inspection
+        const handleFeatureClick = (e: any) => {
+          if (!e.features || e.features.length === 0) return;
+          const feature = e.features[0];
+          const props = feature.properties || {};
+
+          if (popupRef.current) {
+            popupRef.current.remove();
+          }
+
+          const title = props.name || props.incident_id || props.report_id || props.sector_name || "Feature Detail";
+          const status = props.status || props.risk_level || props.category || props.stress || "";
+          const metric =
+            props.rainfall_rate_mm_h ? `Rainfall Intensity: <b>${props.rainfall_rate_mm_h} mm/h</b> (${props.status || 'Active'})` :
+            props.elevation_masl ? `Terrain Elevation: <b>${props.elevation_masl}m MASL</b> (${props.type || 'Landmark'})` :
+            props.heat_index_c ? `Bioclimatic Heat Index: <b>${props.heat_index_c}°C</b> (Temp: ${props.temp_c}°C)` :
+            props.aqi ? `Air Quality Index: <b>${props.aqi} AQI</b> (PM2.5: ${props.pm25} µg/m³)` :
+            props.flood_depth_m ? `Predicted Inundation Depth: <b>${props.flood_depth_m}m</b>` :
+            props.distance_km ? `Route Length: <b>${props.distance_km} km</b> (~${props.time_min} mins)` :
+            props.description || (props.water_level ? `Level: <b>${props.water_level}</b>` : "");
+
+          const coordinates = e.lngLat;
+          import("maplibre-gl").then((mod) => {
+            const maplibregl = mod.default;
+            popupRef.current = new maplibregl.Popup({
+              className: "studio-experience-popup",
+              closeButton: true,
+              closeOnClick: true,
+              maxWidth: "320px",
+            })
+              .setLngLat(coordinates)
+              .setHTML(`
+                <div style="font-family: system-ui, sans-serif; padding: 4px; color: #0f172a;">
+                  <div style="font-size: 13px; font-weight: 700; margin-bottom: 3px;">${title}</div>
+                  ${status ? `<div style="display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; background: #e0f2fe; color: #0369a1;">${status}</div>` : ""}
+                  ${metric ? `<div style="font-size: 11px; color: #334155; line-height: 1.4;">${metric}</div>` : ""}
+                </div>
+              `)
+              .addTo(map);
+          });
+        };
+
+        ["exp-points-circle", "exp-lines", "exp-polygons-fill"].forEach((layerId) => {
+          map.on("click", layerId, handleFeatureClick);
+          map.on("mouseenter", layerId, () => {
+            map.getCanvas().style.cursor = "pointer";
+          });
+          map.on("mouseleave", layerId, () => {
+            map.getCanvas().style.cursor = "";
+          });
         });
       }
     },
@@ -559,6 +701,7 @@ export function MapStudioCanvas({
           mapInstance.current = map;
           isInitializing.current = false;
           injectStudioLayers(map);
+          applyLayerVisibility(map, layers, activeExperienceId);
           if (experienceData) {
             injectExperienceFeatures(map, experienceData);
           }
@@ -575,6 +718,11 @@ export function MapStudioCanvas({
 
     return () => {
       isMounted = false;
+      if (popupRef.current) {
+        try {
+          popupRef.current.remove();
+        } catch (e) {}
+      }
       if (mapInstance.current) {
         try {
           mapInstance.current.remove();
@@ -585,7 +733,7 @@ export function MapStudioCanvas({
       }
       isInitializing.current = false;
     };
-  }, [basemapStyle, getStyleSpec, injectStudioLayers, injectExperienceFeatures, experienceData, onMapLoaded]);
+  }, [basemapStyle, getStyleSpec, injectStudioLayers, applyLayerVisibility, injectExperienceFeatures, experienceData, activeExperienceId, onMapLoaded]);
 
   // Handle Basemap Style Changes Dynamically
   useEffect(() => {
@@ -596,6 +744,7 @@ export function MapStudioCanvas({
       map.setStyle(getStyleSpec(basemapStyle));
       map.once("style.load", () => {
         injectStudioLayers(map);
+        applyLayerVisibility(map, layers, activeExperienceId);
         if (experienceData) {
           injectExperienceFeatures(map, experienceData);
         }
@@ -603,49 +752,14 @@ export function MapStudioCanvas({
     } catch (e) {
       console.error("Error updating basemap style:", e);
     }
-  }, [basemapStyle, getStyleSpec, injectStudioLayers, experienceData, injectExperienceFeatures]);
+  }, [basemapStyle, getStyleSpec, injectStudioLayers, applyLayerVisibility, experienceData, activeExperienceId, injectExperienceFeatures]);
 
   // Handle Dynamic Layer Visibility & Opacity across all 14 Environmental, Infrastructure & Incident Layers
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || !map.isStyleLoaded()) return;
-
-    const LAYER_MAP: Record<string, string[]> = {
-      flood_risk: ["studio-flood-zones-fill", "studio-flood-zones-line"],
-      flood_risk_zones: ["studio-flood-zones-fill", "studio-flood-zones-line"],
-      rainfall: ["studio-rainfall-circle"],
-      temperature: ["studio-temperature-circle"],
-      heat_risk: ["studio-heat-risk-circle"],
-      air_quality: ["studio-air-quality-circle"],
-      roads: ["studio-roads-line"],
-      water_bodies: ["studio-water-bodies-fill", "studio-water-bodies-line"],
-      drainage: ["studio-drainage-channels-line"],
-      hospitals: ["studio-hospitals-circle"],
-      emergency_facilities: ["studio-emergency-circle"],
-      shelters: ["studio-shelters-circle"],
-      citizen_reports: ["studio-citizen-reports-circle"],
-      verified_incidents: ["studio-verified-incidents-circle"],
-      historical_incidents: ["studio-historical-incidents-circle"],
-    };
-
-    layers.forEach((layer) => {
-      const targetLayerIds = LAYER_MAP[layer.id] || [];
-      targetLayerIds.forEach((layerId) => {
-        if (map.getLayer(layerId)) {
-          map.setLayoutProperty(layerId, "visibility", layer.visible ? "visible" : "none");
-          if (layer.visible) {
-            if (layerId.includes("-fill")) {
-              map.setPaintProperty(layerId, "fill-opacity", layer.opacity);
-            } else if (layerId.includes("-line")) {
-              map.setPaintProperty(layerId, "line-opacity", layer.opacity);
-            } else if (layerId.includes("-circle")) {
-              map.setPaintProperty(layerId, "circle-opacity", layer.opacity);
-            }
-          }
-        }
-      });
-    });
-  }, [layers]);
+    applyLayerVisibility(map, layers, activeExperienceId);
+  }, [layers, activeExperienceId, applyLayerVisibility]);
 
   // Handle Preset Quick-Fly
   useEffect(() => {

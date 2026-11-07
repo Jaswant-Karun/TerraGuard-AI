@@ -82,6 +82,62 @@ export const BASEMAP_STYLES: Record<
   },
 };
 
+export const EXPERIENCE_DEFAULT_LAYERS: Record<ExperienceId, string[]> = {
+  "operational-satellite-gis": [
+    "flood_risk",
+    "rainfall",
+    "roads",
+    "water_bodies",
+    "drainage",
+    "hospitals",
+    "emergency_facilities",
+    "shelters",
+    "citizen_reports",
+    "verified_incidents",
+  ],
+  "flood-risk-intelligence": [
+    "flood_risk",
+    "water_bodies",
+    "rainfall",
+    "drainage",
+  ],
+  "live-rainfall-monitoring": [
+    "rainfall",
+    "roads",
+  ],
+  "elevation-terrain": [
+    "water_bodies",
+  ],
+  "drainage-water-body": [
+    "water_bodies",
+    "drainage",
+  ],
+  "extreme-heat-risk": [
+    "temperature",
+    "heat_risk",
+  ],
+  "air-quality-intelligence": [
+    "air_quality",
+  ],
+  "citizen-hazard-report": [
+    "citizen_reports",
+    "roads",
+  ],
+  "verified-incident": [
+    "verified_incidents",
+    "roads",
+  ],
+  "infrastructure-emergency-facility": [
+    "hospitals",
+    "emergency_facilities",
+    "shelters",
+    "roads",
+  ],
+  "safe-navigation-risk-aware": [
+    "roads",
+  ],
+};
+
 export const DEFAULT_PRESETS: MapPreset[] = [
   {
     id: "koramangala",
