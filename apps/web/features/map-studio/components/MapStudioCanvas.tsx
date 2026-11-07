@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { motion, AnimatePresence } from "framer-motion";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import {
   BasemapStyle,
   ExperienceId,
@@ -26,6 +28,7 @@ interface MapStudioCanvasProps {
   isDarkGIS?: boolean;
   onOpenZoneExplanation?: (zoneId: string) => void;
   onSelectLocation?: (coords: [number, number], areaName?: string) => void;
+  onLoadingLayersChange?: (loadingLayerIds: string[]) => void;
 }
 
 export function MapStudioCanvas({
@@ -41,12 +44,17 @@ export function MapStudioCanvas({
   isDarkGIS = true,
   onOpenZoneExplanation,
   onSelectLocation,
+  onLoadingLayersChange,
 }: MapStudioCanvasProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const isInitializing = useRef(false);
   const popupRef = useRef<any>(null);
+  const loadedLayersRef = useRef<Set<string>>(new Set());
+
   const [mapError, setMapError] = useState<string | null>(null);
+  const [isMapLoading, setIsMapLoading] = useState(true);
+  const [loadingLayers, setLoadingLayers] = useState<string[]>([]);
 
   // Synchronized refs to avoid re-initializing map on prop changes
   const layersRef = useRef(layers);
@@ -91,7 +99,7 @@ export function MapStudioCanvas({
         maxzoom: config.maxzoom,
       },
     };
-    const layers: any = [
+    const styleLayers: any = [
       {
         id: "basemap-raster-layer",
         type: "raster",
@@ -101,7 +109,6 @@ export function MapStudioCanvas({
       },
     ];
 
-    // If basemap includes boundary/place labels (e.g., satellite with labels or dark gray reference)
     if (config.labels && config.labels.length > 0) {
       sources["basemap-labels-source"] = {
         type: "raster",
@@ -109,7 +116,7 @@ export function MapStudioCanvas({
         tileSize: 256,
         maxzoom: config.maxzoom || 19,
       };
-      layers.push({
+      styleLayers.push({
         id: "basemap-labels-layer",
         type: "raster",
         source: "basemap-labels-source",
@@ -121,447 +128,390 @@ export function MapStudioCanvas({
     return {
       version: 8,
       sources,
-      layers,
+      layers: styleLayers,
     };
   }, []);
 
-  // Add Studio GIS Vector and GeoJSON Layers
-  const injectStudioLayers = useCallback(
-    (map: any) => {
-      if (!map || !map.isStyleLoaded()) return;
+  // On-Demand Layer Factory: Injects a specific layer only when requested
+  const loadLayerOnDemand = useCallback(
+    (map: any, layerKey: string) => {
+      if (!map || !map.isStyleLoaded() || loadedLayersRef.current.has(layerKey)) return;
 
-      // 1. Flood Inundation Zones (Environmental Layer)
-      if (!map.getSource("studio-flood-zones")) {
-        map.addSource("studio-flood-zones", {
-          type: "geojson",
-          data: floodZones,
-        });
+      switch (layerKey) {
+        case "flood_risk":
+        case "flood_risk_zones": {
+          if (!map.getSource("studio-flood-zones")) {
+            map.addSource("studio-flood-zones", {
+              type: "geojson",
+              data: floodZones,
+            });
 
-        const isFloodExp =
-          activeExpRef.current === "operational-satellite-gis" ||
-          activeExpRef.current === "flood-risk-intelligence";
+            const isFloodExp =
+              activeExpRef.current === "operational-satellite-gis" ||
+              activeExpRef.current === "flood-risk-intelligence";
 
-        map.addLayer({
-          id: "studio-flood-zones-fill",
-          type: "fill",
-          source: "studio-flood-zones",
-          layout: {
-            visibility: isFloodExp ? "visible" : "none",
-          },
-          paint: {
-            "fill-color": [
-              "match",
-              ["get", "risk_level"],
-              "CRITICAL",
-              "#ef4444",
-              "HIGH",
-              "#f97316",
-              "MODERATE",
-              "#eab308",
-              "LOW",
-              "#10b981",
-              "#3b82f6",
-            ],
-            "fill-opacity": 0.75,
-          },
-        });
-
-        map.addLayer({
-          id: "studio-flood-zones-line",
-          type: "line",
-          source: "studio-flood-zones",
-          layout: {
-            visibility: isFloodExp ? "visible" : "none",
-          },
-          paint: {
-            "line-color": [
-              "match",
-              ["get", "risk_level"],
-              "CRITICAL",
-              "#fca5a5",
-              "HIGH",
-              "#fdba74",
-              "MODERATE",
-              "#fef08a",
-              "LOW",
-              "#86efac",
-              "#93c5fd",
-            ],
-            "line-width": 2.5,
-          },
-        });
-      }
-
-      // 2. Live Rainfall Stations (Environmental Layer)
-      if (!map.getSource("studio-rainfall")) {
-        map.addSource("studio-rainfall", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { name: "Koramangala AWS", rain_mm_h: 48.5, color: "#a855f7" }, geometry: { type: "Point", coordinates: [77.6250, 12.9280] } },
-              { type: "Feature", properties: { name: "HAL Airport IMD", rain_mm_h: 42.0, color: "#ef4444" }, geometry: { type: "Point", coordinates: [77.6680, 12.9550] } },
-              { type: "Feature", properties: { name: "Central Command", rain_mm_h: 26.4, color: "#f97316" }, geometry: { type: "Point", coordinates: [77.5946, 12.9716] } },
-              { type: "Feature", properties: { name: "Hebbal AWS", rain_mm_h: 18.2, color: "#38bdf8" }, geometry: { type: "Point", coordinates: [77.5980, 13.0280] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-rainfall-circle",
-          type: "circle",
-          source: "studio-rainfall",
-          paint: { "circle-radius": 7, "circle-color": ["get", "color"], "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
-        });
-      }
-
-      // 3. Ambient Temperature (Environmental Layer)
-      if (!map.getSource("studio-temperature")) {
-        map.addSource("studio-temperature", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { name: "MG Road Commercial", temp_c: 34.2, color: "#f97316" }, geometry: { type: "Point", coordinates: [77.6080, 12.9750] } },
-              { type: "Feature", properties: { name: "Peenya Industrial", temp_c: 35.8, color: "#dc2626" }, geometry: { type: "Point", coordinates: [77.5250, 13.0320] } },
-              { type: "Feature", properties: { name: "Cubbon Park", temp_c: 28.9, color: "#10b981" }, geometry: { type: "Point", coordinates: [77.5920, 12.9760] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-temperature-circle",
-          type: "circle",
-          source: "studio-temperature",
-          paint: { "circle-radius": 6.5, "circle-color": ["get", "color"], "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" },
-        });
-      }
-
-      // 4. Extreme Heat Risk (Environmental Layer)
-      if (!map.getSource("studio-heat-risk")) {
-        map.addSource("studio-heat-risk", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { name: "Peenya Heat Island", heat_index: 41.2, color: "#dc2626" }, geometry: { type: "Point", coordinates: [77.5250, 13.0320] } },
-              { type: "Feature", properties: { name: "CBD Asphalt Core", heat_index: 38.6, color: "#f97316" }, geometry: { type: "Point", coordinates: [77.6080, 12.9750] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-heat-risk-circle",
-          type: "circle",
-          source: "studio-heat-risk",
-          paint: { "circle-radius": 8.5, "circle-color": ["get", "color"], "circle-opacity": 0.8, "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
-        });
-      }
-
-      // 5. Air Quality AQI Stations (Environmental Layer)
-      if (!map.getSource("studio-air-quality")) {
-        map.addSource("studio-air-quality", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { name: "Silk Board CAAQMS", aqi: 168, color: "#f59e0b" }, geometry: { type: "Point", coordinates: [77.6220, 12.9170] } },
-              { type: "Feature", properties: { name: "City Railway Station", aqi: 184, color: "#f97316" }, geometry: { type: "Point", coordinates: [77.5700, 12.9780] } },
-              { type: "Feature", properties: { name: "Saneguruvanahalli", aqi: 88, color: "#84cc16" }, geometry: { type: "Point", coordinates: [77.5450, 12.9900] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-air-quality-circle",
-          type: "circle",
-          source: "studio-air-quality",
-          paint: { "circle-radius": 7, "circle-color": ["get", "color"], "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
-        });
-      }
-
-      // 6. Roads (Infrastructure Layer)
-      if (!map.getSource("studio-roads")) {
-        map.addSource("studio-roads", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                properties: { name: "Outer Ring Road Arterial Corridor" },
-                geometry: {
-                  type: "LineString",
-                  coordinates: [[77.6300, 12.9200], [77.6550, 12.9250], [77.6850, 12.9280], [77.7000, 12.9550]],
-                },
+            map.addLayer({
+              id: "studio-flood-zones-fill",
+              type: "fill",
+              source: "studio-flood-zones",
+              layout: {
+                visibility: isFloodExp ? "visible" : "none",
               },
-              {
-                type: "Feature",
-                properties: { name: "Hosur Road Expressway" },
-                geometry: {
-                  type: "LineString",
-                  coordinates: [[77.5950, 12.9700], [77.6100, 12.9400], [77.6200, 12.9150], [77.6350, 12.8900]],
-                },
+              paint: {
+                "fill-color": [
+                  "match",
+                  ["get", "risk_level"],
+                  "CRITICAL",
+                  "#ef4444",
+                  "HIGH",
+                  "#f97316",
+                  "MODERATE",
+                  "#eab308",
+                  "LOW",
+                  "#10b981",
+                  "#3b82f6",
+                ],
+                "fill-opacity": 0.75,
               },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-roads-line",
-          type: "line",
-          source: "studio-roads",
-          paint: { "line-color": "#94a3b8", "line-width": 3, "line-opacity": 0.8 },
-        });
-      }
+            });
 
-      // 7. Water Bodies & Retention Sinks (Infrastructure Layer)
-      if (!map.getSource("studio-water-bodies")) {
-        map.addSource("studio-water-bodies", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                properties: { name: "Bellandur Lake Basin", area_sqkm: 3.65 },
-                geometry: {
-                  type: "Polygon",
-                  coordinates: [[[77.6650, 12.9380], [77.6850, 12.9420], [77.6920, 12.9300], [77.6700, 12.9280], [77.6650, 12.9380]]],
-                },
+            map.addLayer({
+              id: "studio-flood-zones-line",
+              type: "line",
+              source: "studio-flood-zones",
+              layout: {
+                visibility: isFloodExp ? "visible" : "none",
               },
-              {
-                type: "Feature",
-                properties: { name: "Ulsoor Lake", area_sqkm: 0.50 },
-                geometry: {
-                  type: "Polygon",
-                  coordinates: [[[77.6150, 12.9830], [77.6300, 12.9850], [77.6320, 12.9730], [77.6180, 12.9720], [77.6150, 12.9830]]],
-                },
+              paint: {
+                "line-color": [
+                  "match",
+                  ["get", "risk_level"],
+                  "CRITICAL",
+                  "#fca5a5",
+                  "HIGH",
+                  "#fdba74",
+                  "MODERATE",
+                  "#fef08a",
+                  "LOW",
+                  "#86efac",
+                  "#93c5fd",
+                ],
+                "line-width": 2.5,
               },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-water-bodies-fill",
-          type: "fill",
-          source: "studio-water-bodies",
-          paint: { "fill-color": "#06b6d4", "fill-opacity": 0.75 },
-        });
-        map.addLayer({
-          id: "studio-water-bodies-line",
-          type: "line",
-          source: "studio-water-bodies",
-          paint: { "line-color": "#67e8f9", "line-width": 2 },
-        });
-      }
+            });
+          }
+          break;
+        }
 
-      // 8. Drainage Raja Kaluve Channels (Infrastructure Layer)
-      if (!map.getSource("studio-drainage")) {
-        map.addSource("studio-drainage", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                properties: { name: "Primary Raja Kaluve Canal" },
-                geometry: {
-                  type: "LineString",
-                  coordinates: [[77.6150, 12.9320], [77.6350, 12.9280], [77.6550, 12.9300], [77.6700, 12.9320]],
-                },
+        case "rainfall": {
+          if (!map.getSource("studio-rainfall")) {
+            map.addSource("studio-rainfall", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "Koramangala AWS", rain_mm_h: 48.5, color: "#a855f7" }, geometry: { type: "Point", coordinates: [77.6250, 12.9280] } },
+                  { type: "Feature", properties: { name: "HAL Airport IMD", rain_mm_h: 42.0, color: "#ef4444" }, geometry: { type: "Point", coordinates: [77.6680, 12.9550] } },
+                  { type: "Feature", properties: { name: "Central Command", rain_mm_h: 26.4, color: "#f97316" }, geometry: { type: "Point", coordinates: [77.5946, 12.9716] } },
+                  { type: "Feature", properties: { name: "Hebbal AWS", rain_mm_h: 18.2, color: "#38bdf8" }, geometry: { type: "Point", coordinates: [77.5980, 13.0280] } },
+                ],
               },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-drainage-channels-line",
-          type: "line",
-          source: "studio-drainage",
-          paint: { "line-color": "#38bdf8", "line-width": 3.5, "line-dasharray": [2, 1] },
-        });
+            });
+            map.addLayer({
+              id: "studio-rainfall-circle",
+              type: "circle",
+              source: "studio-rainfall",
+              paint: { "circle-radius": 7, "circle-color": ["get", "color"], "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
+            });
+          }
+          break;
+        }
+
+        case "temperature": {
+          if (!map.getSource("studio-temperature")) {
+            map.addSource("studio-temperature", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "MG Road Commercial", temp_c: 34.2, color: "#f97316" }, geometry: { type: "Point", coordinates: [77.6080, 12.9750] } },
+                  { type: "Feature", properties: { name: "Peenya Industrial", temp_c: 35.8, color: "#dc2626" }, geometry: { type: "Point", coordinates: [77.5250, 13.0320] } },
+                  { type: "Feature", properties: { name: "Cubbon Park", temp_c: 28.9, color: "#10b981" }, geometry: { type: "Point", coordinates: [77.5920, 12.9760] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-temperature-circle",
+              type: "circle",
+              source: "studio-temperature",
+              paint: { "circle-radius": 6.5, "circle-color": ["get", "color"], "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" },
+            });
+          }
+          break;
+        }
+
+        case "heat_risk": {
+          if (!map.getSource("studio-heat-risk")) {
+            map.addSource("studio-heat-risk", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "Peenya Heat Island", heat_index: 41.2, color: "#dc2626" }, geometry: { type: "Point", coordinates: [77.5250, 13.0320] } },
+                  { type: "Feature", properties: { name: "CBD Asphalt Core", heat_index: 38.6, color: "#f97316" }, geometry: { type: "Point", coordinates: [77.6080, 12.9750] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-heat-risk-circle",
+              type: "circle",
+              source: "studio-heat-risk",
+              paint: { "circle-radius": 8.5, "circle-color": ["get", "color"], "circle-opacity": 0.8, "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
+            });
+          }
+          break;
+        }
+
+        case "air_quality": {
+          if (!map.getSource("studio-air-quality")) {
+            map.addSource("studio-air-quality", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "BTM Layout CAAQMS", aqi: 142, color: "#f59e0b" }, geometry: { type: "Point", coordinates: [77.6100, 12.9160] } },
+                  { type: "Feature", properties: { name: "Silk Board Inversion Junction", aqi: 188, color: "#ef4444" }, geometry: { type: "Point", coordinates: [77.6230, 12.9170] } },
+                  { type: "Feature", properties: { name: "Jayanagar 4th Block", aqi: 78, color: "#10b981" }, geometry: { type: "Point", coordinates: [77.5830, 12.9310] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-air-quality-circle",
+              type: "circle",
+              source: "studio-air-quality",
+              paint: { "circle-radius": 7.5, "circle-color": ["get", "color"], "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
+            });
+          }
+          break;
+        }
+
+        case "roads": {
+          if (!map.getSource("studio-roads")) {
+            map.addSource("studio-roads", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "Hosur Main Road Arterial Corridor" }, geometry: { type: "LineString", coordinates: [[77.6180, 12.9360], [77.6230, 12.9170], [77.6320, 12.9050]] } },
+                  { type: "Feature", properties: { name: "Outer Ring Road (ORR)" }, geometry: { type: "LineString", coordinates: [[77.6850, 12.9280], [77.6750, 12.9350], [77.6650, 12.9450]] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-roads-line",
+              type: "line",
+              source: "studio-roads",
+              paint: { "line-color": "#38bdf8", "line-width": 2.5, "line-opacity": 0.8 },
+            });
+          }
+          break;
+        }
+
+        case "water_bodies": {
+          if (!map.getSource("studio-water-bodies")) {
+            map.addSource("studio-water-bodies", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "Bellandur Wetland Basin", area_sqkm: 3.6 }, geometry: { type: "Polygon", coordinates: [[[77.6650, 12.9350], [77.6800, 12.9380], [77.6780, 12.9250], [77.6620, 12.9240], [77.6650, 12.9350]]] } },
+                  { type: "Feature", properties: { name: "Ulsoor Historic Reservoir", area_sqkm: 1.2 }, geometry: { type: "Polygon", coordinates: [[[77.6180, 12.9800], [77.6260, 12.9840], [77.6280, 12.9750], [77.6190, 12.9730], [77.6180, 12.9800]]] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-water-bodies-fill",
+              type: "fill",
+              source: "studio-water-bodies",
+              paint: { "fill-color": "#0284c7", "fill-opacity": 0.75 },
+            });
+            map.addLayer({
+              id: "studio-water-bodies-line",
+              type: "line",
+              source: "studio-water-bodies",
+              paint: { "line-color": "#38bdf8", "line-width": 2 },
+            });
+          }
+          break;
+        }
+
+        case "drainage": {
+          if (!map.getSource("studio-drainage-channels")) {
+            map.addSource("studio-drainage-channels", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "K-100 Primary Storm Culvert Raja Kaluve" }, geometry: { type: "LineString", coordinates: [[77.6050, 12.9700], [77.6200, 12.9400], [77.6350, 12.9270], [77.6650, 12.9350]] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-drainage-channels-line",
+              type: "line",
+              source: "studio-drainage-channels",
+              paint: { "line-color": "#06b6d4", "line-width": 3, "line-dasharray": [3, 2] },
+            });
+          }
+          break;
+        }
+
+        case "hospitals": {
+          if (!map.getSource("studio-hospitals")) {
+            map.addSource("studio-hospitals", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "St. John's Medical College Hospital", beds: 1200 }, geometry: { type: "Point", coordinates: [77.6210, 12.9310] } },
+                  { type: "Feature", properties: { name: "Manipal Hospital HAL Road", beds: 650 }, geometry: { type: "Point", coordinates: [77.6520, 12.9590] } },
+                  { type: "Feature", properties: { name: "Apollo Hospital Bannerghatta", beds: 500 }, geometry: { type: "Point", coordinates: [77.5990, 12.8930] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-hospitals-circle",
+              type: "circle",
+              source: "studio-hospitals",
+              paint: { "circle-radius": 7, "circle-color": "#ef4444", "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
+            });
+          }
+          break;
+        }
+
+        case "emergency_facilities": {
+          if (!map.getSource("studio-emergency")) {
+            map.addSource("studio-emergency", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "Jayanagar Fire & Rescue Command" }, geometry: { type: "Point", coordinates: [77.5820, 12.9300] } },
+                  { type: "Feature", properties: { name: "Whitefield Police Logistics Post" }, geometry: { type: "Point", coordinates: [77.7450, 12.9700] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-emergency-circle",
+              type: "circle",
+              source: "studio-emergency",
+              paint: { "circle-radius": 6.5, "circle-color": "#f97316", "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
+            });
+          }
+          break;
+        }
+
+        case "shelters": {
+          if (!map.getSource("studio-shelters")) {
+            map.addSource("studio-shelters", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { name: "Koramangala Indoor Evacuation Stadium", capacity: 1200 }, geometry: { type: "Point", coordinates: [77.6200, 12.9340] } },
+                  { type: "Feature", properties: { name: "BBMP Community Hall Shelter 4B", capacity: 600 }, geometry: { type: "Point", coordinates: [77.6350, 12.9320] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-shelters-circle",
+              type: "circle",
+              source: "studio-shelters",
+              paint: { "circle-radius": 7, "circle-color": "#10b981", "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
+            });
+          }
+          break;
+        }
+
+        case "citizen_reports": {
+          if (!map.getSource("studio-citizen-reports")) {
+            map.addSource("studio-citizen-reports", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { title: "Waterlogging 80ft Road", severity: 3 }, geometry: { type: "Point", coordinates: [77.6240, 12.9330] } },
+                  { type: "Feature", properties: { title: "Deep Pothole Outer Ring Road", severity: 2 }, geometry: { type: "Point", coordinates: [77.6850, 12.9280] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-citizen-reports-circle",
+              type: "circle",
+              source: "studio-citizen-reports",
+              paint: { "circle-radius": 6, "circle-color": "#f59e0b", "circle-stroke-width": 2, "circle-stroke-color": "#000000" },
+            });
+          }
+          break;
+        }
+
+        case "verified_incidents": {
+          if (!map.getSource("studio-verified-incidents")) {
+            map.addSource("studio-verified-incidents", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { incident: "Stormwater Culvert 4B Surcharged", status: "VERIFIED_SIREN" }, geometry: { type: "Point", coordinates: [77.6320, 12.9270] } },
+                  { type: "Feature", properties: { incident: "Underpass Sump Flood Alarm", status: "CREWS_DISPATCHED" }, geometry: { type: "Point", coordinates: [77.5850, 12.9980] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-verified-incidents-circle",
+              type: "circle",
+              source: "studio-verified-incidents",
+              paint: { "circle-radius": 8, "circle-color": "#ef4444", "circle-stroke-width": 2.5, "circle-stroke-color": "#ffffff" },
+            });
+          }
+          break;
+        }
+
+        case "historical_incidents": {
+          if (!map.getSource("studio-historical-incidents")) {
+            map.addSource("studio-historical-incidents", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: [
+                  { type: "Feature", properties: { year: 2024, event: "Monsoon Lowland Sump Overflow" }, geometry: { type: "Point", coordinates: [77.6280, 12.9240] } },
+                  { type: "Feature", properties: { year: 2023, event: "Bellandur Spillway Inundation" }, geometry: { type: "Point", coordinates: [77.6750, 12.9300] } },
+                ],
+              },
+            });
+            map.addLayer({
+              id: "studio-historical-incidents-circle",
+              type: "circle",
+              source: "studio-historical-incidents",
+              paint: { "circle-radius": 5, "circle-color": "#64748b", "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" },
+            });
+          }
+          break;
+        }
+
+        default:
+          break;
       }
 
-      // 9. Hospitals (Infrastructure Layer)
-      if (!map.getSource("studio-hospitals")) {
-        map.addSource("studio-hospitals", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { name: "Victoria Hospital Trauma Center" }, geometry: { type: "Point", coordinates: [77.5750, 12.9640] } },
-              { type: "Feature", properties: { name: "Manipal Hospital HAL Airport Rd" }, geometry: { type: "Point", coordinates: [77.6520, 12.9590] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-hospitals-circle",
-          type: "circle",
-          source: "studio-hospitals",
-          paint: { "circle-radius": 7, "circle-color": "#ef4444", "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
-        });
-      }
-
-      // 10. Emergency Facilities (Fire & Police, Infrastructure Layer)
-      if (!map.getSource("studio-emergency")) {
-        map.addSource("studio-emergency", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { name: "Jayanagar Fire & Rescue Command" }, geometry: { type: "Point", coordinates: [77.5820, 12.9300] } },
-              { type: "Feature", properties: { name: "Whitefield Police Logistics Post" }, geometry: { type: "Point", coordinates: [77.7450, 12.9700] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-emergency-circle",
-          type: "circle",
-          source: "studio-emergency",
-          paint: { "circle-radius": 6.5, "circle-color": "#f97316", "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
-        });
-      }
-
-      // 11. Evacuation Shelters (Infrastructure Layer)
-      if (!map.getSource("studio-shelters")) {
-        map.addSource("studio-shelters", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { name: "Koramangala Indoor Evacuation Stadium", capacity: 1200 }, geometry: { type: "Point", coordinates: [77.6200, 12.9340] } },
-              { type: "Feature", properties: { name: "BBMP Community Hall Shelter 4B", capacity: 600 }, geometry: { type: "Point", coordinates: [77.6350, 12.9320] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-shelters-circle",
-          type: "circle",
-          source: "studio-shelters",
-          paint: { "circle-radius": 7, "circle-color": "#10b981", "circle-stroke-width": 2, "circle-stroke-color": "#ffffff" },
-        });
-      }
-
-      // 12. Citizen Hazard Reports (Incident Layer)
-      if (!map.getSource("studio-citizen-reports")) {
-        map.addSource("studio-citizen-reports", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { title: "Waterlogging 80ft Road", severity: 3 }, geometry: { type: "Point", coordinates: [77.6240, 12.9330] } },
-              { type: "Feature", properties: { title: "Deep Pothole Outer Ring Road", severity: 2 }, geometry: { type: "Point", coordinates: [77.6850, 12.9280] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-citizen-reports-circle",
-          type: "circle",
-          source: "studio-citizen-reports",
-          paint: { "circle-radius": 6, "circle-color": "#f59e0b", "circle-stroke-width": 2, "circle-stroke-color": "#000000" },
-        });
-      }
-
-      // 13. Verified Incidents (Incident Layer)
-      if (!map.getSource("studio-verified-incidents")) {
-        map.addSource("studio-verified-incidents", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { incident: "Stormwater Culvert 4B Surcharged", status: "VERIFIED_SIREN" }, geometry: { type: "Point", coordinates: [77.6320, 12.9270] } },
-              { type: "Feature", properties: { incident: "Underpass Sump Flood Alarm", status: "CREWS_DISPATCHED" }, geometry: { type: "Point", coordinates: [77.5850, 12.9980] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-verified-incidents-circle",
-          type: "circle",
-          source: "studio-verified-incidents",
-          paint: { "circle-radius": 8, "circle-color": "#ef4444", "circle-stroke-width": 2.5, "circle-stroke-color": "#ffffff" },
-        });
-      }
-
-      // 14. Historical Incidents Archive (Incident Layer)
-      if (!map.getSource("studio-historical-incidents")) {
-        map.addSource("studio-historical-incidents", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { year: 2024, event: "Monsoon Lowland Sump Overflow" }, geometry: { type: "Point", coordinates: [77.6280, 12.9240] } },
-              { type: "Feature", properties: { year: 2023, event: "Bellandur Spillway Inundation" }, geometry: { type: "Point", coordinates: [77.6750, 12.9300] } },
-            ],
-          },
-        });
-        map.addLayer({
-          id: "studio-historical-incidents-circle",
-          type: "circle",
-          source: "studio-historical-incidents",
-          paint: { "circle-radius": 5, "circle-color": "#64748b", "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" },
-        });
-      }
-
-      // 14. Waterlogging Density Heatmap (Prompt 4 requirement: MapLibre Heatmap layer)
-      if (!map.getSource("studio-waterlogging-heatmap-src")) {
-        map.addSource("studio-waterlogging-heatmap-src", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              { type: "Feature", properties: { weight: 0.95 }, geometry: { type: "Point", coordinates: [77.6230, 12.9270] } },
-              { type: "Feature", properties: { weight: 0.90 }, geometry: { type: "Point", coordinates: [77.6250, 12.9290] } },
-              { type: "Feature", properties: { weight: 0.85 }, geometry: { type: "Point", coordinates: [77.6210, 12.9260] } },
-              { type: "Feature", properties: { weight: 0.88 }, geometry: { type: "Point", coordinates: [77.6850, 12.9270] } },
-              { type: "Feature", properties: { weight: 0.80 }, geometry: { type: "Point", coordinates: [77.6880, 12.9290] } },
-              { type: "Feature", properties: { weight: 0.78 }, geometry: { type: "Point", coordinates: [77.6350, 12.9110] } },
-              { type: "Feature", properties: { weight: 0.65 }, geometry: { type: "Point", coordinates: [77.5960, 13.0370] } },
-            ],
-          },
-        });
-        const isHeatmapExp =
-          activeExpRef.current === "flood-risk-intelligence" ||
-          activeExpRef.current === "citizen-hazard-report";
-
-        map.addLayer({
-          id: "studio-waterlogging-heatmap-layer",
-          type: "heatmap",
-          source: "studio-waterlogging-heatmap-src",
-          maxzoom: 17,
-          layout: {
-            visibility: isHeatmapExp ? "visible" : "none",
-          },
-          paint: {
-            "heatmap-weight": ["interpolate", ["linear"], ["get", "weight"], 0, 0, 1, 1],
-            "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 2.5],
-            "heatmap-color": [
-              "interpolate",
-              ["linear"],
-              ["heatmap-density"],
-              0, "rgba(33,102,172,0)",
-              0.2, "rgba(103,169,207,0.5)",
-              0.4, "rgba(209,229,240,0.7)",
-              0.6, "rgba(253,219,199,0.8)",
-              0.8, "rgba(239,138,98,0.9)",
-              1, "rgba(178,24,43,0.95)"
-            ],
-            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 10, 12, 16, 28],
-            "heatmap-opacity": 0.7,
-          },
-        });
-      }
+      loadedLayersRef.current.add(layerKey);
     },
     [floodZones]
   );
 
-  // Dynamically apply layer visibility with strict isolation for dedicated experiences
+  // Dynamically apply layer visibility with on-demand loading & strict isolation
   const applyLayerVisibility = useCallback(
     (map: any, currentLayers: LayerConfig[], currentExpId: ExperienceId) => {
       if (!map || !map.isStyleLoaded()) return;
-
-      // Explicit isolation: flood zones ONLY visible in flood experiences
-      const isFloodExp = currentExpId === "operational-satellite-gis" || currentExpId === "flood-risk-intelligence";
-      const isFloodLayerVisible = isFloodExp && Boolean(currentLayers.find((l) => l.id === "flood_risk" || l.id === "flood_risk_zones")?.visible);
-      if (map.getLayer("studio-flood-zones-fill")) {
-        map.setLayoutProperty("studio-flood-zones-fill", "visibility", isFloodLayerVisible ? "visible" : "none");
-      }
-      if (map.getLayer("studio-flood-zones-line")) {
-        map.setLayoutProperty("studio-flood-zones-line", "visibility", isFloodLayerVisible ? "visible" : "none");
-      }
 
       const LAYER_MAP: Record<string, string[]> = {
         flood_risk: ["studio-flood-zones-fill", "studio-flood-zones-line"],
@@ -581,20 +531,29 @@ export function MapStudioCanvas({
         historical_incidents: ["studio-historical-incidents-circle"],
       };
 
+      const pendingLoaders: string[] = [];
+
       currentLayers.forEach((layer) => {
+        let isVisible = layer.visible;
+
+        // Strict isolation: Never bleed static flood zones into non-flood dedicated experiences
+        if (
+          (layer.id === "flood_risk" || layer.id === "flood_risk_zones") &&
+          currentExpId !== "operational-satellite-gis" &&
+          currentExpId !== "flood-risk-intelligence"
+        ) {
+          isVisible = false;
+        }
+
+        // On-demand load if active and not yet registered
+        if (isVisible && !loadedLayersRef.current.has(layer.id)) {
+          pendingLoaders.push(layer.name);
+          loadLayerOnDemand(map, layer.id);
+        }
+
         const targetLayerIds = LAYER_MAP[layer.id] || [];
         targetLayerIds.forEach((layerId) => {
           if (map.getLayer(layerId)) {
-            let isVisible = layer.visible;
-            // Strict isolation: Never bleed static flood zones into non-flood dedicated experiences
-            if (
-              (layerId === "studio-flood-zones-fill" || layerId === "studio-flood-zones-line") &&
-              currentExpId !== "operational-satellite-gis" &&
-              currentExpId !== "flood-risk-intelligence"
-            ) {
-              isVisible = false;
-            }
-
             map.setLayoutProperty(layerId, "visibility", isVisible ? "visible" : "none");
             if (isVisible) {
               if (layerId.includes("-fill")) {
@@ -609,16 +568,19 @@ export function MapStudioCanvas({
         });
       });
 
-      // Strict visibility for waterlogging heatmap
-      if (map.getLayer("studio-waterlogging-heatmap-layer")) {
-        const isHeatmapExp = currentExpId === "flood-risk-intelligence" || currentExpId === "citizen-hazard-report";
-        map.setLayoutProperty("studio-waterlogging-heatmap-layer", "visibility", isHeatmapExp ? "visible" : "none");
+      if (pendingLoaders.length > 0) {
+        setLoadingLayers(pendingLoaders);
+        if (onLoadingLayersChange) onLoadingLayersChange(pendingLoaders);
+        setTimeout(() => {
+          setLoadingLayers([]);
+          if (onLoadingLayersChange) onLoadingLayersChange([]);
+        }, 800);
       }
     },
-    []
+    [loadLayerOnDemand, onLoadingLayersChange]
   );
 
-  // Add Dynamic 11-Experience Features (Polygons, Lines, Stations, Facilities) with interactive popups
+  // Add Dynamic 11-Experience Features with Rich HUD Popups
   const injectExperienceFeatures = useCallback(
     (map: any, data?: MapStudioExperienceResponse | null) => {
       if (!map || !map.isStyleLoaded() || !data) return;
@@ -727,27 +689,41 @@ export function MapStudioCanvas({
             popupRef.current.remove();
           }
 
-          const title = props.name || props.incident_id || props.report_id || props.sector_name || "Feature Detail";
+          const title =
+            props.name || props.incident_id || props.report_id || props.sector_name || "Feature Detail";
           const status = props.status || props.risk_level || props.category || props.stress || "";
           const metric =
-            props.rainfall_rate_mm_h ? `Rainfall Intensity: <b>${props.rainfall_rate_mm_h} mm/h</b> (${props.status || 'Active'})` :
-            props.elevation_masl ? `Terrain Elevation: <b>${props.elevation_masl}m MASL</b> (${props.type || 'Landmark'})` :
-            props.heat_index_c ? `Bioclimatic Heat Index: <b>${props.heat_index_c}°C</b> (Temp: ${props.temp_c}°C)` :
-            props.aqi ? `Air Quality Index: <b>${props.aqi} AQI</b> (PM2.5: ${props.pm25} µg/m³)` :
-            props.flood_depth_m ? `Predicted Inundation Depth: <b>${props.flood_depth_m}m</b>` :
-            props.distance_km ? `Route Length: <b>${props.distance_km} km</b> (~${props.time_min} mins)` :
-            props.description || (props.water_level ? `Level: <b>${props.water_level}</b>` : "");
+            props.rainfall_rate_mm_h
+              ? `Rainfall Intensity: <b>${props.rainfall_rate_mm_h} mm/h</b> (${props.status || "Active"})`
+              : props.elevation_masl
+              ? `Terrain Elevation: <b>${props.elevation_masl}m MASL</b> (${props.type || "Landmark"})`
+              : props.heat_index_c
+              ? `Bioclimatic Heat Index: <b>${props.heat_index_c}°C</b> (Temp: ${props.temp_c}°C)`
+              : props.aqi
+              ? `Air Quality Index: <b>${props.aqi} AQI</b> (PM2.5: ${props.pm25} µg/m³)`
+              : props.flood_depth_m
+              ? `Predicted Inundation Depth: <b>${props.flood_depth_m}m</b>`
+              : props.distance_km
+              ? `Route Length: <b>${props.distance_km} km</b> (~${props.time_min} mins)`
+              : props.description || (props.water_level ? `Level: <b>${props.water_level}</b>` : "");
 
           const coordinates = e.lngLat;
           const zoneId = props.zone_id;
           const hasExplanation = Boolean(
-            zoneId && (zoneId.includes("KOR") || zoneId.includes("BEL") || zoneId.includes("HSR") || zoneId.includes("HEB") || zoneId.includes("CEN") || props.risk_level)
+            zoneId &&
+              (zoneId.includes("KOR") ||
+                zoneId.includes("BEL") ||
+                zoneId.includes("HSR") ||
+                zoneId.includes("HEB") ||
+                zoneId.includes("CEN") ||
+                props.risk_level)
           );
+
           const explanationBtn = hasExplanation
             ? `
-              <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0;">
-                <button onclick="window.__openFloodExplanation && window.__openFloodExplanation('${zoneId}')" style="width: 100%; padding: 6px 10px; background: #0284c7; color: #ffffff; border: none; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; display: block; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
-                  Why is this area ${status || 'risk'}? Rationale &rarr;
+              <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button onclick="window.__openFloodExplanation && window.__openFloodExplanation('${zoneId}')" style="width: 100%; padding: 6px 10px; background: #0284c7; color: #ffffff; border: none; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; display: block; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                  Why is this area ${status || "risk"}? Rationale &rarr;
                 </button>
               </div>
             `
@@ -763,15 +739,23 @@ export function MapStudioCanvas({
             })
               .setLngLat(coordinates)
               .setHTML(`
-                <div style="font-family: system-ui, sans-serif; padding: 4px; color: #0f172a;">
-                  <div style="font-size: 13px; font-weight: 700; margin-bottom: 3px;">${title}</div>
-                  ${status ? `<div style="display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; background: #e0f2fe; color: #0369a1;">${status}</div>` : ""}
-                  ${metric ? `<div style="font-size: 11px; color: #334155; line-height: 1.4;">${metric}</div>` : ""}
-                  ${props.data_source ? `<div style="font-size: 9px; color: #64748b; margin-top: 4px; border-top: 1px dashed #cbd5e1; padding-top: 3px;"><b>Source:</b> ${props.data_source}</div>` : ""}
+                <div style="font-family: system-ui, sans-serif; padding: 6px; color: #f8fafc; background: #090e17; border-radius: 8px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 4px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #ffffff;">${title}</div>
+                    ${
+                      status
+                        ? `<div style="font-size: 9px; font-weight: 800; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.4);">${status}</div>`
+                        : ""
+                    }
+                  </div>
+                  <div style="font-size: 10px; font-family: monospace; color: #94a3b8; margin-bottom: 6px;">
+                    ${coordinates.lat.toFixed(4)}°N, ${coordinates.lng.toFixed(4)}°E
+                  </div>
+                  ${metric ? `<div style="font-size: 11px; color: #cbd5e1; line-height: 1.4; margin-bottom: 6px;">${metric}</div>` : ""}
+                  ${props.data_source ? `<div style="font-size: 9px; color: #64748b; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 4px;"><b>Source:</b> ${props.data_source}</div>` : ""}
                   ${props.model_version ? `<div style="font-size: 9px; color: #64748b;"><b>Model:</b> ${props.model_version}</div>` : ""}
-                  ${props.uncertainty_range ? `<div style="font-size: 9px; color: #0284c7;"><b>Uncertainty:</b> ${props.uncertainty_range}</div>` : ""}
-                  <div style="margin-top: 6px; padding-top: 5px; border-top: 1px solid #e2e8f0;">
-                    <button onclick="window.__openAreaAnalytics && window.__openAreaAnalytics(${coordinates.lat}, ${coordinates.lng}, '${(title || '').replace(/'/g, "\\'")}')" style="width: 100%; padding: 5px 8px; background: #0891b2; color: #ffffff; border: none; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; text-align: center; display: block; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                  <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="window.__openAreaAnalytics && window.__openAreaAnalytics(${coordinates.lat}, ${coordinates.lng}, '${(title || "").replace(/'/g, "\\'")}')" style="width: 100%; padding: 6px 8px; background: #0891b2; color: #ffffff; border: none; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; text-align: center; display: block; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                       Contextual Area Analytics &rarr;
                     </button>
                   </div>
@@ -804,18 +788,25 @@ export function MapStudioCanvas({
     async function init() {
       if (!mapContainer.current || mapInstance.current || isInitializing.current) return;
       isInitializing.current = true;
+      setIsMapLoading(true);
 
       try {
         const maplibregl = (await import("maplibre-gl")).default;
 
-        if (typeof window !== "undefined" && (maplibregl as any).supported && !(maplibregl as any).supported()) {
-          if (isMounted) setMapError("WebGL is unsupported on this device.");
+        if (
+          typeof window !== "undefined" &&
+          (maplibregl as any).supported &&
+          !(maplibregl as any).supported()
+        ) {
+          if (isMounted) setMapError("WebGL is unsupported on this device or GPU context is lost.");
           isInitializing.current = false;
+          setIsMapLoading(false);
           return;
         }
 
         if (!mapContainer.current || !isMounted) {
           isInitializing.current = false;
+          setIsMapLoading(false);
           return;
         }
 
@@ -833,14 +824,16 @@ export function MapStudioCanvas({
           if (!isMounted) return;
           mapInstance.current = map;
           isInitializing.current = false;
-          injectStudioLayers(map);
+          setIsMapLoading(false);
+
+          // Apply initial active layers on demand
           applyLayerVisibility(map, layersRef.current, activeExpRef.current);
           if (expDataRef.current) {
             injectExperienceFeatures(map, expDataRef.current);
           }
           if (onMapLoaded) onMapLoaded(map);
 
-          // Click handler for area analytics (Prompt 7)
+          // Click handler for area analytics
           map.on("click", (e: any) => {
             const features = map.queryRenderedFeatures(e.point, {
               layers: ["exp-points-circle", "exp-lines", "exp-polygons-fill", "studio-flood-zones-fill"],
@@ -850,10 +843,15 @@ export function MapStudioCanvas({
             }
           });
         });
+
+        map.on("error", (e: any) => {
+          console.warn("MapLibre tile event:", e?.error?.message || e);
+        });
       } catch (err: any) {
         console.error("MapStudio init error:", err);
         if (isMounted) setMapError("Failed to initialize Map Studio WebGL canvas.");
         isInitializing.current = false;
+        setIsMapLoading(false);
       }
     }
 
@@ -869,26 +867,26 @@ export function MapStudioCanvas({
       if (mapInstance.current) {
         try {
           mapInstance.current.remove();
-        } catch (e) {
-          // ignore cleanup error
-        }
+        } catch (e) {}
         mapInstance.current = null;
       }
       isInitializing.current = false;
     };
   }, []);
 
-  // Handle Basemap Style Changes Dynamically without destroying Map instance
+  // Handle Basemap Style Changes Dynamically
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || !map.isStyleLoaded()) return;
     if (currentBasemapRef.current === basemapStyle) return;
     currentBasemapRef.current = basemapStyle;
+    loadedLayersRef.current.clear();
+    setIsMapLoading(true);
 
     try {
       map.setStyle(getStyleSpec(basemapStyle));
       map.once("style.load", () => {
-        injectStudioLayers(map);
+        setIsMapLoading(false);
         applyLayerVisibility(map, layersRef.current, activeExpRef.current);
         if (expDataRef.current) {
           injectExperienceFeatures(map, expDataRef.current);
@@ -896,10 +894,11 @@ export function MapStudioCanvas({
       });
     } catch (e) {
       console.error("Error updating basemap style:", e);
+      setIsMapLoading(false);
     }
-  }, [basemapStyle, getStyleSpec, injectStudioLayers, applyLayerVisibility, injectExperienceFeatures]);
+  }, [basemapStyle, getStyleSpec, applyLayerVisibility, injectExperienceFeatures]);
 
-  // Handle Dynamic Layer Visibility & Opacity across all 14 Environmental, Infrastructure & Incident Layers
+  // Handle Dynamic Layer Visibility & Opacity across layers
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || !map.isStyleLoaded()) return;
@@ -927,7 +926,6 @@ export function MapStudioCanvas({
     if (!map || !map.isStyleLoaded()) return;
 
     if (map.getLayer("studio-flood-zones-fill")) {
-      // Scale opacity or highlight as time progresses into forecast
       const baseOpacity = layers.find((l) => l.id === "flood_risk_zones")?.opacity || 0.75;
       const forecastFactor = timeOffsetHours > 0 ? 0.85 : 0.65;
       map.setPaintProperty("studio-flood-zones-fill", "fill-opacity", baseOpacity * forecastFactor);
@@ -941,7 +939,6 @@ export function MapStudioCanvas({
 
     injectExperienceFeatures(map, experienceData);
 
-    // Camera fly-to for the experience
     if (experienceData.meta) {
       map.flyTo({
         center: experienceData.meta.center,
@@ -956,15 +953,115 @@ export function MapStudioCanvas({
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-slate-950">
+      {/* Smooth Map & Shader Loading Overlay */}
+      <AnimatePresence>
+        {isMapLoading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+            className="absolute inset-0 z-35 flex flex-col items-center justify-center bg-slate-950/85 backdrop-blur-xs text-white gap-3 pointer-events-none"
+          >
+            <div className="relative flex items-center justify-center">
+              <div className="h-11 w-11 rounded-full border-2 border-cyan-500/30 border-t-cyan-400 animate-spin" />
+              <div className="absolute h-5 w-5 rounded-full bg-cyan-500/20 animate-ping" />
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-xs font-bold tracking-wider uppercase text-cyan-300">
+                Initializing GIS Canvas
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono mt-0.5">
+                Calibrating Geospatial Telemetry
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Layer Loading Floating Indicator */}
+      <AnimatePresence>
+        {loadingLayers.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            className="absolute top-16 left-1/2 -translate-x-1/2 z-25 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/95 border border-cyan-500/40 text-cyan-300 text-xs shadow-xl backdrop-blur-md"
+          >
+            <Loader2 className="h-3.5 w-3.5 text-cyan-400 animate-spin" />
+            <span className="text-[11px] font-semibold">
+              Loading {loadingLayers.join(", ")} layer...
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* WebGL Context / Initialization Error State */}
       {mapError && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-slate-950/90 text-white p-6">
-          <div className="max-w-md p-4 rounded-xl border border-rose-800 bg-rose-950/60 text-center">
-            <h3 className="text-base font-bold text-rose-400 mb-1">WebGL Map Error</h3>
-            <p className="text-xs text-rose-200">{mapError}</p>
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-slate-950/90 text-white p-6 backdrop-blur-sm">
+          <div className="max-w-md w-full p-5 rounded-2xl border border-rose-800 bg-slate-900 text-center shadow-2xl">
+            <div className="h-10 w-10 rounded-full bg-rose-950/80 border border-rose-600 flex items-center justify-center mx-auto mb-3 text-rose-400">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <h3 className="text-sm font-bold text-white mb-1">WebGL Map Error</h3>
+            <p className="text-xs text-rose-200 mb-4">{mapError}</p>
+            <button
+              onClick={() => {
+                setMapError(null);
+                window.location.reload();
+              }}
+              className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition"
+            >
+              Reload Map Engine
+            </button>
           </div>
         </div>
       )}
+
+      {/* WebGL Canvas Container */}
       <div ref={mapContainer} className="w-full h-full" />
+
+      {/* Official Map Attribution Banner (Prompt 8 Requirement) */}
+      <div className="absolute bottom-1 right-2 z-10 text-[9px] text-slate-400 bg-slate-950/80 backdrop-blur-xs px-2.5 py-1 rounded-md border border-slate-800/80 flex items-center gap-1.5 pointer-events-auto select-none">
+        <span>
+          ©{" "}
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-cyan-400"
+          >
+            OpenStreetMap
+          </a>
+        </span>
+        <span>|</span>
+        <span>
+          ©{" "}
+          <a
+            href="https://open-meteo.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-cyan-400"
+          >
+            Open-Meteo
+          </a>
+        </span>
+        <span>|</span>
+        <span>
+          ©{" "}
+          <a
+            href="https://openaq.org/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-cyan-400"
+          >
+            OpenAQ
+          </a>
+        </span>
+        <span>|</span>
+        <span>NASA SRTM 30m</span>
+        <span>|</span>
+        <span className="text-cyan-400 font-semibold">TerraGuard AI 2.0</span>
+      </div>
     </div>
   );
 }
