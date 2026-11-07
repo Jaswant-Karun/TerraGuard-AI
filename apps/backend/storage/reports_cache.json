@@ -1,5 +1,5 @@
 {
-  "ec362a69-feeb-448d-b250-c3aa98774c24": {
+  "a2eb1403-da28-4bfc-829c-57801c7d9349": {
     "title": "Severe Waterlogging on 80 Feet Road",
     "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
     "category": "WATERLOGGING",
@@ -14,7 +14,7 @@
     },
     "address": "80 Feet Rd, 4th Block, Koramangala",
     "media_urls": [
-      "/uploads/hazard_media/hazard_dac086949411421ebefc6a5b09820e96_7cfcfdc7.jpg"
+      "/uploads/hazard_media/hazard_d78e80479f634d4baaa53b0c633dd1a4_7cfcfdc7.jpg"
     ],
     "image_hash": "7cfcfdc7cf3db91dad0e70bd7cb7ddee53044d59558c4cd558ea6f1a45d783ae",
     "ai_analysis": {
@@ -37,10 +37,10 @@
     },
     "is_potential_duplicate": false,
     "duplicate_metadata": {},
-    "created_at": "2026-11-07T06:07:49.638401+00:00",
-    "id": "ec362a69-feeb-448d-b250-c3aa98774c24"
+    "created_at": "2026-11-07T06:23:03.773130+00:00",
+    "id": "a2eb1403-da28-4bfc-829c-57801c7d9349"
   },
-  "60e3116f-d267-4da0-821a-e9d53d5f07c7": {
+  "a796ff45-23b9-46b9-a603-6e8d6925cb07": {
     "title": "Severe Waterlogging on 80 Feet Road",
     "description": "Standing water 1.5 feet deep, two-wheelers struggling to pass.",
     "category": "WATERLOGGING",
@@ -55,7 +55,7 @@
     },
     "address": "80 Feet Rd, 4th Block, Koramangala",
     "media_urls": [
-      "/uploads/hazard_media/hazard_a600830e8a4e4ce199b66e5f30192449_7cfcfdc7.jpg"
+      "/uploads/hazard_media/hazard_1b2700493b9c4eb7865cdfdae3c64759_7cfcfdc7.jpg"
     ],
     "image_hash": "7cfcfdc7cf3db91dad0e70bd7cb7ddee53044d59558c4cd558ea6f1a45d783ae",
     "ai_analysis": {
@@ -77,17 +77,17 @@
       "confidence_calibration_notice": "AI confidence is a heuristic model estimate and not statistically calibrated."
     },
     "is_potential_duplicate": true,
-    "duplicate_of_report_id": "ec362a69-feeb-448d-b250-c3aa98774c24",
+    "duplicate_of_report_id": "a2eb1403-da28-4bfc-829c-57801c7d9349",
     "duplicate_metadata": {
-      "matched_report_id": "ec362a69-feeb-448d-b250-c3aa98774c24",
+      "matched_report_id": "a2eb1403-da28-4bfc-829c-57801c7d9349",
       "similarity_score": 1.0,
-      "reason": "Identical image hash detected. Matches report #ec362a69 (0m away).",
+      "reason": "Identical image hash detected. Matches report #a2eb1403 (0m away).",
       "distance_meters": 0.0
     },
-    "created_at": "2026-11-07T06:07:49.658956+00:00",
-    "id": "60e3116f-d267-4da0-821a-e9d53d5f07c7"
+    "created_at": "2026-11-07T06:23:03.828579+00:00",
+    "id": "a796ff45-23b9-46b9-a603-6e8d6925cb07"
   },
-  "09eddc85-aa06-4b83-b25e-2955e4bfb616": {
+  "3907e8e1-18bd-40d3-95c8-40ab39643d63": {
     "title": "Choked Storm Culvert",
     "description": "Plastic bottles and debris blocking storm drain outlet.",
     "category": "WASTE_ACCUMULATION",
@@ -101,7 +101,7 @@
       ]
     },
     "media_urls": [
-      "/uploads/hazard_media/hazard_e068d21205b9451baee2799a7cd6b71f_49b3268c.jpg"
+      "/uploads/hazard_media/hazard_4a646514cdd5479885112b97151fd47f_49b3268c.jpg"
     ],
     "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
     "ai_analysis": {
@@ -125,10 +125,10 @@
     },
     "is_potential_duplicate": false,
     "duplicate_metadata": {},
-    "created_at": "2026-11-07T06:07:49.731557+00:00",
-    "id": "09eddc85-aa06-4b83-b25e-2955e4bfb616"
+    "created_at": "2026-11-07T06:23:03.874043+00:00",
+    "id": "3907e8e1-18bd-40d3-95c8-40ab39643d63"
   },
-  "611b9ee9-a631-4de6-86c6-9d795c6b002f": {
+  "b6194c75-a244-49ba-b213-0ddec4f0a18b": {
     "title": "Deep Pothole on Outer Ring Road",
     "description": "Asphalt depression 15cm deep posing hazard to motorists.",
     "category": "DAMAGED_ROAD",
@@ -142,7 +142,7 @@
       ]
     },
     "media_urls": [
-      "/uploads/hazard_media/hazard_7f50e7411810438587b0f4e8928c171b_49b3268c.jpg"
+      "/uploads/hazard_media/hazard_365e5d5792604107ba2341398635f85d_49b3268c.jpg"
     ],
     "image_hash": "49b3268c556fa2f8790529dcf081648c009af79415ad0bb9e521eb888e79214f",
     "ai_analysis": {
@@ -166,10 +166,10 @@
     },
     "is_potential_duplicate": false,
     "duplicate_metadata": {},
-    "created_at": "2026-11-07T06:07:49.786714+00:00",
-    "id": "611b9ee9-a631-4de6-86c6-9d795c6b002f",
-    "updated_at": "2026-11-07T06:07:49.802398+00:00",
+    "created_at": "2026-11-07T06:23:03.906985+00:00",
+    "id": "b6194c75-a244-49ba-b213-0ddec4f0a18b",
+    "updated_at": "2026-11-07T06:23:03.916816+00:00",
     "verification_notes": "Field unit verified on-site.",
-    "verified_by_user_id": "c4fcfcfe-bf13-4f56-8e51-25fbb4a21b29"
+    "verified_by_user_id": "d03008ea-154c-42ed-83c1-087d3c37b405"
   }
 }

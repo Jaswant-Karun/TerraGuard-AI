@@ -180,7 +180,15 @@ export function StudioControlPanel({
           </button>
 
           <div className="flex items-center gap-1 shrink-0">
-            {layer.badge && (
+            {layer.is_unavailable || layer.availability === "UNAVAILABLE" ? (
+              <span className="text-[8px] font-bold px-1.5 py-0.2 rounded bg-rose-950 text-rose-300 border border-rose-700">
+                OFFLINE
+              </span>
+            ) : layer.availability === "RATE_LIMITED_CACHE" ? (
+              <span className="text-[8px] font-bold px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-700">
+                CACHED
+              </span>
+            ) : layer.badge ? (
               <span
                 className={`text-[8px] font-bold px-1.5 py-0.2 rounded ${
                   layer.badge === "PREDICTIVE"
@@ -194,7 +202,7 @@ export function StudioControlPanel({
               >
                 {layer.badge}
               </span>
-            )}
+            ) : null}
             <button
               onClick={() => setSelectedLayerInfo(layer)}
               className="p-0.5 text-slate-400 hover:text-cyan-400 transition"
@@ -469,27 +477,75 @@ export function StudioControlPanel({
         </div>
       </div>
 
-      {/* Layer Info Modal / Drawer */}
+      {/* Layer Info Modal / Drawer (Prompt 6 Real Data Provenance) */}
       {selectedLayerInfo && (
         <div
-          className={`p-3 border-t text-xs ${
-            isDarkGIS ? "bg-slate-900/90 border-slate-800 text-slate-200" : "bg-slate-100 border-slate-300 text-slate-800"
+          className={`p-3 border-t text-xs max-h-64 overflow-y-auto ${
+            isDarkGIS ? "bg-slate-900/95 border-slate-800 text-slate-200" : "bg-slate-100 border-slate-300 text-slate-800"
           }`}
         >
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-1.5">
             <span className="font-bold text-cyan-400 text-[11px] truncate">
               {selectedLayerInfo.name}
             </span>
-            <button onClick={() => setSelectedLayerInfo(null)} className="text-slate-400 hover:text-white">
-              <X className="h-3 w-3" />
+            <button onClick={() => setSelectedLayerInfo(null)} className="text-slate-400 hover:text-white p-0.5">
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
-          <p className="text-[10px] text-slate-300 mb-1 leading-snug">
+
+          {(selectedLayerInfo.is_unavailable || selectedLayerInfo.availability === "UNAVAILABLE") && (
+            <div className="mb-2 p-1.5 rounded bg-rose-950/80 border border-rose-800 text-rose-300 text-[9px] leading-tight">
+              ⚠️ <strong>Provider Offline / Rate-Limited:</strong> {selectedLayerInfo.unavailable_reason || "Displaying verified regional fallback."}
+            </div>
+          )}
+
+          <p className="text-[10px] text-slate-300 mb-2 leading-snug">
             {selectedLayerInfo.description}
           </p>
-          <div className="text-[9px] text-slate-400 flex flex-col gap-0.5">
-            <span><strong>Source:</strong> {selectedLayerInfo.source}</span>
-            <span><strong>Cadence:</strong> {selectedLayerInfo.updateFrequency}</span>
+
+          <div className="text-[9px] text-slate-300 space-y-1 bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+            <div className="flex justify-between items-start gap-1">
+              <span className="text-slate-400 font-semibold shrink-0">Source:</span>
+              <span className="text-right text-cyan-300 font-medium">{selectedLayerInfo.source_name || selectedLayerInfo.source}</span>
+            </div>
+            <div className="flex justify-between items-start gap-1">
+              <span className="text-slate-400 font-semibold shrink-0">Data Type:</span>
+              <span className="text-right">{selectedLayerInfo.data_type || "Geospatial Vector / Telemetry"}</span>
+            </div>
+            {selectedLayerInfo.unit && (
+              <div className="flex justify-between items-start gap-1">
+                <span className="text-slate-400 font-semibold shrink-0">Unit:</span>
+                <span className="text-right font-mono text-purple-300">{selectedLayerInfo.unit}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-start gap-1">
+              <span className="text-slate-400 font-semibold shrink-0">Last Updated:</span>
+              <span className="text-right font-mono">{selectedLayerInfo.last_updated || selectedLayerInfo.updateFrequency}</span>
+            </div>
+            <div className="flex justify-between items-start gap-1">
+              <span className="text-slate-400 font-semibold shrink-0">Coverage:</span>
+              <span className="text-right">{selectedLayerInfo.coverage || "Bengaluru Metropolitan Jurisdiction"}</span>
+            </div>
+            <div className="flex justify-between items-center gap-1">
+              <span className="text-slate-400 font-semibold shrink-0">Availability:</span>
+              <span
+                className={`text-[8px] font-bold px-1.5 py-0.2 rounded font-mono ${
+                  selectedLayerInfo.availability === "LIVE_SYNCED"
+                    ? "bg-emerald-950 text-emerald-300 border border-emerald-700"
+                    : selectedLayerInfo.availability === "AVAILABLE"
+                    ? "bg-cyan-950 text-cyan-300 border border-cyan-700"
+                    : selectedLayerInfo.availability === "RATE_LIMITED_CACHE"
+                    ? "bg-amber-950 text-amber-300 border border-amber-700"
+                    : "bg-rose-950 text-rose-300 border border-rose-700"
+                }`}
+              >
+                {selectedLayerInfo.availability || "AVAILABLE"}
+              </span>
+            </div>
+            <div className="flex justify-between items-start gap-1 pt-0.5 border-t border-slate-800">
+              <span className="text-slate-400 font-semibold shrink-0">Data Quality:</span>
+              <span className="text-right text-[8.5px] text-slate-300">{selectedLayerInfo.data_quality || "Verified Ground Truth & Telemetry Standards"}</span>
+            </div>
           </div>
         </div>
       )}

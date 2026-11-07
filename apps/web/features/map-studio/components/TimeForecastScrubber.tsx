@@ -9,6 +9,7 @@ interface TimeForecastScrubberProps {
   isPlaying: boolean;
   onTogglePlay: () => void;
   isDarkGIS?: boolean;
+  title?: string;
 }
 
 export function TimeForecastScrubber({
@@ -17,6 +18,7 @@ export function TimeForecastScrubber({
   isPlaying,
   onTogglePlay,
   isDarkGIS = true,
+  title,
 }: TimeForecastScrubberProps) {
   // Playback timer effect
   useEffect(() => {
@@ -50,7 +52,7 @@ export function TimeForecastScrubber({
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-cyan-400" />
           <span className="text-xs font-bold uppercase tracking-wider">
-            Hydrological Timeline Scrubber
+            {title || "Hydrological Timeline Scrubber"}
           </span>
           <span
             className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${

@@ -46,6 +46,15 @@ export function MapStudioCanvas({
   const popupRef = useRef<any>(null);
   const [mapError, setMapError] = useState<string | null>(null);
 
+  // Synchronized refs to avoid re-initializing map on prop changes
+  const layersRef = useRef(layers);
+  layersRef.current = layers;
+  const activeExpRef = useRef(activeExperienceId);
+  activeExpRef.current = activeExperienceId;
+  const expDataRef = useRef(experienceData);
+  expDataRef.current = experienceData;
+  const currentBasemapRef = useRef(basemapStyle);
+
   // Register global callback for popup explanation trigger
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -519,6 +528,16 @@ export function MapStudioCanvas({
     (map: any, currentLayers: LayerConfig[], currentExpId: ExperienceId) => {
       if (!map || !map.isStyleLoaded()) return;
 
+      // Explicit isolation: flood zones ONLY visible in flood experiences
+      const isFloodExp = currentExpId === "operational-satellite-gis" || currentExpId === "flood-risk-intelligence";
+      const isFloodLayerVisible = isFloodExp && Boolean(currentLayers.find((l) => l.id === "flood_risk" || l.id === "flood_risk_zones")?.visible);
+      if (map.getLayer("studio-flood-zones-fill")) {
+        map.setLayoutProperty("studio-flood-zones-fill", "visibility", isFloodLayerVisible ? "visible" : "none");
+      }
+      if (map.getLayer("studio-flood-zones-line")) {
+        map.setLayoutProperty("studio-flood-zones-line", "visibility", isFloodLayerVisible ? "visible" : "none");
+      }
+
       const LAYER_MAP: Record<string, string[]> = {
         flood_risk: ["studio-flood-zones-fill", "studio-flood-zones-line"],
         flood_risk_zones: ["studio-flood-zones-fill", "studio-flood-zones-line"],
@@ -747,7 +766,7 @@ export function MapStudioCanvas({
     []
   );
 
-  // Initialize MapLibre
+  // Initialize MapLibre ONCE on mount
   useEffect(() => {
     let isMounted = true;
     let map: any = null;
@@ -772,7 +791,7 @@ export function MapStudioCanvas({
 
         map = new maplibregl.Map({
           container: mapContainer.current,
-          style: getStyleSpec(basemapStyle),
+          style: getStyleSpec(currentBasemapRef.current),
           center: activePreset.center,
           zoom: activePreset.zoom,
           pitch: activePreset.pitch,
@@ -785,9 +804,9 @@ export function MapStudioCanvas({
           mapInstance.current = map;
           isInitializing.current = false;
           injectStudioLayers(map);
-          applyLayerVisibility(map, layers, activeExperienceId);
-          if (experienceData) {
-            injectExperienceFeatures(map, experienceData);
+          applyLayerVisibility(map, layersRef.current, activeExpRef.current);
+          if (expDataRef.current) {
+            injectExperienceFeatures(map, expDataRef.current);
           }
           if (onMapLoaded) onMapLoaded(map);
         });
@@ -817,26 +836,28 @@ export function MapStudioCanvas({
       }
       isInitializing.current = false;
     };
-  }, [basemapStyle, getStyleSpec, injectStudioLayers, applyLayerVisibility, injectExperienceFeatures, experienceData, activeExperienceId, onMapLoaded]);
+  }, []);
 
-  // Handle Basemap Style Changes Dynamically
+  // Handle Basemap Style Changes Dynamically without destroying Map instance
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || !map.isStyleLoaded()) return;
+    if (currentBasemapRef.current === basemapStyle) return;
+    currentBasemapRef.current = basemapStyle;
 
     try {
       map.setStyle(getStyleSpec(basemapStyle));
       map.once("style.load", () => {
         injectStudioLayers(map);
-        applyLayerVisibility(map, layers, activeExperienceId);
-        if (experienceData) {
-          injectExperienceFeatures(map, experienceData);
+        applyLayerVisibility(map, layersRef.current, activeExpRef.current);
+        if (expDataRef.current) {
+          injectExperienceFeatures(map, expDataRef.current);
         }
       });
     } catch (e) {
       console.error("Error updating basemap style:", e);
     }
-  }, [basemapStyle, getStyleSpec, injectStudioLayers, applyLayerVisibility, experienceData, activeExperienceId, injectExperienceFeatures]);
+  }, [basemapStyle, getStyleSpec, injectStudioLayers, applyLayerVisibility, injectExperienceFeatures]);
 
   // Handle Dynamic Layer Visibility & Opacity across all 14 Environmental, Infrastructure & Incident Layers
   useEffect(() => {

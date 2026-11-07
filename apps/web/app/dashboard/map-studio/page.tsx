@@ -296,6 +296,21 @@ export default function MapStudioPage() {
           isPlaying={isPlayingTimeline}
           onTogglePlay={() => setIsPlayingTimeline(!isPlayingTimeline)}
           isDarkGIS={isDarkGIS}
+          title={
+            activeExperienceId === "extreme-heat-risk"
+              ? "Thermal Heat Index Timeline Scrubber"
+              : activeExperienceId === "air-quality-intelligence"
+              ? "Atmospheric Dispersion Timeline Scrubber"
+              : activeExperienceId === "verified-incident"
+              ? "Municipal Incident Triage Timeline Scrubber"
+              : activeExperienceId === "citizen-hazard-report"
+              ? "Citizen Hazard Event Timeline Scrubber"
+              : activeExperienceId === "safe-navigation-risk-aware"
+              ? "Routing Risk Forecast Scrubber"
+              : activeExperienceId === "infrastructure-emergency-facility"
+              ? "Civil Defense Standby Timeline Scrubber"
+              : "Hydrological Timeline Scrubber"
+          }
         />
 
         {/* Bottom Left Legend for Active Experience */}
