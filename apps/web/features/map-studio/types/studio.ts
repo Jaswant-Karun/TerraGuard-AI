@@ -13,6 +13,17 @@ export interface LayerConfig {
   opacity: number;
   badge?: string;
   adminOnly?: boolean;
+
+  // Prompt 6: Real Data Provenance & Telemetry Metadata
+  source_name?: string;
+  data_type?: string;
+  unit?: string;
+  last_updated?: string;
+  coverage?: string;
+  availability?: "LIVE_SYNCED" | "AVAILABLE" | "RATE_LIMITED_CACHE" | "UNAVAILABLE";
+  data_quality?: string;
+  is_unavailable?: boolean;
+  unavailable_reason?: string;
 }
 
 export interface FloodZoneProperties {
