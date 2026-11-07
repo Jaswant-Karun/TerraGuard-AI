@@ -15,6 +15,7 @@ from app.api.v1.endpoints import (
     health,
     locations,
     map_studio,
+    maps,
     navigation,
     reports,
     risk,
@@ -72,3 +73,6 @@ api_v1_router.include_router(map_studio.router)
 
 # Mount Flood Risk Visualization Engine (Prompt 4)
 api_v1_router.include_router(flood_visualization.router)
+
+# Mount Unified Map Integration & GeoJSON Engine (Prompt 5)
+api_v1_router.include_router(maps.router, prefix="/maps")
