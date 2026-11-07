@@ -12,8 +12,8 @@ from app.schemas.risk import (
     RiskExplanationResponse,
     SubscoreDTO,
 )
-from app.services.environmental_service import environmental_service
 from app.services.automation_service import automation_service
+from app.services.environmental_service import environmental_service
 
 
 class RiskService:
@@ -199,7 +199,7 @@ class RiskService:
                         "mitigation_directives": agg.mitigation_directives,
                     },
                 )
-            except Exception as e:
+            except Exception:
                 pass
 
         return resp

@@ -321,13 +321,13 @@ export function ExperienceSidePanel({
               </span>
             </div>
             <p className="text-slate-300 text-[10px] leading-tight">
-              {experienceMeta.id === "verified-municipal-incidents"
+              {experienceMeta.id === "verified-incident"
                 ? "Linked to WF_02_RISK_THRESHOLD & WF_05_RESPONSE_TASK_CREATION. Verified triage events promote to this map canvas within 30s."
-                : experienceMeta.id === "citizen-reports-crowdsource"
+                : experienceMeta.id === "citizen-hazard-report"
                 ? "Linked to WF_03_CITIZEN_REPORT_PROCESSING. Ingests submissions with automated duplicate filtering."
-                : experienceMeta.id === "rainfall-radar-telemetry" || experienceMeta.id === "air-quality-environmental"
+                : experienceMeta.id === "live-rainfall-monitoring" || experienceMeta.id === "air-quality-intelligence"
                 ? "Linked to WF_01_ENV_MONITORING. Ingests 5-minute telemetry intervals from Open-Meteo & OpenAQ."
-                : experienceMeta.id === "critical-infrastructure"
+                : experienceMeta.id === "infrastructure-emergency-facility"
                 ? "Linked to WF_04_ALERT_NOTIFICATION. Dispatches priority warnings to hospitals and transit hubs."
                 : "Synchronized with active n8n automation pipelines and MongoDB workflow_logs audit receipts."}
             </p>

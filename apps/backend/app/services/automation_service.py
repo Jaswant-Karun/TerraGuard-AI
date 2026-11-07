@@ -512,25 +512,25 @@ class AutomationService:
   async def get_map_automation_sync_status(self) -> MapAutomationStatusResponse:
     """Returns confirmed automation sync status calculated strictly from actual workflow execution results."""
     logs, total = await workflow_logs_repository.find_filtered(limit=25)
-    success_logs = [l for l in logs if l.get("status") == "SUCCESS"]
+    success_logs = [entry for entry in logs if entry.get("status") == "SUCCESS"]
     success_rate = (len(success_logs) / len(logs) * 100.0) if logs else 100.0
     last_executed = logs[0].get("executed_at") if logs else None
     if isinstance(last_executed, datetime):
       last_executed = last_executed.isoformat()
 
     recent_events = []
-    for l in logs[:8]:
-      payload_data = l.get("payload", {})
+    for entry in logs[:8]:
+      payload_data = entry.get("payload", {})
       recent_events.append({
-          "workflow_id": l.get("workflow_id"),
-          "event": l.get("trigger_event"),
-          "status": l.get("status"),
-          "executed_at": str(l.get("executed_at")),
+          "workflow_id": entry.get("workflow_id"),
+          "event": entry.get("trigger_event"),
+          "status": entry.get("status"),
+          "executed_at": str(entry.get("executed_at")),
           "summary": (
               payload_data.get("title")
               or payload_data.get("event_name")
               or payload_data.get("action_taken")
-              or l.get("trigger_event")
+              or entry.get("trigger_event")
           ),
       })
 

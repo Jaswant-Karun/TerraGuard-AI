@@ -5,10 +5,10 @@ from app.core.errors import AppException
 from app.models.collections import CitizenReportModel, GeoJSONPoint
 from app.repositories.citizen_reports_repository import citizen_reports_repository
 from app.schemas.report import ReportListResponse, ReportResponse
+from app.services.automation_service import automation_service
 from app.services.duplicate_service import duplicate_service
 from app.services.storage_service import storage_service
 from app.services.vision_service import vision_service
-from app.services.automation_service import automation_service
 
 logger = logging.getLogger("terraguard.reports")
 
