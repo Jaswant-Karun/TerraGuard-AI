@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/features/auth/AuthContext";
 import {
   ShieldAlert,
@@ -48,6 +48,7 @@ import {
   Printer,
   Compass,
   Navigation,
+  Quote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +58,156 @@ import { Modal } from "@/components/ui/modal";
 import { ToastProvider, useToast } from "@/components/ui/toast";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { CityRiskMap } from "@/components/map/CityRiskMap";
+
+const RESILIENCE_PROVERBS = [
+  {
+    proverb: "An ounce of prevention is worth a pound of cure.",
+    author: "Benjamin Franklin (1736)",
+    badge: "CORE PRINCIPLE",
+    tagline: "Proactive Urban Disaster Mitigation",
+    reflection:
+      "TerraGuard AI transforms this timeless truth into autonomous reality — shifting cities from costly catastrophe response to real-time predictive hazard prevention.",
+    icon: ShieldCheck,
+    color: "from-cyan-400 to-blue-500",
+  },
+  {
+    proverb: "We do not inherit the Earth from our ancestors; we borrow it from our children.",
+    author: "Ancient Environmental Proverb",
+    badge: "ECOLOGICAL CREED",
+    tagline: "Sustainable Urban Stewardship & UN SDG 11 / 13",
+    reflection:
+      "Safeguarding living watersheds, stormwater basins, and communities through ethical AI telemetry and open environmental data.",
+    icon: Sparkles,
+    color: "from-emerald-400 to-teal-500",
+  },
+  {
+    proverb: "A stitch in time saves nine.",
+    author: "Traditional Resilience Proverb",
+    badge: "EARLY TRIAGE",
+    tagline: "Sub-Second Response Latency",
+    reflection:
+      "Detecting a choked storm culvert or flash-flood surge in minutes prevents multi-crore infrastructure damage and protects vulnerable lives.",
+    icon: Compass,
+    color: "from-purple-400 to-indigo-500",
+  },
+];
+
+function ProverbMotionBanner() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % RESILIENCE_PROVERBS.length);
+    }, 6500);
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
+  const active = RESILIENCE_PROVERBS[currentIndex];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 35 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.35, ease: "easeOut" }}
+      className="mt-12 sm:mt-16 w-full"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div className="relative overflow-hidden rounded-2xl border border-cyan-500/40 bg-gradient-to-r from-[#070D1E] via-[#0B1530] to-[#070D1E] p-4 sm:p-5 md:p-6 shadow-2xl backdrop-blur-xl">
+        {/* Ambient background glows */}
+        <div className="absolute top-0 right-1/4 w-72 h-36 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-60 h-28 bg-blue-600/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Left: Icon & Badge */}
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="relative shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-950 via-slate-900 to-blue-900 border border-cyan-500/40 flex items-center justify-center text-cyan-300 shadow-lg shadow-cyan-950/40">
+                <Quote className="w-5 h-5 text-cyan-400" />
+              </div>
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500" />
+              </span>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3 text-cyan-400 animate-pulse" />
+                  {active.badge}
+                </span>
+                <span className="text-[11px] font-medium text-slate-300">
+                  {active.tagline}
+                </span>
+              </div>
+              <div className="text-[10px] font-mono text-slate-400">
+                THE PHILOSOPHICAL FOUNDATION OF TERRAGUARD AI
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Cycler dots & Action */}
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            {RESILIENCE_PROVERBS.map((item, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`transition-all duration-300 rounded-full ${
+                  idx === currentIndex
+                    ? "w-7 h-2 bg-gradient-to-r from-cyan-400 to-blue-400 shadow-sm shadow-cyan-400/50"
+                    : "w-2 h-2 bg-slate-700 hover:bg-slate-500"
+                }`}
+                aria-label={`View Proverb ${idx + 1}: ${item.badge}`}
+                title={item.proverb}
+              />
+            ))}
+            <Link
+              href="/dashboard"
+              className="ml-3 inline-flex items-center gap-1.5 text-[11px] font-bold text-cyan-300 hover:text-white transition px-3 py-1 rounded-lg bg-cyan-950/70 hover:bg-cyan-900/70 border border-cyan-500/40 shrink-0"
+            >
+              <span>Explore AI Prevention</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+        </div>
+
+        {/* The Animated Proverb Block */}
+        <div className="relative mt-3.5 pt-3.5 border-t border-slate-800/80 min-h-[72px] sm:min-h-[58px] flex items-center">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.4 }}
+              className="w-full flex flex-col sm:flex-row sm:items-baseline justify-between gap-2"
+            >
+              <div className="flex-1">
+                <blockquote className="text-sm sm:text-base md:text-lg font-serif italic text-white font-medium tracking-wide leading-snug">
+                  “{active.proverb}”
+                </blockquote>
+                <p className="text-[11px] sm:text-xs text-slate-300 mt-1 leading-relaxed">
+                  {active.reflection}
+                </p>
+              </div>
+              <div className="sm:text-right shrink-0 mt-1 sm:mt-0">
+                <span className="text-[11px] font-semibold text-cyan-300 block">
+                  — {active.author}
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">
+                  Detect • Predict • Verify • Prevent
+                </span>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 function LandingPageContent() {
   const { showToast } = useToast();
@@ -431,6 +582,9 @@ function LandingPageContent() {
               </div>
             </motion.div>
           </div>
+
+          {/* Motion Intro: Resilience Proverb Showcase at the bottom of the first page */}
+          <ProverbMotionBanner />
         </div>
       </section>
 
