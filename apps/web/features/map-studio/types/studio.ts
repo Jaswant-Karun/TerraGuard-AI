@@ -148,4 +148,23 @@ export interface MapStudioExperienceResponse {
   side_panel_data: Record<string, any>;
 }
 
+export interface MapAutomationConfirmedEvent {
+  workflow_id: string;
+  action_taken: string;
+  status: string;
+  created_at: string;
+  details?: Record<string, any>;
+}
+
+export interface MapAutomationStatusResponse {
+  is_connected: boolean;
+  webhook_url: string;
+  active_workflows_count: number;
+  confirmed_executions_24h: number;
+  success_rate_pct: number;
+  last_sync_timestamp: string | null;
+  recent_confirmed_events: MapAutomationConfirmedEvent[];
+}
+
+
 

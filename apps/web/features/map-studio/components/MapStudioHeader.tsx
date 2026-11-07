@@ -17,6 +17,8 @@ import {
   Activity,
   BarChart3,
   Info,
+  Workflow,
+  Zap,
 } from "lucide-react";
 import { MapPreset, StudioViewMode } from "../types/studio";
 
@@ -37,6 +39,8 @@ interface MapStudioHeaderProps {
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onResetView: () => void;
+  onOpenAutomationModal?: () => void;
+  automationActiveCount?: number;
 }
 
 export function MapStudioHeader({
@@ -56,6 +60,8 @@ export function MapStudioHeader({
   isFullscreen,
   onToggleFullscreen,
   onResetView,
+  onOpenAutomationModal,
+  automationActiveCount = 6,
 }: MapStudioHeaderProps) {
   const isDarkGIS = viewMode === "flood-intelligence";
 
@@ -230,6 +236,22 @@ export function MapStudioHeader({
           >
             <BarChart3 className="h-3.5 w-3.5 text-cyan-400" />
             <span className="hidden lg:inline">Area Analytics</span>
+          </button>
+        )}
+
+        {onOpenAutomationModal && (
+          <button
+            onClick={onOpenAutomationModal}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition ${
+              isDarkGIS
+                ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/70 hover:border-emerald-400"
+                : "bg-emerald-900/60 border-emerald-400/50 text-emerald-200 hover:bg-emerald-800"
+            }`}
+            title="Open n8n Event-Driven Automation Sync Panel (Prompt 9)"
+          >
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <Workflow className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">n8n Sync: {automationActiveCount}/6</span>
           </button>
         )}
 

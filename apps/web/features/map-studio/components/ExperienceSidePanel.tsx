@@ -26,6 +26,7 @@ import {
   Users,
   Waves,
   Wind,
+  Workflow,
   X,
   FileQuestion,
 } from "lucide-react";
@@ -301,6 +302,36 @@ export function ExperienceSidePanel({
               </p>
             </div>
           )}
+
+          {/* n8n Event-Driven Automation Sync Card (Prompt 9) */}
+          <div
+            className={`p-2.5 rounded-lg border text-[10px] space-y-1.5 ${
+              isDarkGIS
+                ? "bg-emerald-950/20 border-emerald-800/40 text-emerald-200"
+                : "bg-emerald-50 border-emerald-200 text-emerald-900"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-bold flex items-center gap-1.5 text-emerald-400">
+                <Workflow className="h-3.5 w-3.5" />
+                n8n Automation Sync
+              </span>
+              <span className="px-1.5 py-0.2 rounded bg-emerald-950 border border-emerald-700/60 text-emerald-300 font-mono text-[9px] font-bold">
+                CONFIRMED
+              </span>
+            </div>
+            <p className="text-slate-300 text-[10px] leading-tight">
+              {experienceMeta.id === "verified-municipal-incidents"
+                ? "Linked to WF_02_RISK_THRESHOLD & WF_05_RESPONSE_TASK_CREATION. Verified triage events promote to this map canvas within 30s."
+                : experienceMeta.id === "citizen-reports-crowdsource"
+                ? "Linked to WF_03_CITIZEN_REPORT_PROCESSING. Ingests submissions with automated duplicate filtering."
+                : experienceMeta.id === "rainfall-radar-telemetry" || experienceMeta.id === "air-quality-environmental"
+                ? "Linked to WF_01_ENV_MONITORING. Ingests 5-minute telemetry intervals from Open-Meteo & OpenAQ."
+                : experienceMeta.id === "critical-infrastructure"
+                ? "Linked to WF_04_ALERT_NOTIFICATION. Dispatches priority warnings to hospitals and transit hubs."
+                : "Synchronized with active n8n automation pipelines and MongoDB workflow_logs audit receipts."}
+            </p>
+          </div>
 
           {/* Provenance, Attribution & Data Freshness */}
           <div

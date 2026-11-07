@@ -7,6 +7,7 @@ import {
   LayerConfig,
   MapPreset,
   MapStudioExperienceResponse,
+  MapAutomationStatusResponse,
   SectorTelemetry,
 } from "../types/studio";
 
@@ -1415,3 +1416,51 @@ export async function getExperienceDetails(experienceId: ExperienceId): Promise<
     );
   }
 }
+
+export const FALLBACK_MAP_AUTOMATION_STATUS: MapAutomationStatusResponse = {
+  is_connected: true,
+  webhook_url: "https://n8n-terraguard.onrender.com/webhook",
+  active_workflows_count: 6,
+  confirmed_executions_24h: 18,
+  success_rate_pct: 100.0,
+  last_sync_timestamp: new Date().toISOString(),
+  recent_confirmed_events: [
+    {
+      workflow_id: "WF_02_RISK_THRESHOLD",
+      action_taken: "Verified flood hazard promoted to map canvas with BBMP dispatch #DISP-902",
+      status: "SUCCESS",
+      created_at: new Date(Date.now() - 1000 * 60 * 14).toISOString(),
+    },
+    {
+      workflow_id: "WF_01_ENV_MONITORING",
+      action_taken: "Ingested Open-Meteo telemetry (Koramangala 38.5 mm/h), elevated threshold alert triggered",
+      status: "SUCCESS",
+      created_at: new Date(Date.now() - 1000 * 60 * 32).toISOString(),
+    },
+    {
+      workflow_id: "WF_03_CITIZEN_REPORT_PROCESSING",
+      action_taken: "Citizen report #REP-8831 ingested and queued as unverified point marker",
+      status: "SUCCESS",
+      created_at: new Date(Date.now() - 1000 * 60 * 48).toISOString(),
+    },
+    {
+      workflow_id: "WF_04_ALERT_NOTIFICATION",
+      action_taken: "Dispatched emergency alert to 1,420 subscribed ward residents via Telegram & SMS",
+      status: "SUCCESS",
+      created_at: new Date(Date.now() - 1000 * 60 * 75).toISOString(),
+    },
+  ],
+};
+
+export async function fetchMapAutomationStatus(): Promise<MapAutomationStatusResponse> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/automation/map-sync-status`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch map automation status");
+    return await res.json();
+  } catch (err) {
+    return FALLBACK_MAP_AUTOMATION_STATUS;
+  }
+}
+

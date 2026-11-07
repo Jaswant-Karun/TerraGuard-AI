@@ -20,6 +20,9 @@ import {
   FALLBACK_FLOOD_LAYERS_DATA,
 } from "@/features/flood-engine/services/flood_visualization";
 import { AreaAnalyticsDrawer } from "@/features/map-studio/components/AreaAnalyticsDrawer";
+import { MapAutomationModal } from "@/features/map-studio/components/MapAutomationModal";
+import { fetchMapAutomationStatus } from "@/features/map-studio/services/map_studio";
+import { MapAutomationStatusResponse } from "@/features/map-studio/types/studio";
 import {
   fetchContextualAreaAnalytics,
   MapContextualAreaResponse,
@@ -91,6 +94,25 @@ export default function MapStudioPage() {
   const [isAreaAnalyticsOpen, setIsAreaAnalyticsOpen] = useState(false);
   const [areaAnalyticsData, setAreaAnalyticsData] = useState<MapContextualAreaResponse>(FALLBACK_CONTEXTUAL_AREA);
   const [isAreaAnalyticsLoading, setIsAreaAnalyticsLoading] = useState(false);
+
+  // n8n Event-Driven Automation Sync State (Prompt 9)
+  const [isAutomationModalOpen, setIsAutomationModalOpen] = useState(false);
+  const [automationStatus, setAutomationStatus] = useState<MapAutomationStatusResponse | null>(null);
+  const [isAutomationLoading, setIsAutomationLoading] = useState(false);
+
+  const loadAutomationStatus = useCallback(async () => {
+    setIsAutomationLoading(true);
+    try {
+      const res = await fetchMapAutomationStatus();
+      setAutomationStatus(res);
+    } finally {
+      setIsAutomationLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAutomationStatus();
+  }, [loadAutomationStatus]);
 
   const mapRef = useRef<any>(null);
 
