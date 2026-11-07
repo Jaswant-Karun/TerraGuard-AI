@@ -40,6 +40,15 @@ class MapLayerCatalogItem(BaseModel):
     description: str
     endpoint: str
     source: str
+    source_name: str
+    data_type: str
+    unit: str | None = None
+    last_updated: str
+    coverage: str
+    availability: str = "AVAILABLE"  # LIVE_SYNCED, AVAILABLE, RATE_LIMITED_CACHE, UNAVAILABLE
+    data_quality: str
+    is_unavailable: bool = False
+    unavailable_reason: str | None = None
     update_frequency: str
     is_active_by_default: bool
     default_opacity: float = 0.8
