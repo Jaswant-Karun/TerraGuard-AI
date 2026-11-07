@@ -130,8 +130,8 @@ class Settings(BaseSettings):
     JWT_SECRET: str | None = None
     ALLOWED_ORIGINS: str | list[str] | None = None
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     def model_post_init(self, __context: Any) -> None:
         # Support JWT_SECRET alias

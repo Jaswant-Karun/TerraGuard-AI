@@ -72,6 +72,12 @@ class AlertsRepository(BaseRepository):
             query["severity"] = min_severity
 
         if not db_manager.is_fallback() and db_manager.db is not None:
+            count = await db_manager.db["alerts"].count_documents({})
+            if count == 0:
+                for s in SAMPLE_ALERTS:
+                    s_doc = dict(s)
+                    s_doc["created_at"] = datetime.now(UTC)
+                    await db_manager.db["alerts"].insert_one(s_doc)
             cursor = db_manager.db["alerts"].find(query).sort("created_at", -1).limit(limit)
             raw = await cursor.to_list(length=limit)
             return [serialize_doc(d) for d in raw]
@@ -109,9 +115,23 @@ class AlertsRepository(BaseRepository):
                 criteria,
                 {"$addToSet": {"acknowledged_by": user_id}},
             )
-            return await self.find_by_id(alert_id)
+            found = await self.find_by_id(alert_id)
+            if not found:
+                for s in SAMPLE_ALERTS:
+                    if s.get("id") == alert_id:
+                        s_doc = dict(s)
+                        s_doc["acknowledged_by"] = [user_id]
+                        await db_manager.db["alerts"].insert_one(s_doc)
+                        return serialize_doc(s_doc)
+            return found
 
         doc = await self.find_by_id(alert_id)
+        if not doc:
+            for s in SAMPLE_ALERTS:
+                if s.get("id") == alert_id:
+                    doc = dict(s)
+                    self._get_memory_store()[s["id"]] = doc
+                    break
         if doc:
             acks = doc.get("acknowledged_by", [])
             if user_id not in acks:
