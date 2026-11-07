@@ -177,7 +177,8 @@ export default function MapStudioPage() {
     }
   }, []);
 
-  const isDarkGIS = viewMode === "flood-intelligence";
+  // Consistent tactical Command Center dark theme across all 11 studio views
+  const isDarkGIS = true;
   const activeExperienceMeta =
     experiences.find((e) => e.id === activeExperienceId) || experiences[0];
 

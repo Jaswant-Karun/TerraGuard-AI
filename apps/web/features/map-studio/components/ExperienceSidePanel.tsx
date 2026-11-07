@@ -64,7 +64,7 @@ export function ExperienceSidePanel({
   isDarkGIS = true,
   onOpenExplanation,
 }: ExperienceSidePanelProps) {
-  // Collapsed Launcher Pill
+  // Collapsed Launcher Pill (Compact, docked top-right)
   if (!isOpen) {
     return (
       <motion.button
@@ -72,15 +72,15 @@ export function ExperienceSidePanel({
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 20 }}
         onClick={onOpen || onClose}
-        className="absolute top-14 right-3 z-25 flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/95 text-white shadow-xl backdrop-blur-md transition-all select-none group min-h-[38px] hover:bg-slate-800 hover:border-cyan-500 focus-visible:ring-2 focus-visible:ring-cyan-400"
+        className="absolute top-14 right-3 z-25 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-cyan-500/40 bg-[#0B132B]/95 text-white shadow-xl backdrop-blur-md transition-all select-none group min-h-[34px] hover:bg-slate-800 hover:border-cyan-400 focus-visible:ring-2 focus-visible:ring-cyan-400"
         title="Open Domain Intelligence Drawer (Key: ])"
         aria-label="Open Domain Intelligence Drawer"
       >
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-bold border border-cyan-500/30">
+        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-cyan-500/20 text-cyan-300 font-mono text-[10px] font-bold border border-cyan-500/40">
           {experienceMeta.index}
         </span>
-        <span className="text-xs font-semibold tracking-wide">Domain Insights</span>
-        <ArrowRight className="h-3.5 w-3.5 text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
+        <span className="text-[11px] font-bold text-white tracking-wide">Domain Insights</span>
+        <ArrowRight className="h-3 w-3 text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
       </motion.button>
     );
   }
@@ -92,32 +92,32 @@ export function ExperienceSidePanel({
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, x: 300 }}
+        initial={{ opacity: 0, x: 280 }}
         animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 300 }}
+        exit={{ opacity: 0, x: 280 }}
         transition={{ type: "spring", damping: 28, stiffness: 280 }}
-        className="absolute top-14 right-3 z-25 w-80 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-9.5rem)] flex flex-col rounded-xl border border-slate-700/80 bg-slate-900/95 text-slate-100 shadow-2xl backdrop-blur-md select-none overflow-hidden"
+        className="absolute top-14 right-3 z-25 w-[280px] sm:w-[290px] max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-8.5rem)] flex flex-col rounded-xl border border-cyan-500/40 bg-[#0A1128]/98 text-white shadow-2xl backdrop-blur-xl select-none overflow-hidden"
         role="region"
         aria-label="Domain Intelligence Panel"
       >
         {/* Panel Header */}
-        <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-800/80 bg-slate-950/60">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-cyan-500/20 bg-[#070D1E]/90 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-xs font-bold border border-cyan-500/30">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-cyan-500/20 text-cyan-300 font-mono text-xs font-bold border border-cyan-500/40">
               {experienceMeta.index}
             </span>
             <div className="truncate">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100 truncate">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-white truncate">
                 {experienceMeta.name.replace(/^Map \d+ — /, "")}
               </h3>
-              <span className="text-[10px] text-cyan-400 block truncate">
+              <span className="text-[10px] text-cyan-300 font-medium block truncate">
                 {experienceMeta.category} Intelligence
               </span>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 min-h-[28px] min-w-[28px] flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1 min-h-[26px] min-w-[26px] flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
             title="Close Intelligence Panel (Key: ])"
             aria-label="Close Intelligence Panel"
           >
@@ -125,25 +125,25 @@ export function ExperienceSidePanel({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3.5 py-3 space-y-3 text-xs">
+        <div className="flex-1 overflow-y-auto px-3 py-2.5 space-y-2.5 text-xs">
           {/* Focused Urban Sector Header */}
-          <div className="p-2.5 rounded-lg border border-slate-800 bg-slate-950/80">
+          <div className="p-2.5 rounded-lg border border-cyan-500/30 bg-[#0F1D38]/90">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-[9.5px] font-bold text-cyan-300 uppercase tracking-wider">
                 Focused Location
               </span>
               <span
                 className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
                   activePreset.risk_level === "CRITICAL"
-                    ? "bg-rose-900/60 text-rose-200 border-rose-600"
-                    : "bg-amber-900/60 text-amber-200 border-amber-600"
+                    ? "bg-rose-500/30 text-rose-300 border-rose-500/60"
+                    : "bg-amber-500/30 text-amber-300 border-amber-500/60"
                 }`}
               >
                 {activePreset.risk_level} SEVERITY
               </span>
             </div>
             <h4 className="font-bold text-xs text-white truncate">{activePreset.name}</h4>
-            <p className="text-[10px] text-slate-400 mt-0.5 truncate">{activePreset.subtext}</p>
+            <p className="text-[10px] text-slate-300 mt-0.5 truncate">{activePreset.subtext}</p>
           </div>
 
           {/* Dynamic Key Metrics Grid */}
@@ -152,9 +152,9 @@ export function ExperienceSidePanel({
               {Object.entries(metrics).map(([key, val]) => (
                 <div
                   key={key}
-                  className="p-2.5 rounded-lg border border-slate-800/80 bg-slate-950/60 flex flex-col"
+                  className="p-2 rounded-lg border border-slate-700/80 bg-[#0F1D38]/95 flex flex-col"
                 >
-                  <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 truncate">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-300 truncate">
                     {key.replace(/_/g, " ")}
                   </span>
                   <span className="text-sm font-bold tracking-tight text-cyan-300 font-mono mt-0.5 truncate">
@@ -165,10 +165,10 @@ export function ExperienceSidePanel({
             </div>
           ) : (
             /* Clean Empty State */
-            <div className="p-3 rounded-xl border border-slate-800 bg-slate-950/40 text-center">
-              <ShieldCheck className="h-5 w-5 text-emerald-400 mx-auto mb-1 opacity-80" />
-              <p className="text-xs font-semibold text-white">Nominal Risk Index</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">
+            <div className="p-2.5 rounded-lg border border-slate-800 bg-[#0F1D38]/60 text-center">
+              <ShieldCheck className="h-4 w-4 text-emerald-400 mx-auto mb-1 opacity-80" />
+              <p className="text-[11px] font-bold text-white">Nominal Risk Index</p>
+              <p className="text-[9.5px] text-slate-300 mt-0.5">
                 No active municipal hazards or emergency anomalies recorded in this sector.
               </p>
             </div>
@@ -176,24 +176,24 @@ export function ExperienceSidePanel({
 
           {/* Experience-Specific Visual Telemetry Renderers */}
           {experienceMeta.id === "flood-risk-intelligence" && (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {onOpenExplanation && (
                 <button
                   onClick={onOpenExplanation}
-                  className="w-full flex items-center justify-between p-2.5 rounded-lg bg-gradient-to-r from-cyan-950/80 via-slate-900 to-blue-950/80 border border-cyan-500/50 text-cyan-200 hover:text-white hover:border-cyan-400 transition-all shadow-lg group min-h-[38px]"
+                  className="w-full flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-blue-950 via-slate-900 to-cyan-950 border border-cyan-400/50 text-cyan-200 hover:text-white hover:border-cyan-300 transition-all shadow-md group min-h-[34px]"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-md bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30">
+                    <div className="p-1 rounded-md bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30">
                       <Waves className="w-3.5 h-3.5 animate-pulse" />
                     </div>
                     <div className="text-left">
-                      <div className="text-[11px] font-bold text-white flex items-center gap-1.5">
+                      <div className="text-[10.5px] font-bold text-white flex items-center gap-1.5">
                         <span>Explain Risk Rationale</span>
-                        <span className="text-[8px] font-mono px-1 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                          AI RATIONALE
+                        <span className="text-[8px] font-mono px-1 py-0.2 rounded bg-cyan-500/30 text-cyan-200 border border-cyan-400/40">
+                          AI
                         </span>
                       </div>
-                      <div className="text-[9px] text-cyan-400/80">
+                      <div className="text-[9px] text-cyan-300/90">
                         Why is this area High / Mod / Low risk?
                       </div>
                     </div>
@@ -201,15 +201,15 @@ export function ExperienceSidePanel({
                   <ArrowRight className="w-3.5 h-3.5 text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               )}
-              <div className="p-2.5 rounded-lg border border-slate-800 bg-slate-950/60">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <div className="p-2 rounded-lg border border-slate-700/80 bg-[#0F1D38]/90">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                     <TrendingUp className="h-3 w-3 text-cyan-400" />
                     Observed Rain & ML Projection
                   </span>
-                  <span className="text-[8px] text-slate-400 font-mono">19:00 &rarr; 04:00</span>
+                  <span className="text-[8px] text-cyan-300 font-mono">19:00 &rarr; 04:00</span>
                 </div>
-                <div className="h-16 w-full flex items-end gap-1 pt-1 px-1">
+                <div className="h-14 w-full flex items-end gap-1 pt-1 px-1">
                   {telemetry.hyetograph_history.map((pt, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center h-full justify-end">
                       <div
@@ -247,11 +247,11 @@ export function ExperienceSidePanel({
               </div>
 
               {data.contributing_factors && (
-                <div className="p-2.5 rounded-lg border border-slate-800 bg-slate-950/50">
-                  <span className="text-[9px] font-bold uppercase tracking-wide text-slate-300 block mb-1">
+                <div className="p-2 rounded-lg border border-slate-700/80 bg-[#0F1D38]/70">
+                  <span className="text-[9px] font-bold uppercase tracking-wide text-slate-200 block mb-1">
                     Contributing Risk Factors
                   </span>
-                  <ul className="space-y-0.5 text-[10px] text-slate-400 list-disc list-inside">
+                  <ul className="space-y-0.5 text-[9.5px] text-slate-300 list-disc list-inside">
                     {data.contributing_factors.map((f: string, idx: number) => (
                       <li key={idx} className="leading-tight">
                         {f}
@@ -265,12 +265,12 @@ export function ExperienceSidePanel({
 
           {/* MAP 11: Route Risk Explanation */}
           {experienceMeta.id === "safe-navigation-risk-aware" && (
-            <div className="p-2.5 rounded-lg border border-emerald-900/60 bg-emerald-950/40 text-xs">
-              <div className="flex items-center gap-1.5 text-emerald-400 font-bold mb-1">
+            <div className="p-2 rounded-lg border border-emerald-500/40 bg-emerald-950/60 text-xs">
+              <div className="flex items-center gap-1.5 text-emerald-300 font-bold mb-1">
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <span className="text-[11px]">Recommended Safe Path Computed</span>
+                <span className="text-[10.5px]">Recommended Safe Path Computed</span>
               </div>
-              <p className="text-[10px] text-slate-300 leading-snug">
+              <p className="text-[9.5px] text-slate-200 leading-snug">
                 Route safely avoids Koramangala 80ft Road Lowland Sump (Culvert 4B backup depth
                 0.72m). Diverted via Inner Ring Road elevation ridge.
               </p>
@@ -278,17 +278,17 @@ export function ExperienceSidePanel({
           )}
 
           {/* n8n Event-Driven Automation Sync Card (Prompt 9) */}
-          <div className="p-2.5 rounded-lg border border-emerald-800/40 bg-emerald-950/20 text-[10px] space-y-1">
+          <div className="p-2.5 rounded-lg border border-emerald-500/40 bg-emerald-950/70 text-[10px] space-y-1">
             <div className="flex items-center justify-between">
-              <span className="font-bold flex items-center gap-1.5 text-emerald-400">
+              <span className="font-bold flex items-center gap-1.5 text-emerald-300">
                 <Workflow className="h-3.5 w-3.5" />
                 n8n Automation Sync
               </span>
-              <span className="px-1.5 py-0.2 rounded bg-emerald-950 border border-emerald-700/60 text-emerald-300 font-mono text-[9px] font-bold">
+              <span className="px-1.5 py-0.2 rounded bg-emerald-900 border border-emerald-500 text-emerald-200 font-mono text-[9px] font-bold">
                 CONFIRMED
               </span>
             </div>
-            <p className="text-slate-300 text-[9.5px] leading-tight">
+            <p className="text-emerald-100 text-[9.5px] leading-tight font-medium">
               {experienceMeta.id === "verified-incident"
                 ? "Linked to WF_02_RISK_THRESHOLD & WF_05_RESPONSE_TASK_CREATION. Verified triage events promote to this map canvas within 30s."
                 : experienceMeta.id === "citizen-hazard-report"
@@ -302,16 +302,16 @@ export function ExperienceSidePanel({
           </div>
 
           {/* Provenance, Attribution & Data Freshness */}
-          <div className="p-2.5 rounded-lg border border-slate-800 bg-slate-950/70 text-[10px] space-y-1">
+          <div className="p-2.5 rounded-lg border border-slate-700/80 bg-[#070D1E]/95 text-[10px] space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400 font-semibold text-[9px]">Data Provenance</span>
-              <span className="text-cyan-400 font-medium text-[9px]">{experienceMeta.freshness}</span>
+              <span className="text-slate-300 font-bold text-[9px]">Data Provenance</span>
+              <span className="text-cyan-300 font-bold text-[9px]">{experienceMeta.freshness}</span>
             </div>
-            <p className="text-slate-300 leading-tight text-[9.5px]">
+            <p className="text-slate-200 leading-tight text-[9.5px] font-medium">
               <strong className="text-slate-400">Source:</strong> {experienceMeta.attribution}
             </p>
             {experienceMeta.limitations && (
-              <div className="pt-1 border-t border-slate-800 text-slate-400 text-[8.5px] flex items-start gap-1">
+              <div className="pt-1 border-t border-slate-800 text-amber-200 text-[8.5px] flex items-start gap-1 font-medium">
                 <Info className="h-3 w-3 text-amber-400 shrink-0 mt-0.5" />
                 <span>{experienceMeta.limitations}</span>
               </div>
