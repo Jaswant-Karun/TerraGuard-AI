@@ -65,3 +65,4 @@ TerraGuard AI directly impacts four major UN Sustainable Development Goals:
 * **SDG 13 (Climate Action — Target 13.1):** Strengthens resilience and adaptive capacity to climate-related hazards and natural disasters in urban areas.
 * **SDG 3 (Good Health & Well-Being — Target 3.9):** Mitigates respiratory illnesses through real-time CPCB air quality plume tracking and reduces heat-stroke mortality via wet-bulb temperature indexing.
 * **SDG 9 (Industry, Innovation & Infrastructure — Target 9.1):** Safeguards critical civil defense infrastructure (hospitals, sub-stations, transit terminals) through preemptive flood barrier dispatching.
+

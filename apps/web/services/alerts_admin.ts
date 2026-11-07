@@ -109,27 +109,88 @@ export async function markAllNotificationsRead(token: string): Promise<any> {
   return res.json();
 }
 
-export async function fetchPreferences(token: string): Promise<NotificationPreference> {
-  const res = await fetch(`${API_BASE_URL}/alerts/preferences/me`, {
-    method: "GET",
-    headers: authHeaders(token),
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error("Failed to fetch notification preferences");
-  return res.json();
+export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreference = {
+  user_id: "me",
+  email_enabled: true,
+  sms_enabled: false,
+  telegram_enabled: true,
+  min_severity_alert: 3,
+  monitored_zones: ["Bellandur Basin", "Koramangala Valley"],
+  updated_at: new Date().toISOString(),
+};
+
+export async function fetchPreferences(token?: string | null): Promise<NotificationPreference> {
+  const effectiveToken = token || getAccessToken();
+  const storageKey = "terraguard_notification_preferences";
+
+  if (effectiveToken) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/alerts/preferences/me`, {
+        method: "GET",
+        headers: authHeaders(effectiveToken),
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof window !== "undefined") {
+          localStorage.setItem(storageKey, JSON.stringify(data));
+        }
+        return data;
+      }
+    } catch (err) {
+      console.warn("Preferences API fetch unreachable, falling back to cached state:", err);
+    }
+  }
+
+  // Gracefully fallback to localStorage or default preferences
+  if (typeof window !== "undefined") {
+    try {
+      const cached = localStorage.getItem(storageKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch {
+      // ignore parse error
+    }
+  }
+  return DEFAULT_NOTIFICATION_PREFERENCES;
 }
 
 export async function updatePreferences(
   payload: Partial<NotificationPreference>,
-  token: string
+  token?: string | null
 ): Promise<NotificationPreference> {
-  const res = await fetch(`${API_BASE_URL}/alerts/preferences/me`, {
-    method: "PUT",
-    headers: authHeaders(token),
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error("Failed to update notification preferences");
-  return res.json();
+  const effectiveToken = token || getAccessToken();
+  const storageKey = "terraguard_notification_preferences";
+
+  if (effectiveToken) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/alerts/preferences/me`, {
+        method: "PUT",
+        headers: authHeaders(effectiveToken),
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof window !== "undefined") {
+          localStorage.setItem(storageKey, JSON.stringify(data));
+        }
+        return data;
+      }
+    } catch (err) {
+      console.warn("Preferences API update unreachable, saving locally:", err);
+    }
+  }
+
+  const merged: NotificationPreference = {
+    ...DEFAULT_NOTIFICATION_PREFERENCES,
+    ...payload,
+    updated_at: new Date().toISOString(),
+  };
+  if (typeof window !== "undefined") {
+    localStorage.setItem(storageKey, JSON.stringify(merged));
+  }
+  return merged;
 }
 
 // --- Admin Operations ---

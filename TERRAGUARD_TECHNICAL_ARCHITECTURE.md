@@ -74,3 +74,4 @@ TerraGuard AI is engineered as an enterprise-grade, loosely-coupled, event-drive
 * **Strict Geospatial Bounds Enforcement:** Latitude strictly constrained to $[-90.0, 90.0]$ and longitude to $[-180.0, 180.0]$.
 * **Payload Sanitation:** Strips potentially dangerous executable scripts, SQL injection vectors, and NoSQL operator injections (`$where`, `$regex`).
 * **Audit Provenance:** All administrative, dispatch, and triage actions log user ID, timestamp, IP address, and changed fields to `system_audit_logs`.
+

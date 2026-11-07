@@ -75,3 +75,4 @@
 * **`]` Key:** Toggles Right Domain Intelligence Drawer.
 * **`Esc` Key:** Closes active modal / fullscreen.
 * **Offline Contingency:** If venue Wi-Fi drops, the frontend automatically falls back to client-side vector synthesis with high-fidelity local telemetry, ensuring 100% demo uptime.
+

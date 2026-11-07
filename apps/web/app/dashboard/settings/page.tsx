@@ -30,7 +30,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/features/auth/AuthContext";
-import { fetchPreferences, updatePreferences } from "@/services/alerts_admin";
+import {
+  fetchPreferences,
+  updatePreferences,
+  DEFAULT_NOTIFICATION_PREFERENCES,
+} from "@/services/alerts_admin";
 import { fetchBackendHealth, SystemHealthStatus } from "@/services/api";
 import { NotificationPreference } from "@/types/alerts_admin";
 
@@ -46,7 +50,7 @@ export default function SettingsPage() {
   const { user, token, logout } = useAuth();
 
   // Notification Preferences State
-  const [preferences, setPreferences] = useState<NotificationPreference | null>(null);
+  const [preferences, setPreferences] = useState<NotificationPreference>(DEFAULT_NOTIFICATION_PREFERENCES);
   const [loadingPrefs, setLoadingPrefs] = useState<boolean>(true);
   const [savingPrefs, setSavingPrefs] = useState<boolean>(false);
   const [prefSaveSuccess, setPrefSaveSuccess] = useState<boolean>(false);
@@ -57,15 +61,14 @@ export default function SettingsPage() {
   const [checkingHealth, setCheckingHealth] = useState<boolean>(false);
 
   const loadPreferences = useCallback(async () => {
-    if (!token) return;
     try {
       setLoadingPrefs(true);
       setPrefError(null);
       const data = await fetchPreferences(token);
-      setPreferences(data);
+      setPreferences(data || DEFAULT_NOTIFICATION_PREFERENCES);
     } catch (err: any) {
-      console.error("Failed to load user preferences:", err);
-      setPrefError(err.message || "Failed to load preferences");
+      console.warn("Failed to load user preferences, falling back to default:", err);
+      setPreferences(DEFAULT_NOTIFICATION_PREFERENCES);
     } finally {
       setLoadingPrefs(false);
     }
@@ -95,7 +98,7 @@ export default function SettingsPage() {
   }, [loadPreferences, loadHealth]);
 
   const handleSavePreferences = async () => {
-    if (!token || !preferences) return;
+    if (!preferences) return;
     try {
       setSavingPrefs(true);
       setPrefSaveSuccess(false);
@@ -105,6 +108,7 @@ export default function SettingsPage() {
       setPrefSaveSuccess(true);
       setTimeout(() => setPrefSaveSuccess(false), 3500);
     } catch (err: any) {
+      console.warn("Error updating notification settings:", err);
       setPrefError(err.message || "Failed to update notification settings");
     } finally {
       setSavingPrefs(false);

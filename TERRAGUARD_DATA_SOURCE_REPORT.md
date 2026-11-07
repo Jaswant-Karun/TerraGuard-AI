@@ -33,3 +33,4 @@ To ensure enterprise stability and prevent third-party rate exhaustion during hi
 * **In-Memory Sliding Window Caching:** External sensor feeds from Open-Meteo and OpenAQ are cached locally for 15 minutes. Toggling map layers draws from memory rather than issuing repeated outbound HTTP calls.
 * **Negative Caching with Circuit Breaker:** If an upstream data provider experiences an outage or HTTP 429 rate limit, the service caches the failure for 60 seconds, returns an explicit `UNAVAILABLE` status, and activates client-side vector fallbacks without crashing the WebGL canvas.
 * **Non-Fabrication Policy:** When a physical sensor is offline or out of range, TerraGuard AI **never synthesizes or hallucinates dummy readings**. The interface renders an honest, transparent badge: `Data Source Awaiting Sensor Sync (Last known: xx mins ago)`.
+

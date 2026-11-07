@@ -55,3 +55,4 @@ To ensure high-stakes emergency directives never contain hallucinations:
 1. **Micro-Topography Limitations:** The model uses NASA SRTM 30m DEM for citywide regional slopes and BBMP LiDAR for primary lowland basins. Localized micro-depressions (underpasses $< 10\text{m}$ width) require verified citizen report corroboration.
 2. **Storm Drain Clogging Uncertainty:** Street runoff velocity calculations assume standard BBMP culvert drainage capacity ($75\%$). Sudden structural blockage by urban solid waste requires manual field squad inspection.
 3. **Data Horizon Bounds:** Predictive flash flood confidence degrades beyond $+6\text{ hours}$ due to dynamic convective cloudburst shifts.
+
