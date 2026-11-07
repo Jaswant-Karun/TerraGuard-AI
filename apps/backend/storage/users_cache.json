@@ -1,24 +1,46 @@
 {
-  "baed4a9e-dd2d-44f9-bea9-bb495debc237": {
+  "dc52fc95-be46-4539-a226-57e7bac54589": {
     "email": "citizen_e2e@terraguard.ai",
     "hashed_password": "dummy_hashed_password",
     "full_name": "Citizen E2E",
     "role": "CITIZEN",
-    "created_at": "2026-11-06T17:53:44.750896+00:00",
+    "created_at": "2026-11-07T05:50:38.154616+00:00",
     "is_active": true,
     "refresh_token": null,
     "reset_token": null,
-    "id": "baed4a9e-dd2d-44f9-bea9-bb495debc237"
+    "id": "dc52fc95-be46-4539-a226-57e7bac54589"
   },
-  "1c61a989-8c8e-41c8-a416-f0de99741662": {
+  "1a8e77cf-57af-4b1b-87fc-cb4a85979c9b": {
     "email": "admin_e2e@terraguard.ai",
     "hashed_password": "dummy_hashed_password",
     "full_name": "Admin E2E",
     "role": "ADMIN",
-    "created_at": "2026-11-06T17:53:44.753920+00:00",
+    "created_at": "2026-11-07T05:50:38.155312+00:00",
     "is_active": true,
     "refresh_token": null,
     "reset_token": null,
-    "id": "1c61a989-8c8e-41c8-a416-f0de99741662"
+    "id": "1a8e77cf-57af-4b1b-87fc-cb4a85979c9b"
+  },
+  "ae0f6a61-8ede-4517-a1d9-bcb564cf8660": {
+    "email": "coord@terraguard.ai",
+    "password_hash": "dummy_hash",
+    "full_name": "Field Coordinator",
+    "role": "COORDINATOR",
+    "is_active": true,
+    "created_at": "2026-11-07T05:50:56.887279+00:00",
+    "refresh_token": null,
+    "reset_token": null,
+    "id": "ae0f6a61-8ede-4517-a1d9-bcb564cf8660"
+  },
+  "9a10fc6b-4594-419f-8909-c6bbbb4baefe": {
+    "email": "test_validator_sec@terraguard.ai",
+    "hashed_password": "$2b$12$NP5mgLLyTkSLB0c6LwmaK.iG8cZKISSHSjkpYCrWHt14AIjjLRfcG",
+    "full_name": "Test Validator",
+    "role": "CITIZEN",
+    "is_active": true,
+    "created_at": "2026-11-07T05:51:01.754729+00:00",
+    "refresh_token": null,
+    "reset_token": null,
+    "id": "9a10fc6b-4594-419f-8909-c6bbbb4baefe"
   }
 }

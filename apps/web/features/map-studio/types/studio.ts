@@ -26,6 +26,11 @@ export interface FloodZoneProperties {
   primary_hazard: string;
   drainage_saturation_pct: number;
   last_updated: string;
+  data_source?: string;
+  model_version?: string;
+  confidence_pct?: number;
+  uncertainty_range?: string;
+  risk_explanation?: any;
 }
 
 export interface FloodRiskFeature {

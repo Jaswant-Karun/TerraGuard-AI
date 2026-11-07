@@ -10,6 +10,7 @@ from app.api.v1.endpoints import (
     dashboard,
     digital_twin,
     environment,
+    flood_visualization,
     geospatial,
     health,
     locations,
@@ -68,3 +69,6 @@ api_v1_router.include_router(analytics.router)
 
 # Mount TerraGuard AI 2.0 Additive Map Intelligence Studio
 api_v1_router.include_router(map_studio.router)
+
+# Mount Flood Risk Visualization Engine (Prompt 4)
+api_v1_router.include_router(flood_visualization.router)
