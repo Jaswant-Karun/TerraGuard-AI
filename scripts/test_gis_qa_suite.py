@@ -66,8 +66,8 @@ def run_qa_suite():
     # 1. Existing Frontend Routes Regression
     frontend_paths = [
         "/",
-        "/auth/login",
-        "/auth/register",
+        "/login",
+        "/register",
         "/dashboard",
         "/dashboard/map",           # Existing Map
         "/dashboard/map-studio",     # New Map Studio
@@ -109,7 +109,7 @@ def run_qa_suite():
         ("studio_presets", "/map-studio/presets", "GET", 200),
         ("studio_experiences", "/map-studio/experiences", "GET", 200),
         ("automation_sync_status", "/automation/map-sync-status", "GET", 200),
-        ("flood_zones_service", "/flood-visualization/zones", "GET", 200),
+        ("flood_layers_service", "/flood-visualization/layers", "GET", 200),
         ("flood_explanation_service", "/flood-visualization/explanation/ZONE-BLR-KOR-01", "GET", 200),
     ]
     print("\n--- 2. Testing Production API Endpoints ---")
@@ -137,16 +137,16 @@ def run_qa_suite():
 
     # 3. Test All 11 Map Views Individually
     experiences = [
-        "operational-satellite-streets",
+        "operational-satellite-gis",
         "flood-risk-intelligence",
-        "flood-depth-inundation",
-        "rainfall-radar-telemetry",
-        "water-bodies-drainage",
-        "citizen-reports-crowdsource",
-        "elevation-terrain-slope",
-        "air-quality-environmental",
-        "verified-municipal-incidents",
-        "critical-infrastructure",
+        "live-rainfall-monitoring",
+        "elevation-terrain",
+        "drainage-water-body",
+        "extreme-heat-risk",
+        "air-quality-intelligence",
+        "citizen-hazard-report",
+        "verified-incident",
+        "infrastructure-emergency-facility",
         "safe-navigation-risk-aware"
     ]
     print("\n--- 3. Testing 11 Map Intelligence Studio Views ---")
