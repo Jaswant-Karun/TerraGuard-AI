@@ -12,8 +12,12 @@ from app.schemas.automation import (
     AlertDeliveryWebhookPayload,
     CreateAlertWebhookPayload,
     DailyIntelligenceWebhookPayload,
+    EnvironmentalObservationWebhookPayload,
     GenericWebhookLogPayload,
+    MapAutomationStatusResponse,
+    PredictionOutcomeWebhookPayload,
     TaskDispatchWebhookPayload,
+    VerifiedIncidentWebhookPayload,
     WorkflowDefinition,
     WorkflowLogDTO,
     WorkflowLogListResponse,
@@ -244,6 +248,54 @@ async def webhook_generic_log(
 ) -> dict[str, Any]:
     verify_webhook_auth(x_webhook_secret)
     return await automation_service.handle_generic_log_webhook(payload)
+
+
+# -------------------------------------------------------------
+# Event-Driven Map Integration Callbacks (Prompt 9)
+# -------------------------------------------------------------
+@router.post(
+    "/webhooks/incident-verified",
+    summary="n8n callback to confirm a verified flood/hazard incident and update map layer",
+)
+async def webhook_incident_verified(
+    payload: VerifiedIncidentWebhookPayload,
+    x_webhook_secret: str | None = Header(None),
+) -> dict[str, Any]:
+    verify_webhook_auth(x_webhook_secret)
+    return await automation_service.handle_verified_incident_webhook(payload)
+
+
+@router.post(
+    "/webhooks/environmental-observation",
+    summary="n8n callback to ingest polled environmental telemetry into map layer",
+)
+async def webhook_environmental_observation(
+    payload: EnvironmentalObservationWebhookPayload,
+    x_webhook_secret: str | None = Header(None),
+) -> dict[str, Any]:
+    verify_webhook_auth(x_webhook_secret)
+    return await automation_service.handle_environmental_observation_webhook(payload)
+
+
+@router.post(
+    "/webhooks/prediction-outcome",
+    summary="n8n callback to log observed vs predicted outcome for prediction verification display",
+)
+async def webhook_prediction_outcome(
+    payload: PredictionOutcomeWebhookPayload,
+    x_webhook_secret: str | None = Header(None),
+) -> dict[str, Any]:
+    verify_webhook_auth(x_webhook_secret)
+    return await automation_service.handle_prediction_outcome_webhook(payload)
+
+
+@router.get(
+    "/map-sync-status",
+    response_model=MapAutomationStatusResponse,
+    summary="Retrieve confirmed n8n workflow execution sync status for the Map Intelligence Studio",
+)
+async def get_map_sync_status() -> MapAutomationStatusResponse:
+    return await automation_service.get_map_automation_sync_status()
 
 
 @router.get(

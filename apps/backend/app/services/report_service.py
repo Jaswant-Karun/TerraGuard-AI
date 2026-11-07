@@ -8,6 +8,7 @@ from app.schemas.report import ReportListResponse, ReportResponse
 from app.services.duplicate_service import duplicate_service
 from app.services.storage_service import storage_service
 from app.services.vision_service import vision_service
+from app.services.automation_service import automation_service
 
 logger = logging.getLogger("terraguard.reports")
 
@@ -114,6 +115,26 @@ class ReportService:
             f"dup={dup_result.is_potential_duplicate}"
         )
 
+        # Event-driven dispatch to n8n citizen report triage workflow (Prompt 9)
+        try:
+            await automation_service.trigger_outgoing_n8n_webhook(
+                path_or_url="citizen-report-event",
+                event_name="CITIZEN_REPORT_SUBMITTED",
+                payload={
+                    "workflow_id": "WF_03_CITIZEN_REPORT_PROCESSING",
+                    "report_id": saved.get("id"),
+                    "title": saved.get("title"),
+                    "category": resolved_category,
+                    "severity": severity,
+                    "lat": lat,
+                    "lng": lng,
+                    "is_duplicate": dup_result.is_potential_duplicate,
+                    "status": "REPORTED",
+                },
+            )
+        except Exception as e:
+            logger.warning(f"Non-blocking n8n webhook notification error: {e}")
+
         return ReportResponse(**saved)
 
     async def get_report_by_id(self, report_id: str) -> ReportResponse:
@@ -146,6 +167,28 @@ class ReportService:
                 error_code="REPORT_NOT_FOUND",
             )
         logger.info(f"Report #{report_id} status updated -> {new_status}")
+
+        if new_status == "VERIFIED":
+            try:
+                coords = updated.get("location", {}).get("coordinates", [77.6250, 12.9280])
+                await automation_service.trigger_outgoing_n8n_webhook(
+                    path_or_url="incident-verified-event",
+                    event_name="INCIDENT_VERIFIED_BY_EOC",
+                    payload={
+                        "workflow_id": "WF_02_RISK_THRESHOLD",
+                        "report_id": report_id,
+                        "title": updated.get("title"),
+                        "category": updated.get("category"),
+                        "status": "VERIFIED",
+                        "lat": coords[1] if len(coords) == 2 else 12.9280,
+                        "lng": coords[0] if len(coords) == 2 else 77.6250,
+                        "verified_by": verified_by_user_id or "EOC_SUPERVISOR",
+                        "verification_notes": notes,
+                    },
+                )
+            except Exception as e:
+                logger.warning(f"Non-blocking n8n verified webhook notification error: {e}")
+
         return ReportResponse(**updated)
 
     async def list_reports(

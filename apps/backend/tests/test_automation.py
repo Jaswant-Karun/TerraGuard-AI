@@ -152,3 +152,113 @@ async def test_trigger_workflow_endpoint():
         body = res.json()
         assert body.get("dispatched") is True
 
+
+@pytest.mark.asyncio
+async def test_incident_verified_webhook_and_deduplication():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        payload = {
+            "workflow_id": "WF_02_RISK_THRESHOLD",
+            "title": "Verified Storm Inundation at Silk Board",
+            "category": "FLOOD",
+            "severity": 4,
+            "lat": 12.9175,
+            "lng": 77.6234,
+            "depth_m": 0.85,
+            "response_unit": "BBMP Quick Reaction Pumping Squad QRF-4",
+            "verified_by": "EOC_AUTOMATED_SATELLITE_AUDIT",
+            "notes": "Verified by rain gauge correlation and field telemetry",
+            "status": "VERIFIED",
+        }
+
+        # 1. First verification succeeds and returns GeoJSON feature
+        res1 = await ac.post(
+            "/api/v1/automation/webhooks/incident-verified",
+            json=payload,
+            headers=AUTH_HEADERS,
+        )
+        assert res1.status_code == 200
+        data1 = res1.json()
+        assert data1["verified"] is True
+        assert "geojson_feature" in data1
+        assert data1["geojson_feature"]["properties"]["depth_m"] == 0.85
+
+        # 2. Duplicate submission within 30 min is cleanly suppressed
+        res2 = await ac.post(
+            "/api/v1/automation/webhooks/incident-verified",
+            json=payload,
+            headers=AUTH_HEADERS,
+        )
+        assert res2.status_code == 200
+        data2 = res2.json()
+        assert data2["verified"] is False
+        assert data2["reason"] == "DUPLICATE_SUPPRESSED"
+
+
+@pytest.mark.asyncio
+async def test_environmental_observation_webhook_escalation():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # High rainfall triggers elevated risk alert
+        payload = {
+            "workflow_id": "WF_01_ENV_MONITORING",
+            "station_id": "AWS-BLR-KOR-TEST",
+            "station_name": "Koramangala AWS Test Station",
+            "lat": 12.9280,
+            "lng": 77.6250,
+            "rainfall_rate_mm_h": 45.0,
+            "temperature_c": 24.5,
+            "humidity_pct": 92.0,
+            "aqi": 110,
+            "source": "Open-Meteo & IMD Telemetry",
+        }
+        res = await ac.post(
+            "/api/v1/automation/webhooks/environmental-observation",
+            json=payload,
+            headers=AUTH_HEADERS,
+        )
+        assert res.status_code == 200
+        data = res.json()
+        assert data["ingested"] is True
+        assert data["risk_escalated"] is True
+        assert data["layer_refreshed"] == "environmental_telemetry"
+
+
+@pytest.mark.asyncio
+async def test_prediction_outcome_webhook_accuracy():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        payload = {
+            "workflow_id": "WF_01_ENV_MONITORING",
+            "prediction_id": "PRED-2026-TEST-01",
+            "sector_name": "Koramangala Lowland Basin",
+            "lat": 12.9352,
+            "lng": 77.6245,
+            "predicted_depth_m": 0.60,
+            "observed_depth_m": 0.65,
+            "model_version": "v2.4-hydrological-ensemble",
+        }
+        res = await ac.post(
+            "/api/v1/automation/webhooks/prediction-outcome",
+            json=payload,
+            headers=AUTH_HEADERS,
+        )
+        assert res.status_code == 200
+        data = res.json()
+        assert data["verified"] is True
+        assert data["error_m"] == 0.05
+        assert data["accuracy_pct"] >= 80.0
+
+
+@pytest.mark.asyncio
+async def test_map_sync_status_endpoint():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        res = await ac.get("/api/v1/automation/map-sync-status")
+        assert res.status_code == 200
+        data = res.json()
+        assert data["is_connected"] is True
+        assert data["active_workflows_count"] == 6
+        assert "confirmed_executions_24h" in data
+        assert "recent_confirmed_events" in data
+

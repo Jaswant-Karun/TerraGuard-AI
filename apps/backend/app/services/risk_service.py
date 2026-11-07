@@ -13,6 +13,7 @@ from app.schemas.risk import (
     SubscoreDTO,
 )
 from app.services.environmental_service import environmental_service
+from app.services.automation_service import automation_service
 
 
 class RiskService:
@@ -179,6 +180,27 @@ class RiskService:
         doc_to_save = resp.model_dump()
         doc_to_save["id"] = assessment_id
         await self.repo.create(doc_to_save)
+
+        # 7. Event-driven n8n automation dispatch on elevated risk threshold (Prompt 9)
+        if agg.composite_risk_score >= 65.0 or agg.risk_level in ["CRITICAL", "HIGH"]:
+            try:
+                await automation_service.trigger_outgoing_n8n_webhook(
+                    path_or_url="risk-threshold-check",
+                    event_name="ELEVATED_RISK_THRESHOLD_EXCEEDED",
+                    payload={
+                        "workflow_id": "WF_02_RISK_THRESHOLD",
+                        "assessment_id": assessment_id,
+                        "zone_code": zone_code,
+                        "risk_score": agg.composite_risk_score,
+                        "risk_level": agg.risk_level,
+                        "primary_hazard": agg.primary_hazard,
+                        "lat": lat,
+                        "lng": lng,
+                        "mitigation_directives": agg.mitigation_directives,
+                    },
+                )
+            except Exception as e:
+                pass
 
         return resp
 
