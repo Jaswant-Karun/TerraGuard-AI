@@ -15,6 +15,7 @@ import {
   Sun,
   SlidersHorizontal,
   Activity,
+  BarChart3,
   Info,
 } from "lucide-react";
 import { MapPreset, StudioViewMode } from "../types/studio";
@@ -31,6 +32,8 @@ interface MapStudioHeaderProps {
   onToggleRightPanel: () => void;
   legendOpen: boolean;
   onToggleLegend: () => void;
+  isAreaAnalyticsOpen?: boolean;
+  onToggleAreaAnalytics?: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onResetView: () => void;
@@ -48,6 +51,8 @@ export function MapStudioHeader({
   onToggleRightPanel,
   legendOpen,
   onToggleLegend,
+  isAreaAnalyticsOpen,
+  onToggleAreaAnalytics,
   isFullscreen,
   onToggleFullscreen,
   onResetView,
@@ -208,6 +213,25 @@ export function MapStudioHeader({
           <Activity className="h-3.5 w-3.5" />
           <span className="hidden md:inline">Telemetry</span>
         </button>
+
+        {onToggleAreaAnalytics && (
+          <button
+            onClick={onToggleAreaAnalytics}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition ${
+              isAreaAnalyticsOpen
+                ? isDarkGIS
+                  ? "bg-cyan-600 text-white border-cyan-400 shadow-sm"
+                  : "bg-emerald-600 text-white border-emerald-400 shadow-sm"
+                : isDarkGIS
+                ? "bg-slate-900/60 text-slate-300 border-slate-700 hover:text-white"
+                : "bg-emerald-900/50 text-emerald-200 border-emerald-700 hover:text-white"
+            }`}
+            title="Toggle Contextual Area Analytics & Information Panel (Prompt 7)"
+          >
+            <BarChart3 className="h-3.5 w-3.5 text-cyan-400" />
+            <span className="hidden lg:inline">Area Analytics</span>
+          </button>
+        )}
 
         <button
           onClick={onToggleLegend}

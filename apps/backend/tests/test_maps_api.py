@@ -189,3 +189,32 @@ async def test_maps_bounds_validation_error():
     assert response.status_code == 400
     data = response.json()
     assert "message" in data or "detail" in data
+
+
+@pytest.mark.asyncio
+async def test_get_contextual_area_analytics():
+    """Verify /api/v1/maps/analytics/context returns complete contextual intelligence (Prompt 7)."""
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.get("/api/v1/maps/analytics/context?lat=12.9250&lng=77.6250&radius_km=3.0")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "area_name" in data
+    assert "Koramangala" in data["area_name"]
+    assert "coordinates" in data
+    assert data["coordinates"]["lat"] == 12.9250
+    assert "current_conditions" in data
+    assert data["current_conditions"]["rainfall_intensity_mm_h"] > 0
+    assert "flood_risk" in data
+    assert data["flood_risk"]["risk_level"] in ["CRITICAL", "HIGH", "MODERATE", "LOW"]
+    assert "heat_risk" in data
+    assert "nearby_citizen_reports" in data
+    assert "nearby_verified_incidents" in data
+    assert "nearby_facilities" in data
+    assert "data_freshness" in data
+    assert len(data["data_freshness"]) >= 4
+    assert "historical_series" in data
+    assert len(data["historical_series"]) >= 5
+    assert "comparison_metrics" in data
+    assert "city_avg_flood_score" in data["comparison_metrics"]
+

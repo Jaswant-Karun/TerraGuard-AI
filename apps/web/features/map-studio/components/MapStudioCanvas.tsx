@@ -25,6 +25,7 @@ interface MapStudioCanvasProps {
   onMapLoaded?: (mapInstance: any) => void;
   isDarkGIS?: boolean;
   onOpenZoneExplanation?: (zoneId: string) => void;
+  onSelectLocation?: (coords: [number, number], areaName?: string) => void;
 }
 
 export function MapStudioCanvas({
@@ -39,6 +40,7 @@ export function MapStudioCanvas({
   onMapLoaded,
   isDarkGIS = true,
   onOpenZoneExplanation,
+  onSelectLocation,
 }: MapStudioCanvasProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
@@ -55,7 +57,7 @@ export function MapStudioCanvas({
   expDataRef.current = experienceData;
   const currentBasemapRef = useRef(basemapStyle);
 
-  // Register global callback for popup explanation trigger
+  // Register global callbacks for popup explanation trigger & area analytics (Prompt 7)
   useEffect(() => {
     if (typeof window !== "undefined") {
       (window as any).__openFloodExplanation = (zoneId: string) => {
@@ -63,13 +65,19 @@ export function MapStudioCanvas({
           onOpenZoneExplanation(zoneId);
         }
       };
+      (window as any).__openAreaAnalytics = (lat: number, lng: number, name: string) => {
+        if (onSelectLocation) {
+          onSelectLocation([lng, lat], name);
+        }
+      };
     }
     return () => {
       if (typeof window !== "undefined") {
         delete (window as any).__openFloodExplanation;
+        delete (window as any).__openAreaAnalytics;
       }
     };
-  }, [onOpenZoneExplanation]);
+  }, [onOpenZoneExplanation, onSelectLocation]);
 
   // Generate MapLibre Style Specification for given Basemap
   const getStyleSpec = useCallback((styleKey: BasemapStyle): any => {
@@ -745,6 +753,11 @@ export function MapStudioCanvas({
                   ${props.data_source ? `<div style="font-size: 9px; color: #64748b; margin-top: 4px; border-top: 1px dashed #cbd5e1; padding-top: 3px;"><b>Source:</b> ${props.data_source}</div>` : ""}
                   ${props.model_version ? `<div style="font-size: 9px; color: #64748b;"><b>Model:</b> ${props.model_version}</div>` : ""}
                   ${props.uncertainty_range ? `<div style="font-size: 9px; color: #0284c7;"><b>Uncertainty:</b> ${props.uncertainty_range}</div>` : ""}
+                  <div style="margin-top: 6px; padding-top: 5px; border-top: 1px solid #e2e8f0;">
+                    <button onclick="window.__openAreaAnalytics && window.__openAreaAnalytics(${coordinates.lat}, ${coordinates.lng}, '${(title || '').replace(/'/g, "\\'")}')" style="width: 100%; padding: 5px 8px; background: #0891b2; color: #ffffff; border: none; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; text-align: center; display: block; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                      Contextual Area Analytics &rarr;
+                    </button>
+                  </div>
                   ${explanationBtn}
                 </div>
               `)
@@ -809,6 +822,16 @@ export function MapStudioCanvas({
             injectExperienceFeatures(map, expDataRef.current);
           }
           if (onMapLoaded) onMapLoaded(map);
+
+          // Click handler for area analytics (Prompt 7)
+          map.on("click", (e: any) => {
+            const features = map.queryRenderedFeatures(e.point, {
+              layers: ["exp-points-circle", "exp-lines", "exp-polygons-fill", "studio-flood-zones-fill"],
+            });
+            if (features.length === 0 && onSelectLocation) {
+              onSelectLocation([e.lngLat.lng, e.lngLat.lat], "Selected Urban Sector");
+            }
+          });
         });
       } catch (err: any) {
         console.error("MapStudio init error:", err);

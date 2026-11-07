@@ -18,6 +18,12 @@ import {
   FloodZoneExplanationData,
   FALLBACK_FLOOD_LAYERS_DATA,
 } from "@/features/flood-engine/services/flood_visualization";
+import { AreaAnalyticsDrawer } from "@/features/map-studio/components/AreaAnalyticsDrawer";
+import {
+  fetchContextualAreaAnalytics,
+  MapContextualAreaResponse,
+  FALLBACK_CONTEXTUAL_AREA,
+} from "@/features/maps/services/unified_maps";
 
 // Dynamically import MapStudioCanvas to ensure zero SSR WebGL issues
 const MapStudioCanvas = dynamic(
@@ -78,7 +84,56 @@ export default function MapStudioPage() {
   const [geoNotification, setGeoNotification] = useState<string | null>(null);
   const [explanationData, setExplanationData] = useState<FloodZoneExplanationData | null>(null);
   const [isExplanationOpen, setIsExplanationOpen] = useState(false);
+
+  // Contextual Area Analytics Drawer State (Prompt 7)
+  const [isAreaAnalyticsOpen, setIsAreaAnalyticsOpen] = useState(false);
+  const [areaAnalyticsData, setAreaAnalyticsData] = useState<MapContextualAreaResponse>(FALLBACK_CONTEXTUAL_AREA);
+  const [isAreaAnalyticsLoading, setIsAreaAnalyticsLoading] = useState(false);
+
   const mapRef = useRef<any>(null);
+
+  const handleSelectLocation = useCallback(async (coords: [number, number], areaName?: string) => {
+    setIsAreaAnalyticsOpen(true);
+    setIsAreaAnalyticsLoading(true);
+    const [lng, lat] = coords;
+    try {
+      const data = await fetchContextualAreaAnalytics({ lat, lng, area_name: areaName });
+      if (data) {
+        setAreaAnalyticsData(data);
+      }
+    } finally {
+      setIsAreaAnalyticsLoading(false);
+    }
+  }, []);
+
+  const handleDateRangeChange = useCallback(async (range: string, startDate?: string, endDate?: string) => {
+    setIsAreaAnalyticsLoading(true);
+    try {
+      const data = await fetchContextualAreaAnalytics({
+        lat: areaAnalyticsData.coordinates.lat,
+        lng: areaAnalyticsData.coordinates.lng,
+        area_name: areaAnalyticsData.area_name,
+        start_date: startDate,
+        end_date: endDate,
+      });
+      if (data) {
+        setAreaAnalyticsData(data);
+      }
+    } finally {
+      setIsAreaAnalyticsLoading(false);
+    }
+  }, [areaAnalyticsData]);
+
+  const handleSelectPreset = useCallback((preset: any) => {
+    selectPreset(preset);
+    fetchContextualAreaAnalytics({
+      lat: preset.center[1],
+      lng: preset.center[0],
+      area_name: preset.name,
+    }).then((data) => {
+      if (data) setAreaAnalyticsData(data);
+    });
+  }, [selectPreset]);
 
   const handleOpenZoneExplanation = useCallback(async (zoneId: string) => {
     let targetId = zoneId;
