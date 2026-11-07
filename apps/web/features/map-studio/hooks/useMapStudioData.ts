@@ -47,10 +47,10 @@ export function useMapStudioData() {
   const [timeOffsetHours, setTimeOffsetHours] = useState<number>(0);
   const [isPlayingTimeline, setIsPlayingTimeline] = useState<boolean>(false);
 
-  // UI Drawer states
-  const [leftPanelOpen, setLeftPanelOpen] = useState<boolean>(true);
-  const [rightPanelOpen, setRightPanelOpen] = useState<boolean>(true);
-  const [legendOpen, setLegendOpen] = useState<boolean>(true);
+  // UI Drawer states: start with an uncluttered, full-screen map experience
+  const [leftPanelOpen, setLeftPanelOpen] = useState<boolean>(false);
+  const [rightPanelOpen, setRightPanelOpen] = useState<boolean>(false);
+  const [legendOpen, setLegendOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Load initial backend data

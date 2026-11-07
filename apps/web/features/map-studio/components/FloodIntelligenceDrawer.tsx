@@ -41,7 +41,7 @@ export function FloodIntelligenceDrawer({
 
   return (
     <div
-      className={`absolute top-3 right-3 z-20 w-84 max-h-[calc(100vh-5.5rem)] flex flex-col rounded-xl border shadow-2xl backdrop-blur-md select-none transition-all duration-200 overflow-hidden ${
+      className={`absolute top-3 right-3 z-20 w-80 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5.5rem)] flex flex-col rounded-xl border shadow-2xl backdrop-blur-md select-none transition-all duration-200 overflow-hidden ${
         isDarkGIS
           ? "bg-slate-950/92 border-slate-800 text-slate-100"
           : "bg-white/95 border-slate-200 text-slate-900 shadow-slate-900/10"

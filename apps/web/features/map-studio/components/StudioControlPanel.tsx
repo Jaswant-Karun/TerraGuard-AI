@@ -257,20 +257,12 @@ export function StudioControlPanel({
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -320 }}
         transition={{ type: "spring", damping: 28, stiffness: 280 }}
-        className={`absolute top-12 left-3 z-25 w-[calc(100vw-1.5rem)] sm:w-80 max-h-[calc(100vh-7.5rem)] flex flex-col rounded-xl border shadow-2xl backdrop-blur-md select-none overflow-hidden ${
-          isDarkGIS
-            ? "bg-slate-950/92 border-slate-800 text-slate-100"
-            : "bg-white/95 border-slate-200 text-slate-900 shadow-slate-900/10"
-        }`}
+        className="absolute top-14 left-3 z-25 w-80 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-9.5rem)] flex flex-col rounded-xl border border-slate-700/80 bg-slate-900/95 text-slate-100 shadow-2xl backdrop-blur-md select-none overflow-hidden"
         role="region"
         aria-label="Map Control Panel"
       >
         {/* Header with Quick Actions */}
-        <div
-          className={`flex items-center justify-between px-3.5 py-2.5 border-b ${
-            isDarkGIS ? "border-slate-800/80 bg-slate-900/40" : "border-slate-200/80 bg-slate-50/70"
-          }`}
-        >
+        <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-800/80 bg-slate-950/60">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-cyan-400" />
             <span className="text-xs font-bold uppercase tracking-wider">Map Control Panel</span>
