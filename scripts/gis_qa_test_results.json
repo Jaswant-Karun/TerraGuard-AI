@@ -1,0 +1,359 @@
+{
+  "frontend_routes": {
+    "/": {
+      "status_code": 200,
+      "latency_ms": 963.89,
+      "success": true
+    },
+    "/auth/login": {
+      "status_code": 404,
+      "latency_ms": 918.16,
+      "success": false
+    },
+    "/auth/register": {
+      "status_code": 404,
+      "latency_ms": 1817.0,
+      "success": false
+    },
+    "/dashboard": {
+      "status_code": 200,
+      "latency_ms": 1761.65,
+      "success": true
+    },
+    "/dashboard/map": {
+      "status_code": 200,
+      "latency_ms": 1045.69,
+      "success": true
+    },
+    "/dashboard/map-studio": {
+      "status_code": 200,
+      "latency_ms": 1046.72,
+      "success": true
+    },
+    "/dashboard/prediction": {
+      "status_code": 200,
+      "latency_ms": 1196.93,
+      "success": true
+    },
+    "/dashboard/report": {
+      "status_code": 200,
+      "latency_ms": 1859.16,
+      "success": true
+    },
+    "/dashboard/navigation": {
+      "status_code": 200,
+      "latency_ms": 1252.14,
+      "success": true
+    },
+    "/dashboard/analytics": {
+      "status_code": 200,
+      "latency_ms": 1477.67,
+      "success": true
+    },
+    "/dashboard/alerts": {
+      "status_code": 200,
+      "latency_ms": 4405.07,
+      "success": true
+    },
+    "/dashboard/automation": {
+      "status_code": 200,
+      "latency_ms": 3349.23,
+      "success": true
+    },
+    "/dashboard/digital-twin": {
+      "status_code": 200,
+      "latency_ms": 1614.41,
+      "success": true
+    },
+    "/dashboard/settings": {
+      "status_code": 200,
+      "latency_ms": 1089.9,
+      "success": true
+    },
+    "/dashboard/admin": {
+      "status_code": 200,
+      "latency_ms": 1252.49,
+      "success": true
+    }
+  },
+  "production_api_endpoints": {
+    "health": {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ms": 2702.66,
+      "success": true,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 245
+    },
+    "map_layers": {
+      "path": "/maps/layers",
+      "status_code": 200,
+      "latency_ms": 3410.71,
+      "success": true,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 6864
+    },
+    "flood_geojson": {
+      "path": "/maps/geojson/flood",
+      "status_code": 200,
+      "latency_ms": 1574.2,
+      "success": true,
+      "is_geojson": true,
+      "feature_count": 5,
+      "size_bytes": 3719
+    },
+    "heat_geojson": {
+      "path": "/maps/geojson/heat",
+      "status_code": 200,
+      "latency_ms": 3611.39,
+      "success": true,
+      "is_geojson": true,
+      "feature_count": 5,
+      "size_bytes": 2661
+    },
+    "air_quality_geojson": {
+      "path": "/maps/geojson/air-quality",
+      "status_code": 200,
+      "latency_ms": 3613.33,
+      "success": true,
+      "is_geojson": true,
+      "feature_count": 5,
+      "size_bytes": 2154
+    },
+    "reports_geojson": {
+      "path": "/maps/geojson/reports",
+      "status_code": 200,
+      "latency_ms": 2709.32,
+      "success": true,
+      "is_geojson": true,
+      "feature_count": 4,
+      "size_bytes": 2782
+    },
+    "verified_incidents_geojson": {
+      "path": "/maps/geojson/verified-incidents",
+      "status_code": 200,
+      "latency_ms": 1943.61,
+      "success": true,
+      "is_geojson": true,
+      "feature_count": 4,
+      "size_bytes": 2200
+    },
+    "infrastructure_geojson": {
+      "path": "/maps/geojson/infrastructure",
+      "status_code": 200,
+      "latency_ms": 2031.67,
+      "success": true,
+      "is_geojson": true,
+      "feature_count": 11,
+      "size_bytes": 4464
+    },
+    "water_bodies_geojson": {
+      "path": "/maps/geojson/water-bodies",
+      "status_code": 200,
+      "latency_ms": 1509.87,
+      "success": true,
+      "is_geojson": true,
+      "feature_count": 4,
+      "size_bytes": 2296
+    },
+    "rainfall_geojson": {
+      "path": "/maps/geojson/rainfall",
+      "status_code": 200,
+      "latency_ms": 1147.57,
+      "success": true,
+      "is_geojson": true,
+      "feature_count": 5,
+      "size_bytes": 2304
+    },
+    "maps_legend": {
+      "path": "/maps/legend",
+      "status_code": 200,
+      "latency_ms": 1307.04,
+      "success": true,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 3043
+    },
+    "maps_metadata": {
+      "path": "/maps/metadata",
+      "status_code": 200,
+      "latency_ms": 2822.1,
+      "success": true,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 952
+    },
+    "studio_telemetry": {
+      "path": "/map-studio/telemetry",
+      "status_code": 200,
+      "latency_ms": 1668.49,
+      "success": true,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 1290
+    },
+    "studio_presets": {
+      "path": "/map-studio/presets",
+      "status_code": 200,
+      "latency_ms": 1298.24,
+      "success": true,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 1447
+    },
+    "studio_experiences": {
+      "path": "/map-studio/experiences",
+      "status_code": 200,
+      "latency_ms": 1428.79,
+      "success": true,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 6202
+    },
+    "automation_sync_status": {
+      "path": "/automation/map-sync-status",
+      "status_code": 200,
+      "latency_ms": 1494.52,
+      "success": true,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 218
+    },
+    "flood_zones_service": {
+      "path": "/flood-visualization/zones",
+      "status_code": 404,
+      "latency_ms": 1275.0,
+      "success": false,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 107
+    },
+    "flood_explanation_service": {
+      "path": "/flood-visualization/explanation/ZONE-BLR-KOR-01",
+      "status_code": 200,
+      "latency_ms": 1286.87,
+      "success": true,
+      "is_geojson": false,
+      "feature_count": 0,
+      "size_bytes": 2123
+    }
+  },
+  "map_views_validation": {
+    "operational-satellite-streets": {
+      "status_code": 200,
+      "latency_ms": 1531.29,
+      "valid": true,
+      "feature_count": 0,
+      "name": "Operational Satellite GIS",
+      "attribution": "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+      "freshness": "Live GIS Ingestion \u2022 Optical Pass: 10:45 AM UTC"
+    },
+    "flood-risk-intelligence": {
+      "status_code": 200,
+      "latency_ms": 1488.39,
+      "valid": true,
+      "feature_count": 5,
+      "name": "Flood Risk Intelligence",
+      "attribution": "TerraGuard Hydro-UNet v2.4, BBMP Stormwater LiDAR, IMD",
+      "freshness": "Live Telemetry Sync \u2022 5 min cadence"
+    },
+    "flood-depth-inundation": {
+      "status_code": 200,
+      "latency_ms": 3727.76,
+      "valid": true,
+      "feature_count": 0,
+      "name": "Operational Satellite GIS",
+      "attribution": "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+      "freshness": "Live GIS Ingestion \u2022 Optical Pass: 10:45 AM UTC"
+    },
+    "rainfall-radar-telemetry": {
+      "status_code": 200,
+      "latency_ms": 5884.41,
+      "valid": true,
+      "feature_count": 0,
+      "name": "Operational Satellite GIS",
+      "attribution": "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+      "freshness": "Live GIS Ingestion \u2022 Optical Pass: 10:45 AM UTC"
+    },
+    "water-bodies-drainage": {
+      "status_code": 200,
+      "latency_ms": 3286.44,
+      "valid": true,
+      "feature_count": 0,
+      "name": "Operational Satellite GIS",
+      "attribution": "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+      "freshness": "Live GIS Ingestion \u2022 Optical Pass: 10:45 AM UTC"
+    },
+    "citizen-reports-crowdsource": {
+      "status_code": 200,
+      "latency_ms": 2469.84,
+      "valid": true,
+      "feature_count": 0,
+      "name": "Operational Satellite GIS",
+      "attribution": "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+      "freshness": "Live GIS Ingestion \u2022 Optical Pass: 10:45 AM UTC"
+    },
+    "elevation-terrain-slope": {
+      "status_code": 200,
+      "latency_ms": 1461.3,
+      "valid": true,
+      "feature_count": 0,
+      "name": "Operational Satellite GIS",
+      "attribution": "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+      "freshness": "Live GIS Ingestion \u2022 Optical Pass: 10:45 AM UTC"
+    },
+    "air-quality-environmental": {
+      "status_code": 200,
+      "latency_ms": 1216.92,
+      "valid": true,
+      "feature_count": 0,
+      "name": "Operational Satellite GIS",
+      "attribution": "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+      "freshness": "Live GIS Ingestion \u2022 Optical Pass: 10:45 AM UTC"
+    },
+    "verified-municipal-incidents": {
+      "status_code": 200,
+      "latency_ms": 1273.19,
+      "valid": true,
+      "feature_count": 0,
+      "name": "Operational Satellite GIS",
+      "attribution": "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+      "freshness": "Live GIS Ingestion \u2022 Optical Pass: 10:45 AM UTC"
+    },
+    "critical-infrastructure": {
+      "status_code": 200,
+      "latency_ms": 3279.46,
+      "valid": true,
+      "feature_count": 0,
+      "name": "Operational Satellite GIS",
+      "attribution": "Esri World Imagery, DigitalGlobe, BBMP GIS Cell",
+      "freshness": "Live GIS Ingestion \u2022 Optical Pass: 10:45 AM UTC"
+    },
+    "safe-navigation-risk-aware": {
+      "status_code": 200,
+      "latency_ms": 3877.76,
+      "valid": true,
+      "feature_count": 4,
+      "name": "Safe Navigation & Risk-Aware Routing",
+      "attribution": "OSRM Open Routing Engine + TerraGuard Spatial Hazard Intersect",
+      "freshness": "Real-Time Topological Re-routing"
+    }
+  },
+  "security_and_auth": {
+    "unauthorized_webhook": {
+      "status_code": 422,
+      "blocked": true,
+      "latency_ms": 3300.28
+    }
+  },
+  "resilience_and_errors": {
+    "invalid_bounds_rejected": {
+      "status_code": 422,
+      "handled": true,
+      "latency_ms": 1415.26
+    }
+  },
+  "performance_benchmarks": {}
+}
