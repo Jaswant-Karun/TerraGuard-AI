@@ -55,3 +55,4 @@ Measured across 10 sequential sampling runs against the live production backend:
 * **Concurrent Users:** 50 simulated concurrent operators toggling layers every 2 seconds.
 * **Error Rate:** **$0.00\%$** (0 failed requests out of 2,500 transactions).
 * **Mean Time to First Vector Render (TTFVR):** $340\text{ ms}$ on broadband, $720\text{ ms}$ on simulated mobile 4G.
+

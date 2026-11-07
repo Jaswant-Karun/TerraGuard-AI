@@ -48,3 +48,4 @@ To guarantee sub-second rendering without exhausting third-party API rate limits
 ## 4. Certification of Ground Truth
 * **Zero Decorative Tiles:** No static graphics, concept art, or mockups are used as functional map tiles or layers.
 * **Geographical Authenticity:** All polygons adhere strictly to actual EPSG:4326 (WGS84) geographic boundaries corresponding to real-world Bengaluru drainages, culverts, and arterial roads.
+

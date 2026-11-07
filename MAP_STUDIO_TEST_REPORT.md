@@ -97,3 +97,4 @@ As an independent GIS QA engineer, a systematic end-to-end evaluation was perfor
 * **Decoupled Architecture:** The Map Intelligence Studio is mounted under `/dashboard/map-studio` and consumes additive endpoints under `/api/v1/maps/*` and `/api/v1/map-studio/*`.
 * **Zero Legacy Mutation:** No legacy MongoDB collections (`users`, `reports`, `alerts`) were dropped or renamed.
 * **Disabling Test:** Removing `/dashboard/map-studio` or unsetting `NEXT_PUBLIC_ENABLE_MAP_STUDIO` preserves $100\%$ functionality across the existing dashboard and legacy map at `/dashboard/map`.
+
