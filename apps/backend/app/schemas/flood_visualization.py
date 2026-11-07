@@ -79,3 +79,4 @@ class FloodZoneExplanationResponse(BaseModel):
     confidence_pct: float
     uncertainty_range: str
     explanation: RiskExplanationDTO
+

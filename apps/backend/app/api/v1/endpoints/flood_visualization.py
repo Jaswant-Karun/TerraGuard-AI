@@ -55,3 +55,4 @@ async def get_flood_zone_explanation(
             detail=f"Flood susceptibility zone '{zone_id}' not found in registry.",
         )
     return explanation
+

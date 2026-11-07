@@ -336,3 +336,4 @@ export const FloodRiskExplanationPanel: React.FC<FloodRiskExplanationPanelProps>
     </div>
   );
 };
+
