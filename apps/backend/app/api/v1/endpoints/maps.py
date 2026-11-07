@@ -12,6 +12,7 @@ from app.repositories.maps_repository import (
 )
 from app.schemas.maps import (
     GeoJSONFeatureCollectionResponse,
+    MapContextualAreaResponse,
     MapLayersResponse,
     MapLegendResponse,
     MapMetadataResponse,
@@ -313,4 +314,31 @@ async def get_map_legend() -> MapLegendResponse:
 )
 async def get_map_metadata() -> MapMetadataResponse:
     return await maps_repository.get_metadata()
+
+
+# 12. GET /api/v1/maps/analytics/context (Prompt 7)
+@router.get(
+    "/analytics/context",
+    response_model=MapContextualAreaResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve Contextual Area Analytics & Multi-Hazard Intelligence (Prompt 7)",
+    description="Returns environmental telemetry, flood & heat risk estimates, nearby citizen reports, verified incidents, emergency facilities, comparison metrics, and historical time series for any clicked location or urban sector.",
+)
+async def get_contextual_area_analytics(
+    lat: float = Query(default=12.9250, ge=-90.0, le=90.0, description="Latitude coordinate"),
+    lng: float = Query(default=77.6250, ge=-180.0, le=180.0, description="Longitude coordinate"),
+    area_name: str | None = Query(default=None, description="Optional area or sector name"),
+    radius_km: float = Query(default=3.0, ge=0.5, le=25.0, description="Search radius in kilometers"),
+    start_date: str | None = Query(default=None, description="Start date filter for historical observations"),
+    end_date: str | None = Query(default=None, description="End date filter for historical observations"),
+) -> MapContextualAreaResponse:
+    return await maps_repository.get_contextual_area_analytics(
+        lat=lat,
+        lng=lng,
+        area_name=area_name,
+        radius_km=radius_km,
+        start_date=start_date,
+        end_date=end_date,
+    )
+
 

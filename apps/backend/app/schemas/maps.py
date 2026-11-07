@@ -91,3 +91,114 @@ class MapMetadataResponse(BaseModel):
     mongodb_status: dict[str, Any]
     scientific_standards: str
 
+
+# =========================================================================
+# Prompt 7 — Contextual Area Analytics & Information Panel Schemas
+# =========================================================================
+
+
+class EnvironmentalConditionSnapshot(BaseModel):
+    rainfall_intensity_mm_h: float
+    rainfall_station: str
+    rainfall_last_updated: str
+    rainfall_status: str
+    temperature_c: float
+    humidity_pct: float
+    temperature_station: str
+    temperature_last_updated: str
+    air_quality_index: float
+    pm25_ug_m3: float
+    pm10_ug_m3: float
+    air_quality_category: str
+    air_quality_station: str
+    air_quality_last_updated: str
+
+
+class FloodRiskEstimate(BaseModel):
+    risk_level: str  # CRITICAL, HIGH, MODERATE, LOW
+    risk_score: float
+    flood_depth_m: float
+    drainage_saturation_pct: float
+    model_version: str
+    confidence_pct: float
+    uncertainty_range: str
+    data_source: str
+    elevation_masl: float
+
+
+class HeatRiskEstimate(BaseModel):
+    risk_level: str
+    heat_index_c: float
+    lst_anomaly_c: float
+    canopy_buffer_pct: float
+    model_source: str
+
+
+class NearbyIncidentItem(BaseModel):
+    id: str
+    type: str  # CITIZEN_REPORT or VERIFIED_INCIDENT
+    title: str
+    category: str
+    severity: int
+    status: str
+    distance_m: int
+    coordinates: list[float]
+    timestamp: str
+    verified_by: str | None = None
+
+
+class NearbyFacilityItem(BaseModel):
+    id: str
+    name: str
+    type: str  # HOSPITAL, SHELTER, FIRE_STATION
+    distance_m: int
+    coordinates: list[float]
+    is_operational: bool
+    capacity_detail: str
+
+
+class DataSourceFreshnessItem(BaseModel):
+    dataset: str
+    provider: str
+    last_updated: str
+    status: str  # LIVE_SYNCED, AVAILABLE, RATE_LIMITED_CACHE
+    quality_assurance: str
+
+
+class HistoricalObservationPoint(BaseModel):
+    timestamp: str
+    offset_label: str  # "-24h", "-18h", ... "NOW"
+    rainfall_mm: float
+    temperature_c: float
+    aqi: float
+    inundation_depth_m: float
+    drainage_capacity_pct: float
+
+
+class ContextualComparisonMetrics(BaseModel):
+    area_flood_score: float
+    city_avg_flood_score: float
+    area_heat_score: float
+    city_avg_heat_score: float
+    area_aqi: float
+    city_avg_aqi: float
+
+
+class MapContextualAreaResponse(BaseModel):
+    area_name: str
+    ward_code: str
+    coordinates: dict[str, float]  # {"lat": ..., "lng": ...}
+    bbox: list[float]
+    radius_km: float
+    current_conditions: EnvironmentalConditionSnapshot
+    flood_risk: FloodRiskEstimate
+    heat_risk: HeatRiskEstimate
+    nearby_citizen_reports: list[NearbyIncidentItem]
+    nearby_verified_incidents: list[NearbyIncidentItem]
+    nearby_facilities: list[NearbyFacilityItem]
+    data_freshness: list[DataSourceFreshnessItem]
+    historical_series: list[HistoricalObservationPoint]
+    comparison_metrics: ContextualComparisonMetrics
+    applied_date_range: dict[str, str | None]
+
+
