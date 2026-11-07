@@ -81,3 +81,4 @@ class MapMetadataResponse(BaseModel):
     available_endpoints: list[str]
     mongodb_status: dict[str, Any]
     scientific_standards: str
+

@@ -313,3 +313,4 @@ async def get_map_legend() -> MapLegendResponse:
 )
 async def get_map_metadata() -> MapMetadataResponse:
     return await maps_repository.get_metadata()
+

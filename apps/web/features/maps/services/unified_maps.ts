@@ -140,3 +140,4 @@ export async function fetchUnifiedMapMetadata(): Promise<MapMetadataResponse | n
     return null;
   }
 }
+
