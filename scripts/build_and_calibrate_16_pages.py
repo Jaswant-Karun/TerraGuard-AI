@@ -53,7 +53,7 @@ IMG_3_VOLUNTEER = USER_UPLOADED_DIR / "media_1793992170434_3078a0d5.jpg"
 IMG_4_COCKPIT = USER_UPLOADED_DIR / "media_1793992193694_5462a94e.jpg"
 IMG_5_REPORT = USER_UPLOADED_DIR / "media_1793992254767_d9209966.jpg"
 IMG_6_GITHUB = USER_UPLOADED_DIR / "media_1793997513424_b81345d4.png"
-IMG_7_ANALYTICS = USER_UPLOADED_DIR / "media_1793997551159_84c52feb.jpg"
+IMG_7_ANALYTICS = USER_UPLOADED_DIR / "media_1794038696010_7a78fcc4.jpg"
 IMG_8_BRANCHES = USER_UPLOADED_DIR / "media_1793998438353_f120a3cd.jpg"
 IMG_9_MAPSTUDIO = USER_UPLOADED_DIR / "media_1794028862710_729d587e.jpg"
 
@@ -267,7 +267,7 @@ def get_page_10(pad=2.8):
     story = []
     story.append(Paragraph("3.7 Municipal Risk Intelligence & Auditable Provenance Analytics", h1_style))
     story.append(Paragraph(
-        "<b>Evidence Asset:</b> Production Analytics & Reports Portal (<code>media_1793997551159_84c52feb.jpg</code>) at <code>/dashboard/analytics</code>. "
+        "<b>Evidence Asset:</b> Production Analytics & Reports Portal (<code>media_1794038696010_7a78fcc4.jpg</code>) at <code>/dashboard/analytics</code>. "
         "To satisfy strict municipal compliance and civil engineering standards, the portal enforces mandatory <b>4-Tier Scientific Provenance Separation</b>, separating physical measurements from probabilistic AI models.",
         body_style
     ))

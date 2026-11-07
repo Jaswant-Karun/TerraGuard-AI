@@ -57,7 +57,7 @@ IMG_3_VOLUNTEER = USER_UPLOADED_DIR / "media_1793992170434_3078a0d5.jpg"
 IMG_4_COCKPIT = USER_UPLOADED_DIR / "media_1793992193694_5462a94e.jpg"
 IMG_5_REPORT = USER_UPLOADED_DIR / "media_1793992254767_d9209966.jpg"
 IMG_6_GITHUB = USER_UPLOADED_DIR / "media_1793997513424_b81345d4.png"
-IMG_7_ANALYTICS = USER_UPLOADED_DIR / "media_1793997551159_84c52feb.jpg"
+IMG_7_ANALYTICS = USER_UPLOADED_DIR / "media_1794038696010_7a78fcc4.jpg"
 IMG_8_BRANCHES = USER_UPLOADED_DIR / "media_1793998438353_f120a3cd.jpg"
 IMG_9_MAPSTUDIO = USER_UPLOADED_DIR / "media_1794028862710_729d587e.jpg"
 
@@ -171,7 +171,6 @@ def generate_pptx():
                 ("Live Working Demo (Vercel)", URL_VERCEL),
                 ("GitHub Open-Source Repo", URL_GITHUB),
                 ("Backend API (Render)", URL_BACKEND),
-                ("Presentation Deck (Drive)", URL_PPT_DRIVE),
                 ("Official Demo Video (Drive)", URL_VIDEO_DRIVE),
                 ("Core Stack", "Next.js 14, FastAPI, MongoDB Atlas, n8n, Google Gemini 2.0 Vision"),
             ]
@@ -1176,7 +1175,6 @@ def get_page_1(pad=5.0):
         [Paragraph("<b>Live Working Demo</b>", body_style), Paragraph(f'<link href="{URL_VERCEL}"><u><font color="#0284C7">{URL_VERCEL}</font></u></link> (Production on Vercel Edge)', body_style)],
         [Paragraph("<b>GitHub Repository</b>", body_style), Paragraph(f'<link href="{URL_GITHUB}"><u><font color="#0284C7">{URL_GITHUB}</font></u></link> (Open-Source Monorepo)', body_style)],
         [Paragraph("<b>Backend API Endpoint</b>", body_style), Paragraph(f'<link href="{URL_BACKEND}"><u><font color="#0284C7">{URL_BACKEND}</font></u></link> (FastAPI on Render)', body_style)],
-        [Paragraph("<b>Presentation Deck Link</b>", body_style), Paragraph(f'<font color="#D97706"><b>{URL_PPT_DRIVE}</b></font> (20-Slide Widescreen PPTX)', body_style)],
         [Paragraph("<b>Official Demo Video Link</b>", body_style), Paragraph(f'<font color="#D97706"><b>{URL_VIDEO_DRIVE}</b></font> (Working Video Walkthrough)', body_style)],
         [Paragraph("<b>Deployment Topology</b>", body_style), Paragraph("Vercel Edge Network (CDN) + Render ASGI Web Service + MongoDB Atlas M10 Replica Set", body_style)],
         [Paragraph("<b>CI/CD Pipeline Status</b>", body_style), Paragraph("GitHub Actions CI/CD: 105 Automated Pytests Passing (100% Green Status Checkmark)", body_style)]
@@ -1612,7 +1610,7 @@ def get_page_10(pad=2.8):
     story = []
     story.append(Paragraph("SECTION 9: IMAGE DEEP DIVE 7 — MUNICIPAL RISK INTELLIGENCE & PROVENANCE", h1_style))
     story.append(Paragraph(
-        "<b>Evidence Asset:</b> Production Analytics & Reports Portal (<code>media_1793997551159_84c52feb.jpg</code>) at <code>/dashboard/analytics</code>. Enforces 4-tier scientific provenance separation, auditable trend logging, and certified export.",
+        "<b>Evidence Asset:</b> Production Analytics & Reports Portal (<code>media_1794038696010_7a78fcc4.jpg</code>) at <code>/dashboard/analytics</code>. Enforces 4-tier scientific provenance separation, auditable trend logging, and certified export.",
         body_style
     ))
     story.append(Spacer(1, 2))

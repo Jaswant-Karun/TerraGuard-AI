@@ -167,7 +167,6 @@ def generate_pptx():
                 ("Live Working Demo (Vercel)", URL_VERCEL),
                 ("GitHub Open-Source Repo", URL_GITHUB),
                 ("Backend API (Render)", URL_BACKEND),
-                ("Presentation Deck (Drive)", URL_PPT_DRIVE),
                 ("Official Demo Video (Drive)", URL_VIDEO_DRIVE),
                 ("Core Stack", "Next.js 14, FastAPI, MongoDB Atlas, n8n, Google Gemini 2.0 Vision"),
             ]
@@ -1184,7 +1183,6 @@ def generate_pdf():
         [Paragraph("<b>Live Working Demo</b>", body_style), Paragraph(f'<link href="{URL_VERCEL}"><u><font color="#0284C7">{URL_VERCEL}</font></u></link> (Production on Vercel Edge)', body_style)],
         [Paragraph("<b>GitHub Repository</b>", body_style), Paragraph(f'<link href="{URL_GITHUB}"><u><font color="#0284C7">{URL_GITHUB}</font></u></link> (Open-Source Monorepo)', body_style)],
         [Paragraph("<b>Backend API Endpoint</b>", body_style), Paragraph(f'<link href="{URL_BACKEND}"><u><font color="#0284C7">{URL_BACKEND}</font></u></link> (FastAPI on Render)', body_style)],
-        [Paragraph("<b>Presentation Deck Link</b>", body_style), Paragraph(f'<font color="#D97706"><b>{URL_PPT_DRIVE}</b></font> (20-Slide Widescreen PPTX)', body_style)],
         [Paragraph("<b>Official Demo Video Link</b>", body_style), Paragraph(f'<font color="#D97706"><b>{URL_VIDEO_DRIVE}</b></font> (Working Video Walkthrough)', body_style)]
     ]
     t_sub = Table(sub_table_data, colWidths=[125, 380])
