@@ -286,6 +286,7 @@ export default function MapStudioPage() {
           activePreset={activePreset}
           timeOffsetHours={timeOffsetHours}
           isDarkGIS={isDarkGIS}
+          onOpenExplanation={() => handleOpenZoneExplanation("ZONE-BLR-KOR-01")}
         />
 
         {/* Bottom Time Scrubber (-24h to +6h ML Projection) */}
@@ -377,6 +378,19 @@ export default function MapStudioPage() {
             </div>
           </div>
         )}
+
+        {/* Dedicated Analytical Flood Risk Explanation Panel (Prompt 4) */}
+        <FloodRiskExplanationPanel
+          explanation={explanationData}
+          isOpen={isExplanationOpen}
+          onClose={() => setIsExplanationOpen(false)}
+          onSelectZone={handleOpenZoneExplanation}
+          availableZones={FALLBACK_FLOOD_LAYERS_DATA.susceptibility_zones.features.map((f) => ({
+            zone_id: f.properties.zone_id,
+            sector_name: f.properties.sector_name,
+            risk_category: f.properties.risk_category,
+          }))}
+        />
       </div>
     </div>
   );

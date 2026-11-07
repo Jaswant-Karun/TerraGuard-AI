@@ -7,7 +7,6 @@ generate arbitrary numerical geometries.
 """
 
 from datetime import UTC, datetime
-from typing import Any
 
 from app.repositories.geospatial_repository import geospatial_repository
 from app.schemas.flood_visualization import (
